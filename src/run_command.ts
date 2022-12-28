@@ -6,17 +6,17 @@
 
 import {execFile, ExecException} from 'child_process';
 
-type StdoutHandlerFunction = (stdout: string) => void;
-type ExecHandlerFunction = (
+export type StdoutHandlerFunction = (stdout: string) => void;
+export type ExecHandlerFunction = (
   error: ExecException | null,
   stdout: string,
   stderr: string
 ) => void;
-type ExecHandlerGenerator = (
+export type ExecHandlerGenerator = (
   stdoutHandler: StdoutHandlerFunction
 ) => ExecHandlerFunction;
 
-const execHandler: ExecHandlerGenerator =
+export const execHandler: ExecHandlerGenerator =
   stdoutHandler => (error, stdout, stderr) => {
     if (error) {
       throw new Error(`unexpected error running command: ${error.message}`);

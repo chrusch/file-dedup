@@ -4,18 +4,78 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {runCommand} from '../src/run_command';
+import {
+  execHandler,
+  runCommand,
+  ExecHandlerFunction,
+  StdoutHandlerFunction,
+} from '../src/run_command';
+import child_process from 'child_process';
+jest.mock('child_process');
+
+type ExecFileType = (
+  command: string,
+  args: string[],
+  options: object,
+  execHandler: ExecHandlerFunction
+) => void;
 
 describe('runCommand()', () => {
-  it('does what is expected', done => {
-    jest.setTimeout(60000);
+  it('when called, runs execFile with the expected arguments', done => {
     const command = '/bin/echo';
     const args = ['foo', 'bar'];
-    const stdoutHandler = (stdout: string): void => {
+    const stdoutHandler = (stdout: string) => {
       expect(stdout.length).toEqual(8);
-      expect(stdout).toEqual('foo bar\n');
+      expect(stdout).toEqual('foo baz\n');
       done();
     };
-    runCommand(command, args, stdoutHandler);
+
+    const myExecFile: ExecFileType = (cmd, args2, options, execHandler) => {
+      expect(cmd).toEqual(command);
+      expect(args2).toEqual(args);
+      expect(options).toEqual({});
+      expect(execHandler(null, 'foo baz\n', '')).toBeUndefined();
+    };
+
+    (
+      child_process.execFile as unknown as {
+        mockImplementation: (execFile: ExecFileType) => void;
+      }
+    ).mockImplementation(myExecFile);
+
+    const got = runCommand(command, args, stdoutHandler);
+    expect(got).toBeUndefined();
+  });
+});
+
+describe('execHandler()', () => {
+  it('when given a stderr string, throws the expected error', () => {
+    const stdoutHandler: StdoutHandlerFunction = () => {
+      fail('should not be in stdoutHandler');
+      // something here.
+    };
+    const got: ExecHandlerFunction = execHandler(stdoutHandler);
+    expect(typeof got).toEqual('function');
+    const error = null;
+    const stdout = 'this is stdout';
+    const stderr = 'this is stderr';
+    expect(() => got(error, stdout, stderr)).toThrowError(
+      'unexpected stderr running command: this is stderr'
+    );
+  });
+
+  it('when given an error, throws the expected error', () => {
+    const stdoutHandler: StdoutHandlerFunction = () => {
+      fail('should not be in stdoutHandler');
+      // something here.
+    };
+    const got: ExecHandlerFunction = execHandler(stdoutHandler);
+    expect(typeof got).toEqual('function');
+    const error = new Error('exec error');
+    const stdout = 'this is stdout';
+    const stderr = 'this is stderr';
+    expect(() => got(error, stdout, stderr)).toThrowError(
+      'unexpected error running command: exec error'
+    );
   });
 });
