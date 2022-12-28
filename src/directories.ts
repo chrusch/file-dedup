@@ -7,6 +7,7 @@
 import path from 'path';
 import {realpathSync} from 'fs';
 import {readDirectory} from './read_directory';
+import {showListLengths} from './display';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.
@@ -79,8 +80,7 @@ interface FileSizeCount {
 // files with non-unique sizes might be. These are the ones
 // we are interested in.
 export function filesWithNonUniqueSizes(
-  filesWithSizes: [string, number][],
-  displayListLengths = false
+  filesWithSizes: [string, number][]
 ): string[] {
   const fileSizeCount: FileSizeCount = {};
   // count the number of instances of each file size
@@ -100,8 +100,6 @@ export function filesWithNonUniqueSizes(
       files.push(filepath);
     }
   });
-  if (displayListLengths) {
-    console.log('file list lengths:', filesWithSizes.length, files.length);
-  }
+  showListLengths(filesWithSizes.length, files.length);
   return files;
 }

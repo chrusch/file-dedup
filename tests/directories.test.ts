@@ -12,6 +12,7 @@ import {
   getFilePaths,
   isSubdirectory,
 } from '../src/directories';
+import {silenceOutput} from '../src/display';
 jest.mock('fs');
 
 describe('directoriesOverlap()', () => {
@@ -142,11 +143,29 @@ describe('getFilePaths()', () => {
     ];
     expect(got).toEqual(expected);
   });
+
+  it('when given duplicate directories, ignores the second one', () => {
+    // duplicate directory /tmp
+    const dirs: string[] = ['/tmp', '/tmp'];
+    const excludeDirectoryNames: string[] = [];
+    const includeDotfiles = false;
+    const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
+    const expected: [string, number, number][] = [
+      ['/tmp/project/foo', 29, 1007],
+      ['/tmp/project/bar', 72, 1008],
+    ];
+    // output indicate that all branches in this function are fully covered by tests:
+    expect(got).toEqual(expected);
+  });
 });
 
 describe('filesWithNonUniqueSizes()', () => {
+  beforeAll(() => {
+    silenceOutput();
+  });
+
   it('returns a list of files with duplicate sizes', () => {
-    const displayListLengths = false;
+    silenceOutput();
     const filesWithSizes: [string, number][] = [
       ['a1', 3],
       ['a2', 7],
@@ -156,7 +175,7 @@ describe('filesWithNonUniqueSizes()', () => {
       ['a6', 3],
       ['a7', 2],
     ];
-    const got = filesWithNonUniqueSizes(filesWithSizes, displayListLengths);
+    const got = filesWithNonUniqueSizes(filesWithSizes);
     const expected: string[] = ['a1', 'a3', 'a5', 'a6'];
     expect(got).toEqual(expected);
   });
