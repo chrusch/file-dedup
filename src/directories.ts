@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import path from 'path';
-import {realpathSync} from 'fs';
+import fs from 'fs';
 import {readDirectory} from './read_directory';
 import {showListLengths} from './display';
 
@@ -66,8 +66,8 @@ export const fileIsInDirectoryOrSubdirectory = (
   file: string,
   dir: string
 ): boolean => {
-  const realFilePath: string = realpathSync(file);
-  const realDirPath: string = realpathSync(dir);
+  const realFilePath: string = fs.realpathSync(file);
+  const realDirPath: string = fs.realpathSync(dir);
   const relativePath: string = path.relative(realDirPath, realFilePath);
   return isSubdirectory(relativePath);
 };

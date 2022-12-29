@@ -6,6 +6,8 @@
 
 let doOutput = true;
 
+export const silentOutput = (): boolean => !doOutput;
+
 export function silenceOutput(): void {
   doOutput = false;
 }
@@ -18,4 +20,10 @@ export function showListLengths(filesWithSizes: number, files: number): void {
   doOutput && console.log('file list lengths:', filesWithSizes, files);
 }
 
-export const silentOutput = () => !doOutput;
+export function showDuplicates(duplicatesList: string[]): void {
+  console.log('Duplicates', duplicatesList);
+}
+
+export function showTotalDeleted(totalDeleted: number): void {
+  console.log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
+}

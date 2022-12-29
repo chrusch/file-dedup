@@ -124,6 +124,6 @@ fs.__setMockFiles = __setMockFiles;
 fs.readdirSync = readdirSync;
 fs.lstatSync = lstatSync;
 fs.unlinkSync = unlinkSync;
-fs.realpathSync = realpathSync;
+fs.realpathSync = jest.fn(realpathSync);
 
 export default fs;

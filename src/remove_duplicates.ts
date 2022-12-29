@@ -7,6 +7,7 @@
 import PS from 'prompt-sync';
 import {deleteFile} from './delete_file';
 import {fileIsInDirectoryOrSubdirectory} from './directories';
+import {showDuplicates, showTotalDeleted} from './display';
 const prompt = PS({sigint: true});
 
 export const fileIsInADeleteDirectory = (
@@ -30,7 +31,7 @@ export const deleteOrListDuplicates = (
   };
 
   duplicateFiles.forEach((duplicatesList: string[]) => {
-    console.log('Duplicates', duplicatesList);
+    showDuplicates(duplicatesList);
     numberOfDuplicatesInThisSetDeleted = 0;
     const numDuplicatesInThisSet = duplicatesList.length;
     const remainingUndeletedFiles: string[] = [];
@@ -58,5 +59,5 @@ export const deleteOrListDuplicates = (
       if (rm === 'y') deleteFile(reallyDelete, file, deleteCallback);
     });
   });
-  console.log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
+  showTotalDeleted(totalDeleted);
 };
