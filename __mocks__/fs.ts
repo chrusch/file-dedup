@@ -123,7 +123,7 @@ export function realpathSync(path: string): string {
 fs.__setMockFiles = __setMockFiles;
 fs.readdirSync = readdirSync;
 fs.lstatSync = lstatSync;
-fs.unlinkSync = unlinkSync;
+fs.unlinkSync = jest.fn(unlinkSync);
 fs.realpathSync = jest.fn(realpathSync);
 
 export default fs;

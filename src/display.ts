@@ -21,9 +21,9 @@ export function showListLengths(filesWithSizes: number, files: number): void {
 }
 
 export function showDuplicates(duplicatesList: string[]): void {
-  console.log('Duplicates', duplicatesList);
+  doOutput && console.log('Duplicates', duplicatesList);
 }
 
 export function showTotalDeleted(totalDeleted: number): void {
-  console.log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
+  doOutput && console.log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
 }

@@ -4,11 +4,10 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import PS from 'prompt-sync';
 import {deleteFile} from './delete_file';
 import {fileIsInDirectoryOrSubdirectory} from './directories';
 import {showDuplicates, showTotalDeleted} from './display';
-const prompt = PS({sigint: true});
+import {confirmDelete} from './interaction';
 
 export const fileIsInADeleteDirectory = (
   file: string,
@@ -18,14 +17,17 @@ export const fileIsInADeleteDirectory = (
     fileIsInDirectoryOrSubdirectory(file, dir)
   );
 
+// We have a list of duplicate files. Now we have to do something with them.
+// Either delete them (whether automatically or interactively) or simply
+// display them.
 export const deleteOrListDuplicates = (
   duplicateFiles: string[][],
   dirsToAutomaticallyDeleteFrom: string[],
   reallyDelete: boolean,
   interactiveDeletion: boolean
-) => {
+): void => {
   let [totalDeleted, numberOfDuplicatesInThisSetDeleted] = [0, 0];
-  const deleteCallback = () => {
+  const deletionRecordKeeping = () => {
     numberOfDuplicatesInThisSetDeleted += 1;
     totalDeleted += 1;
   };
@@ -45,7 +47,8 @@ export const deleteOrListDuplicates = (
       // Don't ever delete a unique file or the last copy of a file.
       if (thereIsOnlyOneInstanceOfThisFileContent()) return;
       if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
-        deleteFile(reallyDelete, file, deleteCallback, true);
+        deletionRecordKeeping();
+        deleteFile(reallyDelete, file, true);
         return;
       }
       remainingUndeletedFiles.push(file);
@@ -55,8 +58,10 @@ export const deleteOrListDuplicates = (
     if (!interactiveDeletion) return;
     remainingUndeletedFiles.forEach((file: string) => {
       if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-      const rm = prompt(`Delete ${file}? ('y' deletes it) > `);
-      if (rm === 'y') deleteFile(reallyDelete, file, deleteCallback);
+      if (confirmDelete(file)) {
+        deletionRecordKeeping();
+        deleteFile(reallyDelete, file);
+      }
     });
   });
   showTotalDeleted(totalDeleted);
