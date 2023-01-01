@@ -12,7 +12,7 @@ import fs from 'fs';
 import * as delete_file from '../src/delete_file';
 import * as interaction from '../src/interaction';
 import {silenceOutput} from '../src/display';
-import {jest} from '@jest/globals';
+import {jest} from '@jest/globals'; // needed for jest.Mocked
 jest.mock('fs');
 jest.mock('../src/delete_file.ts');
 jest.mock('../src/interaction.ts');
