@@ -17,7 +17,6 @@ jest.mock('../src/hash_files.ts');
 jest.mock('../src/remove_duplicates.ts');
 jest.mock('../src/duplicates.ts');
 
-// Come back later and test this properly
 describe('dedup()', () => {
   beforeAll(() => {
     silenceOutput();
@@ -43,7 +42,6 @@ describe('dedup()', () => {
         onHashComplete();
       }
     );
-    // type RD = jest.Mocked<typeof rd.deleteOrListDuplicates>;
     type GD = jest.Mocked<typeof duplicates.getDuplicates>;
 
     const getDuplicatesRet = [['/tmp/foo', '/tmp/bar']];

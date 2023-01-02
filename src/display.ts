@@ -4,26 +4,32 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-let doOutput = true;
+const productionOutput = console.log;
+const devOutput = () => {};
+let outputFunction = productionOutput;
 
-export const silentOutput = (): boolean => !doOutput;
+export const silentOutput = (): boolean => outputFunction === devOutput;
 
 export function silenceOutput(): void {
-  doOutput = false;
+  outputFunction = devOutput;
 }
 
 export function unSilenceOutput(): void {
-  doOutput = true;
+  outputFunction = productionOutput
 }
 
 export function showListLengths(filesWithSizes: number, files: number): void {
-  doOutput && console.log('file list lengths:', filesWithSizes, files);
+  log('file list lengths:', filesWithSizes, files);
 }
 
 export function showDuplicates(duplicatesList: string[]): void {
-  doOutput && console.log('Duplicates', duplicatesList);
+  log('Duplicates', duplicatesList);
 }
 
 export function showTotalDeleted(totalDeleted: number): void {
-  doOutput && console.log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
+  log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
+}
+
+export function log(...values: unknown[]) {
+  outputFunction(...values);
 }

@@ -5,8 +5,13 @@
 // LICENSE file in the root directory of this source tree.
 
 import PS from 'prompt-sync';
-const prompt = PS({sigint: true});
+let prompt: PS.Prompt = PS({sigint: true});
 
 export function confirmDelete(file: string): boolean {
   return 'y' === prompt(`Delete ${file}? ('y' deletes it) > `);
+}
+
+// this is strictly for testing
+export function setTestPrompt(newPrompt: PS.Prompt) {
+  prompt = newPrompt;
 }
