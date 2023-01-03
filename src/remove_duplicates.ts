@@ -48,7 +48,7 @@ export const deleteOrListDuplicates = (
       if (thereIsOnlyOneInstanceOfThisFileContent()) return;
       if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
         deletionRecordKeeping();
-        deleteFile(reallyDelete, file, true);
+        deleteFile(reallyDelete, file);
         return;
       }
       remainingUndeletedFiles.push(file);

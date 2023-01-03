@@ -77,14 +77,12 @@ describe('deleteOrListDuplicates()', () => {
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       1,
       false,
-      '/del/a',
-      true
+      '/del/a'
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       2,
       false,
-      '/del/c',
-      true
+      '/del/c'
     );
   });
 
@@ -109,14 +107,12 @@ describe('deleteOrListDuplicates()', () => {
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       1,
       true,
-      '/del/a',
-      true
+      '/del/a'
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       2,
       true,
-      '/del/c',
-      true
+      '/del/c'
     );
   });
 

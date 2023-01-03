@@ -5,16 +5,17 @@
 // LICENSE file in the root directory of this source tree.
 
 import fs from 'fs';
+import {log} from './display';
 
 export const deleteFile = (
   reallyDelete: boolean,
   file: string,
-  reportDeletion = false
+  reportDeletion = true
 ) => {
   if (reallyDelete) {
     fs.unlinkSync(file);
-    if (reportDeletion) console.log(`deleting ${file};`);
+    if (reportDeletion) log(`deleting ${file};`);
   } else {
-    if (reportDeletion) console.log(`not deleting ${file};`);
+    if (reportDeletion) log(`not deleting ${file};`);
   }
 };
