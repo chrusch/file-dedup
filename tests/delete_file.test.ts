@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {deleteFile} from '../src/delete_file';
+import {silenceOutput} from '../src/display';
 jest.mock('fs');
 
 describe('deleteFile()', () => {
@@ -16,6 +17,7 @@ describe('deleteFile()', () => {
       deletedFile = path;
     };
     fs.setUnlinkCallback(unlinkCallback);
+    silenceOutput();
   });
 
   beforeEach(() => {

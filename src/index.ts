@@ -5,5 +5,6 @@
 // LICENSE file in the root directory of this source tree.
 
 import {commandLineDedup} from './command_line_dedup';
+import {getArgv} from './interaction';
 
-commandLineDedup(process.argv);
+commandLineDedup(getArgv());
