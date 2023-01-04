@@ -8,14 +8,12 @@ import {dedup, DedupOptions} from '../src/dedup';
 import {silenceOutput} from '../src/display';
 import * as gcf from '../src/get_candidate_files';
 import * as hash_file from '../src/hash_files';
-import * as duplicates from '../src/duplicates';
 import * as rd from '../src/remove_duplicates';
 import {jest} from '@jest/globals'; // needed for jest.Mocked
 
 jest.mock('../src/get_candidate_files.ts');
 jest.mock('../src/hash_files.ts');
 jest.mock('../src/remove_duplicates.ts');
-jest.mock('../src/duplicates.ts');
 
 describe('dedup()', () => {
   beforeAll(() => {
@@ -37,24 +35,17 @@ describe('dedup()', () => {
       '/tmp/baz',
     ]);
     type HashFile = jest.Mocked<typeof hash_file.hashFile>;
-    (hash_file.hashFile as HashFile).mockImplementation(
-      (_file, onHashComplete) => {
-        onHashComplete();
-      }
-    );
-    type GD = jest.Mocked<typeof duplicates.getDuplicates>;
+    (hash_file.hashFile as HashFile).mockImplementation(_file => {
+      return Promise.resolve([_file, 'abcd']);
+    });
 
-    const getDuplicatesRet = [['/tmp/foo', '/tmp/bar']];
-    (duplicates.getDuplicates as GD).mockReturnValue(getDuplicatesRet);
+    const getDuplicatesRet = [['/tmp/foo', '/tmp/bar', '/tmp/baz']];
     const got = await dedup(options);
 
     expect(gcf.getCandidateFiles).toHaveBeenCalledTimes(1);
     expect(gcf.getCandidateFiles).toHaveBeenNthCalledWith(1, options);
 
     expect(hash_file.hashFile).toHaveBeenCalledTimes(3);
-
-    expect(duplicates.getDuplicates).toHaveBeenCalledTimes(1);
-    expect(duplicates.getDuplicates).toHaveBeenCalledWith([]);
 
     expect(rd.deleteOrListDuplicates).toHaveBeenCalledTimes(1);
     expect(rd.deleteOrListDuplicates).toHaveBeenCalledWith(

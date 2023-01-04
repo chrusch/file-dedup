@@ -21,13 +21,13 @@ type ExecFileType = (
 ) => void;
 
 describe('runCommand()', () => {
-  it('when called, runs execFile with the expected arguments', done => {
+  it('when called, runs execFile with the expected arguments', async () => {
     const command = '/bin/echo';
     const args = ['foo', 'bar'];
     const stdoutHandler = (stdout: string) => {
       expect(stdout.length).toEqual(8);
       expect(stdout).toEqual('foo baz\n');
-      done();
+      return 'something returned';
     };
 
     const myExecFile: ExecFileType = (cmd, args2, options, execHandler) => {
@@ -43,18 +43,19 @@ describe('runCommand()', () => {
       }
     ).mockImplementation(myExecFile);
 
-    const got = runCommand(command, args, stdoutHandler);
-    expect(got).toBeUndefined();
+    const got = await runCommand(command, args, stdoutHandler);
+    expect(got).toEqual('something returned');
   });
 });
 
 describe('execHandler()', () => {
   it('when given a stderr string, throws the expected error', () => {
-    const stdoutHandler: StdoutHandlerFunction = () => {
+    const stdoutHandler: StdoutHandlerFunction<never> = () => {
       fail('should not be in stdoutHandler');
       // something here.
     };
-    const got: ExecHandlerFunction = execHandler(stdoutHandler);
+    const resolve = (value: string) => value;
+    const got: ExecHandlerFunction = execHandler(stdoutHandler, resolve);
     expect(typeof got).toEqual('function');
     const error = null;
     const stdout = 'this is stdout';
@@ -65,11 +66,12 @@ describe('execHandler()', () => {
   });
 
   it('when given an error, throws the expected error', () => {
-    const stdoutHandler: StdoutHandlerFunction = () => {
+    const stdoutHandler: StdoutHandlerFunction<never> = () => {
       fail('should not be in stdoutHandler');
       // something here.
     };
-    const got: ExecHandlerFunction = execHandler(stdoutHandler);
+    const resolve = (value: string) => value;
+    const got: ExecHandlerFunction = execHandler(stdoutHandler, resolve);
     expect(typeof got).toEqual('function');
     const error = new Error('exec error');
     const stdout = 'this is stdout';

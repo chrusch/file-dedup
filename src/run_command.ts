@@ -6,31 +6,36 @@
 
 import {execFile, ExecException} from 'child_process';
 
-export type StdoutHandlerFunction = (stdout: string) => void;
+export type StdoutHandlerFunction<T> = (stdout: string) => T;
 export type ExecHandlerFunction = (
   error: ExecException | null,
   stdout: string,
   stderr: string
 ) => void;
-export type ExecHandlerGenerator = (
-  stdoutHandler: StdoutHandlerFunction
-) => ExecHandlerFunction;
 
-export const execHandler: ExecHandlerGenerator =
-  stdoutHandler => (error, stdout, stderr) => {
+export type ResolveType<T> = (value: T) => void;
+
+export const execHandler =
+  <T>(
+    stdoutHandler: StdoutHandlerFunction<T>,
+    resolve: ResolveType<T>
+  ): ExecHandlerFunction =>
+  (error, stdout, stderr) => {
     if (error) {
       throw new Error(`unexpected error running command: ${error.message}`);
     }
     if (stderr) {
       throw new Error(`unexpected stderr running command: ${stderr}`);
     }
-    stdoutHandler(stdout);
+    resolve(stdoutHandler(stdout));
   };
 
-export function runCommand(
+export function runCommand<T>(
   command: string,
   args: string[],
-  stdoutHandler: StdoutHandlerFunction
-): void {
-  execFile(command, args, {}, execHandler(stdoutHandler));
+  stdoutHandler: StdoutHandlerFunction<T>
+): Promise<T> {
+  return new Promise(resolve => {
+    execFile(command, args, {}, execHandler(stdoutHandler, resolve));
+  });
 }

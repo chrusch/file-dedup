@@ -30,8 +30,8 @@ export async function dedup(options: DedupOptions): Promise<void> {
   // Get files that might potentially be duplicates.
   const candidateFiles = getCandidateFiles(options);
   const hashData: HashData = [];
-  const hashOneFile: Job<string> = (file, onHashComplete) => {
-    hashFile(file, onHashComplete, hashData);
+  const hashOneFile: Job<string> = async (file) => {
+    hashData.push(await hashFile(file));
   };
 
   // create a job queue to hash all candidate files

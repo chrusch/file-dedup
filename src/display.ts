@@ -15,7 +15,7 @@ export function silenceOutput(): void {
 }
 
 export function unSilenceOutput(): void {
-  outputFunction = productionOutput
+  outputFunction = productionOutput;
 }
 
 export function showListLengths(filesWithSizes: number, files: number): void {

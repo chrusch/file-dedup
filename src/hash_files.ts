@@ -4,32 +4,25 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {HashData} from './dedup';
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
-import {OnJobCompleteCallBack} from './work_queue';
 
-export type CommandOutputHandlerType = (
-  file: string,
-  onTaskCompleteCallBack: OnJobCompleteCallBack,
-  hashData: HashData
-) => (stdout: string) => void;
+export type HashDatum = [string, string];
+export type CommandOutputHandlerType<T> = (
+  file: string
+) => (stdout: string) => T;
 
-export const commandOutputHandler: CommandOutputHandlerType =
-  (file, onTaskCompleteCallBack, hashData) =>
-  (stdout): void => {
-    hashData.push([file, hashExtractor(stdout)]);
-    onTaskCompleteCallBack();
+export const commandOutputHandler: CommandOutputHandlerType<HashDatum> =
+  file => stdout => {
+    return [file, hashExtractor(stdout)];
   };
 
-export function hashFile(
-  file: string,
-  onTaskCompleteCallBack: OnJobCompleteCallBack,
-  hashData: HashData
-): void {
-  runCommand(
+export async function hashFile(
+  file: string
+): Promise<HashDatum> {
+  return await runCommand<HashDatum>(
     'shasum',
     ['-a', '256', file],
-    commandOutputHandler(file, onTaskCompleteCallBack, hashData)
+    commandOutputHandler(file)
   );
 }

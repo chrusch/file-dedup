@@ -7,38 +7,12 @@
 import {
   doAllWorkInQueue,
   makeWorkQueue,
-  OnJobCompleteCallBack,
-  workItemMakerToWorkQueue,
+  // workItemMakerToWorkQueue,
   WorkItem,
+  Job,
 } from '../src/work_queue';
 import {exec} from 'child_process';
 import {ExecException} from 'child_process';
-
-// work on it strings
-describe('workItemMakerToWorkQueue()', () => {
-  it('does what is expected', () => {
-    const dataItems = ['a', 'b', 'c', 'd'];
-    let count = 0;
-    const callback = () => {
-      count += 1;
-    };
-    let inputs = 'foo:';
-    const workItemMaker =
-      (item: string) => (callback: OnJobCompleteCallBack) => {
-        inputs += item;
-        callback();
-      };
-    const workQueue = workItemMakerToWorkQueue<string>(
-      dataItems,
-      workItemMaker
-    );
-    const expected: string[] = [];
-    const got = workQueue.map((workItem: WorkItem) => workItem(callback));
-    expect(got).toEqual(expected);
-    expect(count).toEqual(4);
-    expect(inputs).toEqual('foo:abcd');
-  });
-});
 
 describe('makeWorkQueue()', () => {
   it('does what is expected', () => {
@@ -48,13 +22,14 @@ describe('makeWorkQueue()', () => {
       count += 1;
     };
     let inputs = 'foo:';
-    const doAJob = (item: string, callback: OnJobCompleteCallBack) => {
+    const doAJob = (item: string) => {
       inputs += item;
       callback();
+      return Promise.resolve();
     };
     const workQueue = makeWorkQueue(dataItems, doAJob);
     const got = workQueue.map((workItem: WorkItem) => {
-      workItem(callback);
+      workItem();
     });
     const expected: string[] = [];
     expect(got).toEqual(expected);
@@ -68,26 +43,30 @@ describe('doAllWorkInQueue()', () => {
     const dataItems: string[] = ['i', 'j', 'k', 'l', 'm'];
     let count = 0;
     let output = 'output:';
-    const doAJob = (
+
+    const doAJob: Job<string> = (
       dataItem: string,
-      onComplete: OnJobCompleteCallBack
-    ): void => {
+    ) => {
       output += dataItem;
       const callback = (
+        resolve: () => void,
         err: ExecException | null
         // _stdout: string,
         // _stderr: string
       ): void => {
         if (err) throw err;
         count += 1;
-        onComplete();
+        resolve();
       };
-      exec('/bin/sleep 0.1', {}, callback);
+      return new Promise(resolve =>
+        exec('/bin/sleep 0.1', {}, (x: ExecException | null) => callback(resolve, x))
+      );
     };
+
     const workQueue = makeWorkQueue<string>(dataItems, doAJob);
     const processLimit = 2;
     const got = await doAllWorkInQueue(workQueue, processLimit);
-    const expected = true;
+    const expected = undefined;
     expect(got).toEqual(expected);
     expect(count).toEqual(5);
     expect(output).toEqual('output:ijklm');
