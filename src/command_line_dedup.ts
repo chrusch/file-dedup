@@ -19,9 +19,7 @@ export async function commandLineDedup(argv: string[]): Promise<void> {
   const interactiveDeletion = options.interactive;
   const reallyDelete = options.reallyDelete;
   const includeDotfiles = options.dotFiles;
-  const paths: string[] = Array.isArray(options.paths)
-    ? options.paths
-    : [options.paths];
+  const paths: string[] = options.paths;
   const dirsToPossiblyDeleteFrom: string[] = paths.map(p => path.normalize(p));
   const pathsToTraverse: string[] = args.map(a => path.normalize(a));
 

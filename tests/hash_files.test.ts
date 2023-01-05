@@ -22,5 +22,6 @@ describe('hashFile()', () => {
     expect(call[0]).toEqual('shasum');
     expect(call[1]).toEqual(['-a', '256', file]);
     expect(typeof call[2]).toEqual('function');
+    expect(call[2]('abcd /tmp/cc')).toEqual([file, 'abcd']);
   });
 });

@@ -9,12 +9,9 @@ import {hashExtractor} from './hash_extractor';
 
 export type HashDatum = [string, string];
 
-export async function hashFile(
-  file: string
-): Promise<HashDatum> {
-  return await runCommand<HashDatum>(
-    'shasum',
-    ['-a', '256', file],
-    stdout => [file, hashExtractor(stdout)]
-  );
+export async function hashFile(file: string): Promise<HashDatum> {
+  return await runCommand<HashDatum>('shasum', ['-a', '256', file], stdout => [
+    file,
+    hashExtractor(stdout),
+  ]);
 }

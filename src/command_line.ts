@@ -11,7 +11,7 @@ import {Command} from 'commander';
 export interface Options {
   interactive: boolean;
   dotFiles: boolean;
-  paths: string[] | string;
+  paths: string[];
   reallyDelete: boolean;
 }
 

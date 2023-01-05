@@ -30,7 +30,7 @@ export async function dedup(options: DedupOptions): Promise<void> {
   // Get files that might potentially be duplicates.
   const candidateFiles = getCandidateFiles(options);
   const hashData: HashData = [];
-  const hashOneFile: Job<string> = async (file) => {
+  const hashOneFile: Job<string> = async file => {
     hashData.push(await hashFile(file));
   };
 
