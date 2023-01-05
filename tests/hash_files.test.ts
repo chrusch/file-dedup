@@ -10,7 +10,7 @@ import {jest} from '@jest/globals'; // needed for jest.Mocked to work
 
 jest.mock('../src/run_command.ts');
 describe('hashFile()', () => {
-  it('does what is expected', async () => {
+  it('when called, calls runCommand with expected arguments', async () => {
     const file = '/tmp/foo';
     const got = await hashFile(file);
     const expected = undefined;
