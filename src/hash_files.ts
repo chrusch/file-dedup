@@ -8,14 +8,6 @@ import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
 
 export type HashDatum = [string, string];
-export type CommandOutputHandlerType<T> = (
-  file: string
-) => (stdout: string) => T;
-
-export const commandOutputHandler: CommandOutputHandlerType<HashDatum> =
-  file => stdout => {
-    return [file, hashExtractor(stdout)];
-  };
 
 export async function hashFile(
   file: string
@@ -23,6 +15,6 @@ export async function hashFile(
   return await runCommand<HashDatum>(
     'shasum',
     ['-a', '256', file],
-    commandOutputHandler(file)
+    stdout => [file, hashExtractor(stdout)]
   );
 }

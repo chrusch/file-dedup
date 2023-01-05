@@ -44,9 +44,7 @@ describe('doAllWorkInQueue()', () => {
     let count = 0;
     let output = 'output:';
 
-    const doAJob: Job<string> = (
-      dataItem: string,
-    ) => {
+    const doAJob: Job<string> = (dataItem: string) => {
       output += dataItem;
       const callback = (
         resolve: () => void,
@@ -59,7 +57,9 @@ describe('doAllWorkInQueue()', () => {
         resolve();
       };
       return new Promise(resolve =>
-        exec('/bin/sleep 0.1', {}, (x: ExecException | null) => callback(resolve, x))
+        exec('/bin/sleep 0.1', {}, (x: ExecException | null) =>
+          callback(resolve, x)
+        )
       );
     };
 

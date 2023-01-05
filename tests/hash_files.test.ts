@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {commandOutputHandler, hashFile} from '../src/hash_files';
+import {hashFile} from '../src/hash_files';
 import * as runCommand from '../src/run_command';
 import {jest} from '@jest/globals'; // needed for jest.Mocked to work
 
@@ -22,16 +22,5 @@ describe('hashFile()', () => {
     expect(call[0]).toEqual('shasum');
     expect(call[1]).toEqual(['-a', '256', file]);
     expect(typeof call[2]).toEqual('function');
-  });
-});
-
-describe('commandOutputHandler()', () => {
-  it('does what is expected', () => {
-    const file = '/tmp/foo';
-    // got is also a generated function
-    const got = commandOutputHandler(file);
-    const stdout = '22ddbca88c file.txt';
-    const got2 = got(stdout);
-    expect(got2).toEqual([file, '22ddbca88c']);
   });
 });
