@@ -18,16 +18,6 @@ export const exclude = ['node_modules', '.git'];
 export const isSubdirectory = (relativePath: string): boolean =>
   relativePath === '' || !relativePath.trim().match(/^\.\./) ? true : false;
 
-// two directories overlap if they are the same directory
-// or if one directory is a subdirectory of the other
-export function directoriesOverlapNotUsed(dir1: string, dir2: string): boolean {
-  // sub-directory
-  const r1 = path.relative(dir1, dir2);
-  const r2 = path.relative(dir2, dir1);
-
-  return isSubdirectory(r1) || isSubdirectory(r2);
-}
-
 export function getFilePaths(
   dirs: string[],
   excludeDirecoryNames: string[],

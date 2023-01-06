@@ -12,11 +12,9 @@
 // return an array like this:
 // [[<file path>, <other file path>, ...], ]
 // where each item of the array is itself an array of file paths,
-// where each of those files has exatcly the same content, according
+// where each of those files has exactly the same content, according
 // to the SHA sum
 export const getDuplicates = (allData: [string, string][]): string[][] => {
-  // console.log('ALL DATA in getDuplicates', allData);
-
   // create a hash where they keys are SHA sums and where
   // the values are arrays of file paths, each of which files
   // correponds to the SHA sum of its key.

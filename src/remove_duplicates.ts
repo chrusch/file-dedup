@@ -31,6 +31,7 @@ export const deleteOrListDuplicates = (
     numberOfDuplicatesInThisSetDeleted += 1;
     totalDeleted += 1;
   };
+  const autoDeletion = dirsToAutomaticallyDeleteFrom.length > 0;
 
   duplicateFiles.forEach((duplicatesList: string[]) => {
     showDuplicates(duplicatesList);
@@ -43,16 +44,20 @@ export const deleteOrListDuplicates = (
       numDuplicatesInThisSet - numberOfDuplicatesInThisSetDeleted <= 1;
 
     // Automatic deletion
-    duplicatesList.forEach((file: string) => {
-      // Don't ever delete a unique file or the last copy of a file.
-      if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-      if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
-        deletionRecordKeeping();
-        deleteFile(reallyDelete, file);
-        return;
-      }
-      remainingUndeletedFiles.push(file);
-    });
+    if (autoDeletion) {
+      duplicatesList.forEach((file: string) => {
+        // Don't ever delete a unique file or the last copy of a file.
+        if (thereIsOnlyOneInstanceOfThisFileContent()) return;
+        if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
+          deletionRecordKeeping();
+          deleteFile(reallyDelete, file);
+          return;
+        }
+        remainingUndeletedFiles.push(file);
+      });
+    } else {
+      remainingUndeletedFiles.push(...duplicatesList);
+    }
 
     // Interactive deletion
     if (!interactiveDeletion) return;

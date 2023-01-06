@@ -6,7 +6,6 @@
 
 // ./src/tests/directories.test.ts
 import {
-  directoriesOverlapNotUsed,
   filesWithNonUniqueSizes,
   fileIsInDirectoryOrSubdirectory,
   getFilePaths,
@@ -14,37 +13,6 @@ import {
 } from '../src/directories';
 import {silenceOutput} from '../src/display';
 jest.mock('fs');
-
-describe('directoriesOverlap()', () => {
-  it('given two directories that overlap, returns true', () => {
-    const dir1 = '/usr';
-    const dir2 = '/usr/local';
-    const got = directoriesOverlapNotUsed(dir1, dir2);
-    const expected = true;
-    expect(got).toEqual(expected);
-  });
-  it('given two other directories that overlap, returns true', () => {
-    const dir1 = '/usr/local';
-    const dir2 = '/usr';
-    const got = directoriesOverlapNotUsed(dir1, dir2);
-    const expected = true;
-    expect(got).toEqual(expected);
-  });
-  it('given two directories that are the same, returns true', () => {
-    const dir1 = '/usr';
-    const dir2 = '/usr';
-    const got = directoriesOverlapNotUsed(dir1, dir2);
-    const expected = true;
-    expect(got).toEqual(expected);
-  });
-  it('given two directories that do not overlap, returns false', () => {
-    const dir1 = '/tmp';
-    const dir2 = '/Users';
-    const got = directoriesOverlapNotUsed(dir1, dir2);
-    const expected = false;
-    expect(got).toEqual(expected);
-  });
-});
 
 describe('isSubdirectory()', () => {
   it('returns true if the relative path is a subdirectory of the base path', () => {
