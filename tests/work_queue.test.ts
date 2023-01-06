@@ -15,13 +15,13 @@ import {exec} from 'child_process';
 import {ExecException} from 'child_process';
 
 describe('makeWorkQueue()', () => {
-  it('does what is expected', () => {
+  it('when given data and logic, creates an array of functions that, when run, have the anticipated effect', () => {
     const dataItems = ['e', 'f', 'g', 'h'];
     let count = 0;
     const callback = () => {
       count += 1;
     };
-    let inputs = 'foo:';
+    let inputs = 'input:';
     const doAJob = (item: string) => {
       inputs += item;
       callback();
@@ -34,12 +34,12 @@ describe('makeWorkQueue()', () => {
     const expected: string[] = [];
     expect(got).toEqual(expected);
     expect(count).toEqual(4);
-    expect(inputs).toEqual('foo:efgh');
+    expect(inputs).toEqual('input:efgh');
   });
 });
 
 describe('doAllWorkInQueue()', () => {
-  it('does what is expected', async () => {
+  it('runs all items in the work queue', async () => {
     const dataItems: string[] = ['i', 'j', 'k', 'l', 'm'];
     let count = 0;
     let output = 'output:';
@@ -49,8 +49,6 @@ describe('doAllWorkInQueue()', () => {
       const callback = (
         resolve: () => void,
         err: ExecException | null
-        // _stdout: string,
-        // _stderr: string
       ): void => {
         if (err) throw err;
         count += 1;

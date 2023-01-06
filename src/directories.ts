@@ -7,7 +7,7 @@
 import path from 'path';
 import fs from 'fs';
 import {readDirectory} from './read_directory';
-import {showListLengths} from './display';
+// import {showListLengths} from './display';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.
@@ -95,11 +95,10 @@ export function filesWithNonUniqueSizes(
   const files: string[] = [];
   // make a list of files with a non-unique file size
   filesWithSizes.forEach(([filepath, size]) => {
-    // if (fileSizeCount[size] > 1 || true) {
     if (fileSizeCount[size] > 1) {
       files.push(filepath);
     }
   });
-  showListLengths(filesWithSizes.length, files.length);
+  // showListLengths(filesWithSizes.length, files.length);
   return files;
 }

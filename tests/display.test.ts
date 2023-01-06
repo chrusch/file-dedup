@@ -7,12 +7,14 @@
 import {
   silentOutput,
   unSilenceOutput,
+  showDuplicates,
   showListLengths,
+  showTotalDeleted,
   silenceOutput,
 } from '../src/display';
 
 describe('silentOutput()', () => {
-  it('does what is expected', () => {
+  it('has expected default behavior', () => {
     const got = silentOutput();
     const expected = false;
     expect(got).toEqual(expected);
@@ -20,7 +22,7 @@ describe('silentOutput()', () => {
 });
 
 describe('silenceOutput()', () => {
-  it('does what is expected', () => {
+  it('when silenced, silentOutput returns true', () => {
     silenceOutput();
     const got = silentOutput();
     const expected = true;
@@ -29,7 +31,7 @@ describe('silenceOutput()', () => {
 });
 
 describe('unSilenceOutput()', () => {
-  it('does what is expected', () => {
+  it('when unSilenceOutput is called, silentOutput returns false', () => {
     silenceOutput();
     const got = silentOutput();
     const expected = true;
@@ -42,9 +44,27 @@ describe('unSilenceOutput()', () => {
 });
 
 describe('showListLengths()', () => {
-  it('does what is expected', () => {
+  it('does now output anything when output is silenced', () => {
     silenceOutput();
     const got = showListLengths(22, 45);
+    const expected = undefined;
+    expect(got).toEqual(expected);
+  });
+});
+
+describe('showDuplicates()', () => {
+  it('does now output anything when output is silenced', () => {
+    silenceOutput();
+    const got = showDuplicates(['a', 'b', 'c']);
+    const expected = undefined;
+    expect(got).toEqual(expected);
+  });
+});
+
+describe('showTotalDeleted()', () => {
+  it('does now output anything when output is silenced', () => {
+    silenceOutput();
+    const got = showTotalDeleted(7);
     const expected = undefined;
     expect(got).toEqual(expected);
   });

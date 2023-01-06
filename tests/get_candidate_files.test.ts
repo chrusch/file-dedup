@@ -4,45 +4,44 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {silenceOutput} from '../src/display';
+// import {silenceOutput} from '../src/display';
 import {
   CandidateFilesOptions,
   getCandidateFiles,
 } from '../src/get_candidate_files';
 jest.mock('fs');
 
-// tests not yet complete
 const MOCK_FILE_INFO = {
-  '/tmp': '',
-  '/tmp/git': '',
-  '/tmp/git/.git': '',
-  '/tmp/git/.git/foo': 'foo content',
-  '/tmp/git/.git/bar': 'bar content',
-  '/tmp/project': '',
-  '/tmp/project/foo': 'foo project content',
-  '/tmp/project/bar': 'bar project content',
-  '/tmp/another-project': '',
-  '/tmp/another-project/.config': 'baz project content',
-  '/tmp/another-project/.foo': 'bam project content',
+  '/tmp': [1001, 256],
+  '/tmp/git': [1002, 256],
+  '/tmp/git/.git': [1003, 256],
+  '/tmp/git/.git/foo': [1004, 7],
+  '/tmp/git/.git/bar': [1005, 8],
+  '/tmp/project': [1006, 256],
+  '/tmp/project/foo': [1007, 72],
+  '/tmp/project/bar': [1008, 72],
+  '/tmp/another-project': [1009, 256],
+  '/tmp/another-project/.config': [1010, 31],
+  '/tmp/another-project/.foo': [1011, 32],
 };
 
 describe('getCandidateFiles()', () => {
   const fs = require('fs');
 
-  beforeAll(() => {
+  beforeEach(() => {
     fs.__setMockFiles(MOCK_FILE_INFO);
-    silenceOutput();
+    // silenceOutput();
   });
 
-  it('does what is expected', () => {
+  it('when given options, it returns candidate files (i.e. files with non-unique sizes)', () => {
     const options: CandidateFilesOptions = {
-      pathsToTraverse: ['/tmp/foo'],
-      dirsToPossiblyDeleteFrom: ['/tmp/foo/bar'],
+      pathsToTraverse: ['/tmp'],
+      dirsToPossiblyDeleteFrom: [],
       exclude: [],
-      includeDotfiles: false,
+      includeDotfiles: true,
     };
     const got: string[] = getCandidateFiles(options);
-    const expected: string[] = [];
+    const expected: string[] = ['/tmp/project/foo', '/tmp/project/bar'];
     expect(got).toEqual(expected);
   });
 });

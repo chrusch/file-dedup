@@ -182,7 +182,7 @@ describe('filesWithNonUniqueSizes()', () => {
 });
 
 describe('fileIsInDirectoryOrSubdirectory()', () => {
-  it('does what is expected', () => {
+  it('when given a file that is a a parent directory, returns false', () => {
     const file = '/foo/bar';
     const dir = '/foo/bar/baz';
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
@@ -190,7 +190,7 @@ describe('fileIsInDirectoryOrSubdirectory()', () => {
     expect(got).toEqual(expected);
   });
 
-  it('does what is expected', () => {
+  it('when given a file that is a sibling, returns false', () => {
     const file = '/foo/bar';
     const dir = '/foo/baz';
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
@@ -198,7 +198,7 @@ describe('fileIsInDirectoryOrSubdirectory()', () => {
     expect(got).toEqual(expected);
   });
 
-  it('does what is expected', () => {
+  it('when given a file that is in the directory, returns true', () => {
     const file = '/foo/bar/baz';
     const dir = '/foo/bar';
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
