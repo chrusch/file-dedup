@@ -29,8 +29,19 @@ export function showDuplicates(duplicatesList: string[]): void {
   log('Duplicates', duplicatesList);
 }
 
-export function showTotalDeleted(totalDeleted: number): void {
-  log('NUMBER OF FILES DELETED:', totalDeleted, '\n\n');
+export function showTotalDeleted(
+  totalDeleted: number,
+  reallyDelete: boolean
+): void {
+  if (reallyDelete) {
+    log('Number of files deleted:', totalDeleted, '\n\n');
+  } else {
+    log(
+      'Number of files that would have been deleted with --reallyDelete:',
+      totalDeleted,
+      '\n\n'
+    );
+  }
 }
 
 export function log(...values: unknown[]) {

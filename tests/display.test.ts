@@ -64,7 +64,7 @@ describe('showDuplicates()', () => {
 describe('showTotalDeleted()', () => {
   it('does now output anything when output is silenced', () => {
     silenceOutput();
-    const got = showTotalDeleted(7);
+    const got = showTotalDeleted(7, true);
     const expected = undefined;
     expect(got).toEqual(expected);
   });
