@@ -34,12 +34,10 @@ export function showTotalDeleted(
   reallyDelete: boolean
 ): void {
   if (reallyDelete) {
-    log('Number of files deleted:', totalDeleted, '\n\n');
+    log(`Number of files deleted: ${totalDeleted}\n\n`);
   } else {
     log(
-      'Number of files that would have been deleted with --reallyDelete:',
-      totalDeleted,
-      '\n\n'
+      `Number of files that would have been deleted with --reallyDelete: ${totalDeleted}\n\n`
     );
   }
 }
