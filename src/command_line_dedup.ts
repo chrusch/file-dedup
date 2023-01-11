@@ -23,7 +23,7 @@ export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const dirsToPossiblyDeleteFrom: readonly string[] = paths.map(p =>
     path.normalize(p)
   );
-  const pathsToTraverse: string[] = args.map(a => path.normalize(a));
+  const pathsToTraverse = args.map(a => path.normalize(a));
 
   const dedupOptions: DedupOptions = {
     dirsToPossiblyDeleteFrom,
