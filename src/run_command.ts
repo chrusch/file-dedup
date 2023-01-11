@@ -32,7 +32,7 @@ export const execHandler =
 
 export function runCommand<T>(
   command: string,
-  args: string[],
+  args: readonly string[],
   stdoutHandler: StdoutHandlerFunction<T>
 ): Promise<T> {
   return new Promise(resolve => {

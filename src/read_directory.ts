@@ -11,7 +11,7 @@ export function readDirectory(
   dir: string,
   dirCallback: (dir: string) => void,
   fileCallback: (file: string, size: number, ino: number) => void,
-  excludedNames: string[],
+  excludedNames: readonly string[],
   includeDotfiles: boolean
 ): void {
   const files = readdirSync(dir);

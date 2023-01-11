@@ -47,6 +47,6 @@ export async function doAllWorkInQueue(
 }
 
 export const makeWorkQueue = <DataItemType>(
-  dataItems: DataItemType[],
+  dataItems: readonly DataItemType[],
   doAJob: Job<DataItemType>
 ): WorkQueue => dataItems.map(dataItem => () => doAJob(dataItem));

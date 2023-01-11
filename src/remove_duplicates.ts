@@ -11,7 +11,7 @@ import {confirmDelete} from './interaction';
 
 export const fileIsInADeleteDirectory = (
   file: string,
-  dirsToAutomaticallyDeleteFrom: string[]
+  dirsToAutomaticallyDeleteFrom: readonly string[]
 ): boolean =>
   dirsToAutomaticallyDeleteFrom.some((dir: string) =>
     fileIsInDirectoryOrSubdirectory(file, dir)
@@ -21,8 +21,8 @@ export const fileIsInADeleteDirectory = (
 // Either delete them (whether automatically or interactively) or simply
 // display them.
 export const deleteOrListDuplicates = (
-  duplicateFiles: string[][],
-  dirsToAutomaticallyDeleteFrom: string[],
+  duplicateFiles: readonly string[][],
+  dirsToAutomaticallyDeleteFrom: readonly string[],
   reallyDelete: boolean,
   interactiveDeletion: boolean
 ): void => {

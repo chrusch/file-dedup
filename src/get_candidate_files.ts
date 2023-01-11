@@ -8,9 +8,9 @@ import {getFilePaths, filesWithNonUniqueSizes} from './directories';
 import {onePathPerInode} from './one_path_per_inode';
 
 export interface CandidateFilesOptions {
-  pathsToTraverse: string[];
-  dirsToPossiblyDeleteFrom: string[];
-  exclude: string[];
+  pathsToTraverse: readonly string[];
+  dirsToPossiblyDeleteFrom: readonly string[];
+  exclude: readonly string[];
   includeDotfiles: boolean;
 }
 
@@ -18,7 +18,9 @@ export interface CandidateFilesOptions {
 // specified files and directories, and optionally including hidden dot files.
 // Filter out all files with unique sizes (they can't be duplicates), and
 // return an array of the paths of the all files with non-unique sizes.
-export function getCandidateFiles(options: CandidateFilesOptions): string[] {
+export function getCandidateFiles(
+  options: Readonly<CandidateFilesOptions>
+): string[] {
   const dirsToTraverse = [
     ...options.pathsToTraverse,
     ...options.dirsToPossiblyDeleteFrom,

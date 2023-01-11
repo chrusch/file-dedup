@@ -19,8 +19,8 @@ export const isSubdirectory = (relativePath: string): boolean =>
   relativePath === '' || !relativePath.trim().match(/^\.\./) ? true : false;
 
 export function getFilePaths(
-  dirs: string[],
-  excludeDirecoryNames: string[],
+  dirs: readonly string[],
+  excludeDirecoryNames: readonly string[],
   includeDotfiles: boolean
 ): [string, number, number][] {
   const files: {[filepath: string]: [string, number, number]} = {};

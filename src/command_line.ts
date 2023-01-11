@@ -11,14 +11,16 @@ import {Command} from 'commander';
 export interface Options {
   interactive: boolean;
   dotFiles: boolean;
-  paths: string[];
+  paths: readonly string[];
   reallyDelete: boolean;
 }
 
 // there might be an option for exlcuding empty files or files up to a
 // certain size OR possibly for including them.
 // option to remove empty directories
-export function commandLineOptions(argv: string[]): [Options, string[]] {
+export function commandLineOptions(
+  argv: readonly string[]
+): [Options, string[]] {
   const program = new Command();
 
   program

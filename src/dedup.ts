@@ -11,22 +11,23 @@ import {doAllWorkInQueue, makeWorkQueue, Job, WorkQueue} from './work_queue';
 import {getCandidateFiles} from './get_candidate_files';
 
 export type DedupOptions = {
-  dirsToPossiblyDeleteFrom: string[];
-  exclude: string[];
+  dirsToPossiblyDeleteFrom: readonly string[];
+  exclude: readonly string[];
   includeDotfiles: boolean;
   interactiveDeletion: boolean;
-  pathsToTraverse: string[];
+  pathsToTraverse: readonly string[];
   reallyDelete: boolean;
 };
 
-export type HashData = [string, string][];
+export type HashDatum = readonly [string, string];
+export type HashData = HashDatum[];
 
 // Deduplicate files.
 //
 // Given one or more directories, traverse them fully, finding all duplicate
 // files. Print out these duplicates or optionally delete them depending on the
 // exact options provided.
-export async function dedup(options: DedupOptions): Promise<void> {
+export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
   // Get files that might potentially be duplicates.
   const candidateFiles = getCandidateFiles(options);
   const hashData: HashData = [];
@@ -42,7 +43,7 @@ export async function dedup(options: DedupOptions): Promise<void> {
   );
   await doAllWorkInQueue(workQueue, 100);
 
-  const duplicateFiles: string[][] = getDuplicates(hashData);
+  const duplicateFiles: readonly string[][] = getDuplicates(hashData);
 
   deleteOrListDuplicates(
     duplicateFiles,

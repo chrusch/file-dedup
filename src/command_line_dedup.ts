@@ -13,14 +13,16 @@ import {dedup, DedupOptions} from './dedup';
 //
 // get options from the command line and list duplicate files or
 // deduplicate files as requested through the options
-export async function commandLineDedup(argv: string[]): Promise<void> {
+export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const [options, args] = commandLineOptions(argv);
 
   const interactiveDeletion = options.interactive;
   const reallyDelete = options.reallyDelete;
   const includeDotfiles = options.dotFiles;
-  const paths: string[] = options.paths;
-  const dirsToPossiblyDeleteFrom: string[] = paths.map(p => path.normalize(p));
+  const paths: readonly string[] = options.paths;
+  const dirsToPossiblyDeleteFrom: readonly string[] = paths.map(p =>
+    path.normalize(p)
+  );
   const pathsToTraverse: string[] = args.map(a => path.normalize(a));
 
   const dedupOptions: DedupOptions = {

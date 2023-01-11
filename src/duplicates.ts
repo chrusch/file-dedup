@@ -4,6 +4,8 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+import {HashData} from './dedup';
+
 // We are given a list like this:
 // [['/etc/hosts', 'aaed732d32dbc...'], ...]
 // consisting of elements that are pairs where the first item in the pair
@@ -14,7 +16,7 @@
 // where each item of the array is itself an array of file paths,
 // where each of those files has exactly the same content, according
 // to the SHA sum
-export const getDuplicates = (allData: [string, string][]): string[][] => {
+export const getDuplicates = (allData: Readonly<HashData>): string[][] => {
   // create a hash where they keys are SHA sums and where
   // the values are arrays of file paths, each of which files
   // correponds to the SHA sum of its key.
