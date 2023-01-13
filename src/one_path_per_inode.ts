@@ -28,13 +28,12 @@ export function onePathPerInode(
 
   const takeOneFilePerInode = (
     filesWithSizesAndInodes: FileWithSizeAndInode[]
-  ) => _.takeRight(filesWithSizesAndInodes, 1) as [FileWithSizeAndInode];
+  ) => _.last(filesWithSizesAndInodes) as FileWithSizeAndInode;
 
   const filesWithSizes = _(filesWithSizesAndInodes)
     .groupBy('2')
     .values()
     .map(takeOneFilePerInode)
-    .flatten()
     .map(fileWithSizeAndInodeToFileWithSize)
     .value();
   return filesWithSizes;
