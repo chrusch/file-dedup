@@ -31,7 +31,7 @@ export function onePathPerInode(
   ) => _.last(filesWithSizesAndInodes) as FileWithSizeAndInode;
 
   const filesWithSizes = _(filesWithSizesAndInodes)
-    .groupBy('2')
+    .groupBy(2)
     .values()
     .map(takeOneFilePerInode)
     .map(fileWithSizeAndInodeToFileWithSize)
