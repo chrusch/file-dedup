@@ -5,7 +5,11 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getFilePaths, filesWithNonUniqueSizes} from './directories';
-import {onePathPerInode} from './one_path_per_inode';
+import {
+  FileWithSize,
+  FileWithSizeAndInode,
+  onePathPerInode,
+} from './one_path_per_inode';
 
 export interface CandidateFilesOptions {
   pathsToTraverse: readonly string[];
@@ -25,14 +29,14 @@ export function getCandidateFiles(
     ...options.pathsToTraverse,
     ...options.dirsToPossiblyDeleteFrom,
   ];
-  const filesWithSizesAndInodes: [string, number, number][] = getFilePaths(
+  const filesWithSizesAndInodes: FileWithSizeAndInode[] = getFilePaths(
     dirsToTraverse,
     options.exclude,
     options.includeDotfiles
   );
 
   // Deal properly with hard links by considering only one path per inode.
-  const filesWithSizes: [string, number][] = onePathPerInode(
+  const filesWithSizes: FileWithSize[] = onePathPerInode(
     filesWithSizesAndInodes
   );
 
