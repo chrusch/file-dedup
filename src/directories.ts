@@ -7,7 +7,8 @@
 import path from 'path';
 import fs from 'fs';
 import {readDirectory} from './read_directory';
-// import {showListLengths} from './display';
+import {FileWithSize} from './one_path_per_inode';
+import _ from 'lodash';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.
@@ -62,33 +63,20 @@ export const fileIsInDirectoryOrSubdirectory = (
   return isSubdirectory(relativePath);
 };
 
-interface FileSizeCount {
-  [size: string]: number;
-}
-
 // files with unique sizes are certainly not duplicates
 // files with non-unique sizes might be. These are the ones
 // we are interested in.
 export function filesWithNonUniqueSizes(
-  filesWithSizes: [string, number][]
+  filesWithSizes: FileWithSize[]
 ): string[] {
-  const fileSizeCount: FileSizeCount = {};
-  // count the number of instances of each file size
-  filesWithSizes.forEach(([, size]: [string, number]) => {
-    if (!fileSizeCount[size]) {
-      fileSizeCount[size] = 1;
-    } else {
-      fileSizeCount[size] += 1;
-    }
-  });
+  const fileSizeCount = _.countBy(filesWithSizes, '1');
 
-  const files: string[] = [];
-  // make a list of files with a non-unique file size
-  filesWithSizes.forEach(([filepath, size]) => {
-    if (fileSizeCount[size] > 1) {
-      files.push(filepath);
-    }
-  });
-  // showListLengths(filesWithSizes.length, files.length);
+  const fileWithSizeToFile = (fileWithSize: FileWithSize) =>
+    _.first(fileWithSize) as string;
+
+  const files = _(filesWithSizes)
+    .filter(([, size]) => fileSizeCount[size] > 1)
+    .map(fileWithSizeToFile)
+    .value();
   return files;
 }

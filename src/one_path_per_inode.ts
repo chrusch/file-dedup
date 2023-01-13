@@ -17,8 +17,8 @@ import _ from 'lodash';
 // waste time by accidentally re-hashing the same file twice, and we won't lose
 // data by deleting a file as if it is a duplicate when there is in fact only
 // one physical instance.
-type FileWithSizeAndInode = [string, number, number];
-type FileWithSize = [string, number];
+export type FileWithSizeAndInode = [string, number, number];
+export type FileWithSize = [string, number];
 export function onePathPerInode(
   filesWithSizesAndInodes: FileWithSizeAndInode[]
 ): FileWithSize[] {
