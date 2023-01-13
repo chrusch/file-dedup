@@ -71,7 +71,7 @@ describe('commandLineOptions(argv)', () => {
     expect(got).toEqual(expected);
   });
 
-  it('complicated command line with option long forms returns corresponding options object', () => {
+  it('given complicated command line with optional long forms, returns corresponding options object', () => {
     const argv: string[] = [
       nodeExecutable,
       jsFile,

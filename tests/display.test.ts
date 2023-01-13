@@ -44,7 +44,7 @@ describe('unSilenceOutput()', () => {
 });
 
 describe('showListLengths()', () => {
-  it('does now output anything when output is silenced', () => {
+  it('does not output anything when output is silenced', () => {
     silenceOutput();
     const got = showListLengths(22, 45);
     const expected = undefined;
@@ -53,7 +53,7 @@ describe('showListLengths()', () => {
 });
 
 describe('showDuplicates()', () => {
-  it('does now output anything when output is silenced', () => {
+  it('does not output anything when output is silenced', () => {
     silenceOutput();
     const got = showDuplicates(['a', 'b', 'c']);
     const expected = undefined;
@@ -62,7 +62,7 @@ describe('showDuplicates()', () => {
 });
 
 describe('showTotalDeleted()', () => {
-  it('does now output anything when output is silenced', () => {
+  it('does not output anything when output is silenced', () => {
     silenceOutput();
     const got = showTotalDeleted(7, true);
     const expected = undefined;
