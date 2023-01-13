@@ -52,7 +52,6 @@ describe('execHandler()', () => {
   it('when given a stderr string, throws the expected error', () => {
     const stdoutHandler: StdoutHandlerFunction<never> = () => {
       fail('should not be in stdoutHandler');
-      // something here.
     };
     const resolve = (value: string) => value;
     const got: ExecHandlerFunction = execHandler(stdoutHandler, resolve);
@@ -68,7 +67,6 @@ describe('execHandler()', () => {
   it('when given an error, throws the expected error', () => {
     const stdoutHandler: StdoutHandlerFunction<never> = () => {
       fail('should not be in stdoutHandler');
-      // something here.
     };
     const resolve = (value: string) => value;
     const got: ExecHandlerFunction = execHandler(stdoutHandler, resolve);
