@@ -3,6 +3,7 @@
 //
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
+import _ from 'lodash';
 
 // Deal properly with hard links.
 //
@@ -16,14 +17,25 @@
 // waste time by accidentally re-hashing the same file twice, and we won't lose
 // data by deleting a file as if it is a duplicate when there is in fact only
 // one physical instance.
+type FileWithSizeAndInode = [string, number, number];
+type FileWithSize = [string, number];
 export function onePathPerInode(
-  filesWithSizesAndInodes: [string, number, number][]
-): [string, number][] {
-  const inodesWithSizes: {[inode: number]: [string, number]} = {};
-  filesWithSizesAndInodes.forEach((fileInfo: [string, number, number]) => {
-    const [path, size, inode] = fileInfo;
-    inodesWithSizes[inode] = [path, size];
-  });
-  const filesWithSizes = Object.values(inodesWithSizes);
+  filesWithSizesAndInodes: FileWithSizeAndInode[]
+): FileWithSize[] {
+  const fileWithSizeAndInodeToFileWithSize = (
+    fileWithSizeAndInode: FileWithSizeAndInode
+  ) => _.take(fileWithSizeAndInode, 2) as FileWithSize;
+
+  const takeOneFilePerInode = (
+    filesWithSizesAndInodes: FileWithSizeAndInode[]
+  ) => _.takeRight(filesWithSizesAndInodes, 1) as [FileWithSizeAndInode];
+
+  const filesWithSizes = _(filesWithSizesAndInodes)
+    .groupBy('2')
+    .values()
+    .map(takeOneFilePerInode)
+    .flatten()
+    .map(fileWithSizeAndInodeToFileWithSize)
+    .value();
   return filesWithSizes;
 }
