@@ -6,8 +6,9 @@
 
 import {HashData} from './dedup';
 import _ from 'lodash';
+import {Path} from './path';
 
-type FileList = string[];
+type FileList = Path[];
 // We are given a list like this:
 //
 // [['/etc/hosts', 'aaed732d32dbc...'], ...]

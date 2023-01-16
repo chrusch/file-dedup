@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {readDirectory} from '../src/read_directory';
+import {Path} from '../src/path';
 jest.mock('fs');
 
 describe('readDirectory()', () => {
@@ -35,7 +36,7 @@ describe('readDirectory()', () => {
   };
 
   it('excludes excluded files', () => {
-    const folder = '/tmp/project';
+    const folder = Path.create('/tmp/project');
     const excludedNames: string[] = ['foo', 'bar'];
     const includeDotfiles = true;
     const functionCall = () =>
@@ -50,7 +51,7 @@ describe('readDirectory()', () => {
   });
 
   it('excludes dot files when configured to do so', () => {
-    const folder = '/tmp/git';
+    const folder = Path.create('/tmp/git');
     const excludedNames: string[] = [];
     const includeDotfiles = false;
     const functionCall = () =>
@@ -65,7 +66,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes included files', () => {
-    const folder = '/tmp/project';
+    const folder = Path.create('/tmp/project');
     const excludedNames: string[] = ['foo'];
     const includeDotfiles = true;
     const functionCall = () =>
@@ -80,7 +81,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes included directories', () => {
-    const folder = '/tmp/git';
+    const folder = Path.create('/tmp/git');
     const excludedNames: string[] = ['foo'];
     const includeDotfiles = true;
     const functionCall = () =>
@@ -95,7 +96,7 @@ describe('readDirectory()', () => {
   });
 
   it('excludes dotfiles when configured to do so ', () => {
-    const folder = '/tmp/another-project';
+    const folder = Path.create('/tmp/another-project');
     const excludedNames: string[] = [];
     const includeDotfiles = false;
     const functionCall = () =>
@@ -110,7 +111,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes dotfiles when configured to do so ', () => {
-    const folder = '/tmp/another-project';
+    const folder = Path.create('/tmp/another-project');
     const excludedNames: string[] = [];
     const includeDotfiles = true;
     const functionCall = () =>

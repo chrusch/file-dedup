@@ -12,6 +12,7 @@ import {
   showTotalDeleted,
   silenceOutput,
 } from '../src/display';
+import {Path} from '../src/path';
 
 describe('silentOutput()', () => {
   it('has expected default behavior', () => {
@@ -55,7 +56,7 @@ describe('showListLengths()', () => {
 describe('showDuplicates()', () => {
   it('does not output anything when output is silenced', () => {
     silenceOutput();
-    const got = showDuplicates(['a', 'b', 'c']);
+    const got = showDuplicates(Path.createMulti('/a', '/b', '/c'));
     const expected = undefined;
     expect(got).toEqual(expected);
   });

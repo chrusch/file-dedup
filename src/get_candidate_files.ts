@@ -10,10 +10,11 @@ import {
   FileWithSizeAndInode,
   onePathPerInode,
 } from './one_path_per_inode';
+import {Path} from './path';
 
 export interface CandidateFilesOptions {
-  pathsToTraverse: readonly string[];
-  dirsToPossiblyDeleteFrom: readonly string[];
+  pathsToTraverse: Path[];
+  dirsToPossiblyDeleteFrom: Path[];
   exclude: readonly string[];
   includeDotfiles: boolean;
 }
@@ -24,7 +25,7 @@ export interface CandidateFilesOptions {
 // return an array of the paths of the all files with non-unique sizes.
 export function getCandidateFiles(
   options: Readonly<CandidateFilesOptions>
-): string[] {
+): Path[] {
   const dirsToTraverse = [
     ...options.pathsToTraverse,
     ...options.dirsToPossiblyDeleteFrom,
@@ -43,6 +44,6 @@ export function getCandidateFiles(
   // Every file with a unique file size has unique content. Consequently, files
   // with a unique size do not need to be hashed, because they can't possibly be
   // duplicates.
-  const files: string[] = filesWithNonUniqueSizes(filesWithSizes);
+  const files: Path[] = filesWithNonUniqueSizes(filesWithSizes);
   return files;
 }

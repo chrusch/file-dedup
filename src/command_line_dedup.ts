@@ -4,10 +4,10 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import path from 'path';
 import {commandLineOptions} from './command_line';
 import {exclude} from './directories';
 import {dedup, DedupOptions} from './dedup';
+import {Path} from './path';
 
 // function commandLineDedup()
 //
@@ -20,10 +20,8 @@ export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const reallyDelete = options.reallyDelete;
   const includeDotfiles = options.dotFiles;
   const paths: readonly string[] = options.paths;
-  const dirsToPossiblyDeleteFrom: readonly string[] = paths.map(p =>
-    path.normalize(p)
-  );
-  const pathsToTraverse = args.map(a => path.normalize(a));
+  const dirsToPossiblyDeleteFrom = Path.createMulti(...paths);
+  const pathsToTraverse = Path.createMulti(...args);
 
   const dedupOptions: DedupOptions = {
     dirsToPossiblyDeleteFrom,

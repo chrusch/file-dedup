@@ -9,6 +9,7 @@ import fs from 'fs';
 import {readDirectory} from './read_directory';
 import {FileWithSize} from './one_path_per_inode';
 import _ from 'lodash';
+import {Path} from './path';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.
@@ -20,25 +21,25 @@ export const isSubdirectory = (relativePath: string): boolean =>
   relativePath === '' || !relativePath.trim().match(/^\.\./) ? true : false;
 
 export function getFilePaths(
-  dirs: readonly string[],
+  dirs: Path[],
   excludeDirecoryNames: readonly string[],
   includeDotfiles: boolean
-): [string, number, number][] {
-  const files: {[filepath: string]: [string, number, number]} = {};
+): [Path, number, number][] {
+  const files: {[filepath: string]: [Path, number, number]} = {};
   const directoriesRead: {[path: string]: true} = {};
 
-  const fileCallback = (file: string, size: number, inode: number): void => {
+  const fileCallback = (file: Path, size: number, inode: number): void => {
     // We are just recording information for each file.
     // We avoid recording the same files twice by using the filename as the key
     // of an object. Elsewhere in the code, we ensure that the same inode is not
     // recorded twice under two different paths.
-    files[file] = [file, size, inode];
+    files[file.pathString] = [file, size, inode];
   };
 
-  const dirCallback = (dir: string): void => {
+  const dirCallback = (dir: Path): void => {
     // avoid traversing the same directory twice
-    if (directoriesRead[dir]) return;
-    directoriesRead[dir] = true;
+    if (directoriesRead[dir.pathString]) return;
+    directoriesRead[dir.pathString] = true;
     readDirectory(
       dir,
       dirCallback,
@@ -54,11 +55,11 @@ export function getFilePaths(
 
 // Is file in dir or a subdirectory of dir?
 export const fileIsInDirectoryOrSubdirectory = (
-  file: string,
-  dir: string
+  file: Path,
+  dir: Path
 ): boolean => {
-  const realFilePath: string = fs.realpathSync(file);
-  const realDirPath: string = fs.realpathSync(dir);
+  const realFilePath: string = fs.realpathSync(file.pathString);
+  const realDirPath: string = fs.realpathSync(dir.pathString);
   const relativePath: string = path.relative(realDirPath, realFilePath);
   return isSubdirectory(relativePath);
 };
@@ -68,11 +69,11 @@ export const fileIsInDirectoryOrSubdirectory = (
 // we are interested in.
 export function filesWithNonUniqueSizes(
   filesWithSizes: FileWithSize[]
-): string[] {
+): Path[] {
   const fileSizeCount = _.countBy(filesWithSizes, '1');
 
   const fileWithSizeToFile = (fileWithSize: FileWithSize) =>
-    _.first(fileWithSize) as string;
+    _.first(fileWithSize) as Path;
 
   const files = _(filesWithSizes)
     .filter(([, size]) => fileSizeCount[size] > 1)

@@ -8,12 +8,13 @@ import {deleteFile} from './delete_file';
 import {fileIsInDirectoryOrSubdirectory} from './directories';
 import {showDuplicates, showTotalDeleted} from './display';
 import {confirmDelete} from './interaction';
+import {Path} from './path';
 
 export const fileIsInADeleteDirectory = (
-  file: string,
-  dirsToAutomaticallyDeleteFrom: readonly string[]
+  file: Path,
+  dirsToAutomaticallyDeleteFrom: Path[]
 ): boolean =>
-  dirsToAutomaticallyDeleteFrom.some((dir: string) =>
+  dirsToAutomaticallyDeleteFrom.some(dir =>
     fileIsInDirectoryOrSubdirectory(file, dir)
   );
 
@@ -21,8 +22,8 @@ export const fileIsInADeleteDirectory = (
 // Either delete them (whether automatically or interactively) or simply
 // display them.
 export const deleteOrListDuplicates = (
-  duplicateFiles: readonly string[][],
-  dirsToAutomaticallyDeleteFrom: readonly string[],
+  duplicateFiles: Path[][],
+  dirsToAutomaticallyDeleteFrom: Path[],
   reallyDelete: boolean,
   interactiveDeletion: boolean
 ): void => {
@@ -33,11 +34,11 @@ export const deleteOrListDuplicates = (
   };
   const autoDeletion = dirsToAutomaticallyDeleteFrom.length > 0;
 
-  duplicateFiles.forEach((duplicatesList: string[]) => {
+  duplicateFiles.forEach((duplicatesList: Path[]) => {
     showDuplicates(duplicatesList);
     numberOfDuplicatesInThisSetDeleted = 0;
     const numDuplicatesInThisSet = duplicatesList.length;
-    const remainingUndeletedFiles: string[] = [];
+    const remainingUndeletedFiles: Path[] = [];
 
     // Be aware of when there is only one copy of a file left.
     const thereIsOnlyOneInstanceOfThisFileContent = (): boolean =>
@@ -45,7 +46,7 @@ export const deleteOrListDuplicates = (
 
     // Automatic deletion
     if (autoDeletion) {
-      duplicatesList.forEach((file: string) => {
+      duplicatesList.forEach((file: Path) => {
         // Don't ever delete a unique file or the last copy of a file.
         if (thereIsOnlyOneInstanceOfThisFileContent()) return;
         if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
@@ -61,9 +62,9 @@ export const deleteOrListDuplicates = (
 
     // Interactive deletion
     if (!interactiveDeletion) return;
-    remainingUndeletedFiles.forEach((file: string) => {
+    remainingUndeletedFiles.forEach((file: Path) => {
       if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-      if (confirmDelete(file)) {
+      if (confirmDelete(file.pathString)) {
         deletionRecordKeeping();
         deleteFile(reallyDelete, file);
       }

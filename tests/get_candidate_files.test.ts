@@ -8,6 +8,7 @@ import {
   CandidateFilesOptions,
   getCandidateFiles,
 } from '../src/get_candidate_files';
+import {Path} from '../src/path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {
@@ -34,13 +35,16 @@ describe('getCandidateFiles()', () => {
 
   it('when given options, it returns candidate files (i.e. files with non-unique sizes)', () => {
     const options: CandidateFilesOptions = {
-      pathsToTraverse: ['/tmp'],
+      pathsToTraverse: [Path.create('/tmp')],
       dirsToPossiblyDeleteFrom: [],
       exclude: [],
       includeDotfiles: true,
     };
-    const got: string[] = getCandidateFiles(options);
-    const expected: string[] = ['/tmp/project/foo', '/tmp/project/bar'];
+    const got: Path[] = getCandidateFiles(options);
+    const expected: Path[] = Path.createMulti(
+      '/tmp/project/foo',
+      '/tmp/project/bar'
+    );
     expect(got).toEqual(expected);
   });
 });

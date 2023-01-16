@@ -6,12 +6,14 @@
 
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
+import {Path} from './path';
 
-export type HashDatum = [string, string];
+export type HashDatum = [Path, string];
 
-export async function hashFile(file: string): Promise<HashDatum> {
-  return await runCommand<HashDatum>('shasum', ['-a', '256', file], stdout => [
-    file,
-    hashExtractor(stdout),
-  ]);
+export async function hashFile(file: Path): Promise<HashDatum> {
+  return await runCommand<HashDatum>(
+    'shasum',
+    ['-a', '256', file.pathString],
+    stdout => [file, hashExtractor(stdout)]
+  );
 }

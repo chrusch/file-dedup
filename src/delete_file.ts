@@ -6,16 +6,17 @@
 
 import fs from 'fs';
 import {log} from './display';
+import {Path} from './path';
 
 export const deleteFile = (
   reallyDelete: boolean,
-  file: string,
+  file: Path,
   reportDeletion = true
 ) => {
   if (reallyDelete) {
-    fs.unlinkSync(file);
-    if (reportDeletion) log(`deleting ${file};`);
+    fs.unlinkSync(file.pathString);
+    if (reportDeletion) log(`deleting ${file.pathString};`);
   } else {
-    if (reportDeletion) log(`not deleting ${file};`);
+    if (reportDeletion) log(`not deleting ${file.pathString};`);
   }
 };

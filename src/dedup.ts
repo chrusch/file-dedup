@@ -9,17 +9,18 @@ import {deleteOrListDuplicates} from './remove_duplicates';
 import {hashFile} from './hash_files';
 import {doAllWorkInQueue, makeWorkQueue, Job, WorkQueue} from './work_queue';
 import {getCandidateFiles} from './get_candidate_files';
+import {Path} from './path';
 
 export type DedupOptions = {
-  dirsToPossiblyDeleteFrom: readonly string[];
+  dirsToPossiblyDeleteFrom: Path[];
   exclude: readonly string[];
   includeDotfiles: boolean;
   interactiveDeletion: boolean;
-  pathsToTraverse: readonly string[];
+  pathsToTraverse: Path[];
   reallyDelete: boolean;
 };
 
-export type HashDatum = readonly [string, string];
+export type HashDatum = readonly [Path, string];
 export type HashData = HashDatum[];
 
 // Deduplicate files.
@@ -31,19 +32,16 @@ export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
   // Get files that might potentially be duplicates.
   const candidateFiles = getCandidateFiles(options);
   const hashData: HashData = [];
-  const hashOneFile: Job<string> = async file => {
+  const hashOneFile: Job<Path> = async file => {
     hashData.push(await hashFile(file));
   };
 
   // create a job queue to hash all candidate files
   // using parallel processing
-  const workQueue: WorkQueue = makeWorkQueue<string>(
-    candidateFiles,
-    hashOneFile
-  );
+  const workQueue: WorkQueue = makeWorkQueue<Path>(candidateFiles, hashOneFile);
   await doAllWorkInQueue(workQueue, 100);
 
-  const duplicateFiles: readonly string[][] = getDuplicates(hashData);
+  const duplicateFiles: Path[][] = getDuplicates(hashData);
 
   deleteOrListDuplicates(
     duplicateFiles,

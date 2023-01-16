@@ -4,6 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 import _ from 'lodash';
+import {Path} from './path';
 
 // Deal properly with hard links.
 //
@@ -17,8 +18,8 @@ import _ from 'lodash';
 // waste time by accidentally re-hashing the same file twice, and we won't lose
 // data by deleting a file as if it is a duplicate when there is in fact only
 // one physical instance.
-export type FileWithSizeAndInode = [string, number, number];
-export type FileWithSize = [string, number];
+export type FileWithSizeAndInode = [Path, number, number];
+export type FileWithSize = [Path, number];
 export function onePathPerInode(
   filesWithSizesAndInodes: FileWithSizeAndInode[]
 ): FileWithSize[] {

@@ -6,6 +6,7 @@
 
 import {commandLineDedup} from '../src/command_line_dedup';
 import {dedup} from '../src/dedup';
+import {Path} from '../src/path';
 
 jest.mock('../src/dedup');
 describe('commandLineDedup()', () => {
@@ -21,7 +22,7 @@ describe('commandLineDedup()', () => {
       exclude: ['node_modules', '.git'],
       includeDotfiles: false,
       interactiveDeletion: false,
-      pathsToTraverse: ['/tmp'],
+      pathsToTraverse: Path.createMulti('/tmp'),
       reallyDelete: false,
     };
 
@@ -48,11 +49,11 @@ describe('commandLineDedup()', () => {
     expect(dedup).toHaveBeenCalledTimes(1);
 
     const args = {
-      dirsToPossiblyDeleteFrom: ['/tmp/a', '/tmp/b'],
+      dirsToPossiblyDeleteFrom: Path.createMulti('/tmp/a', '/tmp/b'),
       exclude: ['node_modules', '.git'],
       includeDotfiles: true,
       interactiveDeletion: true,
-      pathsToTraverse: ['/tmp/c', '/tmp/d'],
+      pathsToTraverse: Path.createMulti('/tmp/c', '/tmp/d'),
       reallyDelete: true,
     };
 

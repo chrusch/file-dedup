@@ -13,14 +13,15 @@ import * as delete_file from '../src/delete_file';
 import * as interaction from '../src/interaction';
 import {silenceOutput} from '../src/display';
 import {jest} from '@jest/globals'; // needed for jest.Mocked
+import {Path} from '../src/path';
 jest.mock('fs');
 jest.mock('../src/delete_file.ts');
 jest.mock('../src/interaction.ts');
 
 describe('fileIsInADeleteDirectory()', () => {
   it('when file is in given directory, return true', () => {
-    const file = '/tmp/foo';
-    const dirs: string[] = ['/foo', '/tmp'];
+    const file = Path.create('/tmp/foo');
+    const dirs: Path[] = Path.createMulti('/foo', '/tmp');
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = true;
     expect(got).toEqual(expected);
@@ -32,8 +33,8 @@ describe('fileIsInADeleteDirectory()', () => {
   });
 
   it('when file is not in given directory, return false', () => {
-    const file = '/other/foo';
-    const dirs: string[] = ['/foo', '/tmp'];
+    const file = Path.create('/other/foo');
+    const dirs: Path[] = Path.createMulti('/foo', '/tmp');
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
@@ -45,8 +46,8 @@ describe('fileIsInADeleteDirectory()', () => {
   });
 
   it('when there is no dir specified, return false', () => {
-    const file = '/other/foo';
-    const dirs: string[] = [];
+    const file = Path.create('/other/foo');
+    const dirs: Path[] = [];
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
@@ -57,11 +58,11 @@ describe('fileIsInADeleteDirectory()', () => {
 describe('deleteOrListDuplicates()', () => {
   beforeAll(silenceOutput);
   it('automatically deletes files (but not really)', () => {
-    const duplicateFiles: string[][] = [
-      ['/del/a', '/other/b'],
-      ['/other/e', '/del/c', '/other/d'],
+    const duplicateFiles: Path[][] = [
+      Path.createMulti('/del/a', '/other/b'),
+      Path.createMulti('/other/e', '/del/c', '/other/d'),
     ];
-    const dirsToAutomaticallyDeleteFrom: string[] = ['/del'];
+    const dirsToAutomaticallyDeleteFrom: Path[] = [Path.create('/del')];
     const reallyDelete = false;
     const interactiveDeletion = false;
     const got = deleteOrListDuplicates(
@@ -77,21 +78,21 @@ describe('deleteOrListDuplicates()', () => {
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       1,
       false,
-      '/del/a'
+      Path.create('/del/a')
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       2,
       false,
-      '/del/c'
+      Path.create('/del/c')
     );
   });
 
   it('automatically deletes files (yes, really deletes)', () => {
-    const duplicateFiles: string[][] = [
-      ['/del/a', '/other/b'],
-      ['/other/e', '/del/c', '/other/d'],
+    const duplicateFiles: Path[][] = [
+      Path.createMulti('/del/a', '/other/b'),
+      Path.createMulti('/other/e', '/del/c', '/other/d'),
     ];
-    const dirsToAutomaticallyDeleteFrom: string[] = ['/del'];
+    const dirsToAutomaticallyDeleteFrom: Path[] = Path.createMulti('/del');
     const reallyDelete = true;
     const interactiveDeletion = false;
     const got = deleteOrListDuplicates(
@@ -107,12 +108,12 @@ describe('deleteOrListDuplicates()', () => {
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       1,
       true,
-      '/del/a'
+      Path.create('/del/a')
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       2,
       true,
-      '/del/c'
+      Path.create('/del/c')
     );
   });
 
@@ -123,11 +124,11 @@ describe('deleteOrListDuplicates()', () => {
       >
     ).mockReturnValue(true);
 
-    const duplicateFiles: string[][] = [
-      ['/del/a', '/other/b'],
-      ['/other/e', '/del/c', '/other/d'],
+    const duplicateFiles: Path[][] = [
+      Path.createMulti('/del/a', '/other/b'),
+      Path.createMulti('/other/e', '/del/c', '/other/d'),
     ];
-    const dirsToAutomaticallyDeleteFrom: string[] = [];
+    const dirsToAutomaticallyDeleteFrom: Path[] = [];
     const reallyDelete = true;
     const interactiveDeletion = true;
     const got = deleteOrListDuplicates(
@@ -145,17 +146,17 @@ describe('deleteOrListDuplicates()', () => {
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       1,
       true,
-      '/del/a'
+      Path.create('/del/a')
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       2,
       true,
-      '/other/e'
+      Path.create('/other/e')
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       3,
       true,
-      '/del/c'
+      Path.create('/del/c')
     );
   });
 
@@ -166,11 +167,11 @@ describe('deleteOrListDuplicates()', () => {
       >
     ).mockReturnValue(false);
 
-    const duplicateFiles: string[][] = [
-      ['/del/a', '/other/b'],
-      ['/other/e', '/del/c', '/other/d'],
+    const duplicateFiles: Path[][] = [
+      Path.createMulti('/del/a', '/other/b'),
+      Path.createMulti('/other/e', '/del/c', '/other/d'),
     ];
-    const dirsToAutomaticallyDeleteFrom: string[] = [];
+    const dirsToAutomaticallyDeleteFrom: Path[] = [];
     const reallyDelete = true;
     const interactiveDeletion = true;
     const got = deleteOrListDuplicates(
@@ -217,11 +218,11 @@ describe('deleteOrListDuplicates()', () => {
       .mockReturnValueOnce(true)
       .mockReturnValueOnce(true);
 
-    const duplicateFiles: string[][] = [
-      ['/del/a', '/other/b'],
-      ['/other/e', '/del/c', '/other/d'],
+    const duplicateFiles: Path[][] = [
+      Path.createMulti('/del/a', '/other/b'),
+      Path.createMulti('/other/e', '/del/c', '/other/d'),
     ];
-    const dirsToAutomaticallyDeleteFrom: string[] = [];
+    const dirsToAutomaticallyDeleteFrom: Path[] = [];
     const reallyDelete = true;
     const interactiveDeletion = true;
     const got = deleteOrListDuplicates(
@@ -257,12 +258,12 @@ describe('deleteOrListDuplicates()', () => {
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       1,
       true,
-      '/del/a'
+      Path.create('/del/a')
     );
     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
       2,
       true,
-      '/other/e'
+      Path.create('/other/e')
     );
   });
 });

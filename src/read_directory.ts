@@ -6,24 +6,25 @@
 
 import path from 'path';
 import {lstatSync, readdirSync} from 'fs';
+import {Path} from './path';
 
 export function readDirectory(
-  dir: string,
-  dirCallback: (dir: string) => void,
-  fileCallback: (file: string, size: number, ino: number) => void,
+  dir: Path,
+  dirCallback: (dir: Path) => void,
+  fileCallback: (file: Path, size: number, ino: number) => void,
   excludedNames: readonly string[],
   includeDotfiles: boolean
 ): void {
-  const files = readdirSync(dir);
+  const files = readdirSync(dir.pathString);
   files.forEach(file => {
     if (excludedNames.includes(file)) return;
     if (!includeDotfiles && file.match('^\\.')) return;
 
-    const aPath = path.join(dir, file);
-    const pathInfo = lstatSync(aPath);
+    const aPath = Path.create(path.join(dir.pathString, file));
+    const pathInfo = lstatSync(aPath.pathString);
 
     if (pathInfo.isDirectory()) {
-      dirCallback(aPath + '/');
+      dirCallback(aPath);
     } else if (pathInfo.isFile()) {
       fileCallback(aPath, pathInfo.size, pathInfo.ino);
     }
