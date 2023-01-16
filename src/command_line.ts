@@ -29,12 +29,12 @@ export function commandLineOptions(
     .argument('<dir...>', 'directories to look for duplicates in')
     .option(
       '-p, --paths <paths...>',
-      'Non-interactively delete duplicates in the given directories. To actually delete files, also provide --reallyDelete, otherwise the program will only display which files would have been deleted. This program will never delete every instance of a duplicate file.',
+      'Non-interactively delete duplicates in the given directories. To actually delete files, also provide --reallyDelete, otherwise file-dedup will only display which files would have been deleted. File-dedup will never delete of unique files and the last remaining instances of duplicate files.',
       []
     )
     .option(
       '-i, --interactive',
-      'Interactively prompt to delete files. To actually delete files, also provide --reallyDelete, otherwise will only display files that would have been deleted. This program will never delete every instance of a duplicate file.',
+      'Interactively prompt to delete files. To actually delete files, also provide --reallDelete, otherwise file-dedup will only display files that would have been deleted. File-dedup has safeguards to prevent the deletion of a unique files and the last remaining instances of duplicate files.',
       false
     )
     .option(
@@ -44,7 +44,7 @@ export function commandLineOptions(
     )
     .option(
       '--reallyDelete',
-      'Really delete files. By default this command displays which files would be deleted, but does not actually delete files. Use this option to actually delete files.',
+      'Really delete files. Unless this option is provided, file-dedup will not delete any files, but only display which files would have been deleted.',
       false
     );
 
