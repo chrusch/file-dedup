@@ -10,11 +10,12 @@ import * as gcf from '../src/get_candidate_files';
 import * as hash_file from '../src/hash_files';
 import * as rd from '../src/remove_duplicates';
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {Path} from '../src/path';
+import {forceVerificationOfDirectoryPaths} from '../src/secure_directory_path';
 
 jest.mock('../src/get_candidate_files.ts');
 jest.mock('../src/hash_files.ts');
 jest.mock('../src/remove_duplicates.ts');
+jest.mock('fs');
 
 describe('dedup()', () => {
   beforeAll(() => {
@@ -22,24 +23,27 @@ describe('dedup()', () => {
   });
   it('calls certain functions with expected args and returns a void promise', async () => {
     const options: DedupOptions = {
-      dirsToPossiblyDeleteFrom: [Path.create('/tmp/tmp/foo')],
+      dirsToPossiblyDeleteFrom:
+        forceVerificationOfDirectoryPaths('/tmp/tmp/foo'),
       exclude: [],
       includeDotfiles: false,
       interactiveDeletion: false,
-      pathsToTraverse: [Path.create('/tmp')],
+      pathsToTraverse: forceVerificationOfDirectoryPaths('/tmp'),
       reallyDelete: true,
     };
     type GCF = jest.Mocked<typeof gcf.getCandidateFiles>;
-    (gcf.getCandidateFiles as GCF).mockReturnValue(
-      Path.createMulti('/tmp/foo', '/tmp/bar', '/tmp/baz')
-    );
+    (gcf.getCandidateFiles as GCF).mockReturnValue([
+      {path: '/tmp/foo'},
+      {path: '/tmp/bar'},
+      {path: '/tmp/baz'},
+    ]);
     type HashFile = jest.Mocked<typeof hash_file.hashFile>;
     (hash_file.hashFile as HashFile).mockImplementation(_file => {
       return Promise.resolve([_file, 'abcd']);
     });
 
     const getDuplicatesRet = [
-      Path.createMulti('/tmp/foo', '/tmp/bar', '/tmp/baz'),
+      [{path: '/tmp/foo'}, {path: '/tmp/bar'}, {path: '/tmp/baz'}],
     ];
     const got = await dedup(options);
 

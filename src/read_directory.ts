@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import path from 'path';
+import pathModule from 'path';
 import {lstatSync, readdirSync} from 'fs';
 import {Path} from './path';
 
@@ -15,13 +15,13 @@ export function readDirectory(
   excludedNames: readonly string[],
   includeDotfiles: boolean
 ): void {
-  const files = readdirSync(dir.pathString);
+  const files = readdirSync(dir.path);
   files.forEach(file => {
     if (excludedNames.includes(file)) return;
     if (!includeDotfiles && file.match('^\\.')) return;
 
-    const aPath = Path.create(path.join(dir.pathString, file));
-    const pathInfo = lstatSync(aPath.pathString);
+    const aPath = new Path(pathModule.join(dir.path, file));
+    const pathInfo = lstatSync(aPath.path);
 
     if (pathInfo.isDirectory()) {
       dirCallback(aPath);

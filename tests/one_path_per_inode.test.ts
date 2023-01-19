@@ -7,27 +7,29 @@
 import {onePathPerInode} from '../src/one_path_per_inode';
 import {Path} from '../src/path';
 
+jest.mock('fs');
+
 describe('onePathPerInode()', () => {
   it('removes duplicate paths so that there is only one path per inode', () => {
     const filesWithSizesAndInodes: [Path, number, number][] = [
-      [Path.create('/aa'), 256, 7000001],
-      [Path.create('/ab'), 256, 7000002],
-      [Path.create('/ac'), 256, 7000003],
-      [Path.create('/ad'), 256, 7000004],
-      [Path.create('/ae'), 256, 7000003],
-      [Path.create('/af'), 256, 7000005],
-      [Path.create('/ag'), 256, 7000003],
-      [Path.create('/ah'), 256, 7000002],
-      [Path.create('/ai'), 256, 7000006],
+      [{path: '/aa'}, 256, 7000001],
+      [{path: '/ab'}, 256, 7000002],
+      [{path: '/ac'}, 256, 7000003],
+      [{path: '/ad'}, 256, 7000004],
+      [{path: '/ae'}, 256, 7000003],
+      [{path: '/af'}, 256, 7000005],
+      [{path: '/ag'}, 256, 7000003],
+      [{path: '/ah'}, 256, 7000002],
+      [{path: '/ai'}, 256, 7000006],
     ];
     const got = onePathPerInode(filesWithSizesAndInodes);
     const expected = [
-      [Path.create('/aa'), 256],
-      [Path.create('/ah'), 256],
-      [Path.create('/ag'), 256],
-      [Path.create('/ad'), 256],
-      [Path.create('/af'), 256],
-      [Path.create('/ai'), 256],
+      [{path: '/aa'}, 256],
+      [{path: '/ah'}, 256],
+      [{path: '/ag'}, 256],
+      [{path: '/ad'}, 256],
+      [{path: '/af'}, 256],
+      [{path: '/ai'}, 256],
     ];
     expect(got).toEqual(expected);
   });

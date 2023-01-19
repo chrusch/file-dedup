@@ -6,10 +6,26 @@
 
 import {commandLineDedup} from '../src/command_line_dedup';
 import {dedup} from '../src/dedup';
-import {Path} from '../src/path';
 
 jest.mock('../src/dedup');
+jest.mock('fs');
 describe('commandLineDedup()', () => {
+  const MOCK_FILE_INFO = {
+    '/tmp': [1001, 256],
+    '/tmp/a': [1012, 32],
+    '/tmp/b': [1013, 32],
+    '/tmp/c': [1014, 32],
+    '/tmp/d': [1015, 32],
+    '/tmp/a/x': [1016, 32],
+    '/tmp/b/x': [1017, 32],
+    '/tmp/c/x': [1018, 32],
+    '/tmp/d/x': [1019, 32],
+  };
+
+  beforeEach(() => {
+    require('fs').__setMockFiles(MOCK_FILE_INFO);
+  });
+
   it('when called in the simplest way, calls dedup with the expected arguments', async () => {
     const argv: string[] = ['node', 'index.js', '/tmp'];
     const got = await commandLineDedup(argv);
@@ -22,7 +38,7 @@ describe('commandLineDedup()', () => {
       exclude: ['node_modules', '.git'],
       includeDotfiles: false,
       interactiveDeletion: false,
-      pathsToTraverse: Path.createMulti('/tmp'),
+      pathsToTraverse: ['/tmp'],
       reallyDelete: false,
     };
 
@@ -49,11 +65,11 @@ describe('commandLineDedup()', () => {
     expect(dedup).toHaveBeenCalledTimes(1);
 
     const args = {
-      dirsToPossiblyDeleteFrom: Path.createMulti('/tmp/a', '/tmp/b'),
+      dirsToPossiblyDeleteFrom: ['/tmp/a', '/tmp/b'],
       exclude: ['node_modules', '.git'],
       includeDotfiles: true,
       interactiveDeletion: true,
-      pathsToTraverse: Path.createMulti('/tmp/c', '/tmp/d'),
+      pathsToTraverse: ['/tmp/c', '/tmp/d'],
       reallyDelete: true,
     };
 

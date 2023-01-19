@@ -13,15 +13,22 @@ import * as delete_file from '../src/delete_file';
 import * as interaction from '../src/interaction';
 import {silenceOutput} from '../src/display';
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {Path} from '../src/path';
+import Path from '../src/path';
+import {
+  forceVerificationOfDirectoryPaths,
+  VerifiedDirectoryPath,
+} from '../src/secure_directory_path';
 jest.mock('fs');
 jest.mock('../src/delete_file.ts');
 jest.mock('../src/interaction.ts');
 
 describe('fileIsInADeleteDirectory()', () => {
   it('when file is in given directory, return true', () => {
-    const file = Path.create('/tmp/foo');
-    const dirs: Path[] = Path.createMulti('/foo', '/tmp');
+    const file = {path: '/tmp/foo'};
+    const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
+      '/foo',
+      '/tmp'
+    );
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = true;
     expect(got).toEqual(expected);
@@ -33,8 +40,11 @@ describe('fileIsInADeleteDirectory()', () => {
   });
 
   it('when file is not in given directory, return false', () => {
-    const file = Path.create('/other/foo');
-    const dirs: Path[] = Path.createMulti('/foo', '/tmp');
+    const file = {path: '/other/foo'};
+    const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
+      '/foo',
+      '/tmp'
+    );
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
@@ -46,8 +56,8 @@ describe('fileIsInADeleteDirectory()', () => {
   });
 
   it('when there is no dir specified, return false', () => {
-    const file = Path.create('/other/foo');
-    const dirs: Path[] = [];
+    const file = {path: '/other/foo'};
+    const dirs: VerifiedDirectoryPath[] = [];
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
@@ -59,10 +69,11 @@ describe('deleteOrListDuplicates()', () => {
   beforeAll(silenceOutput);
   it('automatically deletes files (but not really)', () => {
     const duplicateFiles: Path[][] = [
-      Path.createMulti('/del/a', '/other/b'),
-      Path.createMulti('/other/e', '/del/c', '/other/d'),
+      [{path: '/del/a'}, {path: '/other/b'}],
+      [{path: '/other/e'}, {path: '/del/c'}, {path: '/other/d'}],
     ];
-    const dirsToAutomaticallyDeleteFrom: Path[] = [Path.create('/del')];
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] =
+      forceVerificationOfDirectoryPaths('/del');
     const reallyDelete = false;
     const interactiveDeletion = false;
     const got = deleteOrListDuplicates(
@@ -75,24 +86,21 @@ describe('deleteOrListDuplicates()', () => {
     expect(got).toEqual(expected);
     expect(delete_file.deleteFile).toHaveBeenCalledTimes(2);
     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      1,
-      false,
-      Path.create('/del/a')
-    );
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      2,
-      false,
-      Path.create('/del/c')
-    );
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(1, false, {
+      path: '/del/a',
+    });
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(2, false, {
+      path: '/del/c',
+    });
   });
 
   it('automatically deletes files (yes, really deletes)', () => {
     const duplicateFiles: Path[][] = [
-      Path.createMulti('/del/a', '/other/b'),
-      Path.createMulti('/other/e', '/del/c', '/other/d'),
+      [{path: '/del/a'}, {path: '/other/b'}],
+      [{path: '/other/e'}, {path: '/del/c'}, {path: '/other/d'}],
     ];
-    const dirsToAutomaticallyDeleteFrom: Path[] = Path.createMulti('/del');
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] =
+      forceVerificationOfDirectoryPaths('/del');
     const reallyDelete = true;
     const interactiveDeletion = false;
     const got = deleteOrListDuplicates(
@@ -105,16 +113,12 @@ describe('deleteOrListDuplicates()', () => {
     expect(got).toEqual(expected);
     expect(delete_file.deleteFile).toHaveBeenCalledTimes(2);
     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      1,
-      true,
-      Path.create('/del/a')
-    );
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      2,
-      true,
-      Path.create('/del/c')
-    );
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(1, true, {
+      path: '/del/a',
+    });
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(2, true, {
+      path: '/del/c',
+    });
   });
 
   it('interactively deletes files', () => {
@@ -125,10 +129,10 @@ describe('deleteOrListDuplicates()', () => {
     ).mockReturnValue(true);
 
     const duplicateFiles: Path[][] = [
-      Path.createMulti('/del/a', '/other/b'),
-      Path.createMulti('/other/e', '/del/c', '/other/d'),
+      [{path: '/del/a'}, {path: '/other/b'}],
+      [{path: '/other/e'}, {path: '/del/c'}, {path: '/other/d'}],
     ];
-    const dirsToAutomaticallyDeleteFrom: Path[] = [];
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
     const reallyDelete = true;
     const interactiveDeletion = true;
     const got = deleteOrListDuplicates(
@@ -143,21 +147,15 @@ describe('deleteOrListDuplicates()', () => {
 
     expect(delete_file.deleteFile).toHaveBeenCalledTimes(3);
     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      1,
-      true,
-      Path.create('/del/a')
-    );
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      2,
-      true,
-      Path.create('/other/e')
-    );
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      3,
-      true,
-      Path.create('/del/c')
-    );
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(1, true, {
+      path: '/del/a',
+    });
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(2, true, {
+      path: '/other/e',
+    });
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(3, true, {
+      path: '/del/c',
+    });
   });
 
   it('interactively choose not to delete files', () => {
@@ -168,10 +166,10 @@ describe('deleteOrListDuplicates()', () => {
     ).mockReturnValue(false);
 
     const duplicateFiles: Path[][] = [
-      Path.createMulti('/del/a', '/other/b'),
-      Path.createMulti('/other/e', '/del/c', '/other/d'),
+      [{path: '/del/a'}, {path: '/other/b'}],
+      [{path: '/other/e'}, {path: '/del/c'}, {path: '/other/d'}],
     ];
-    const dirsToAutomaticallyDeleteFrom: Path[] = [];
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
     const reallyDelete = true;
     const interactiveDeletion = true;
     const got = deleteOrListDuplicates(
@@ -219,10 +217,10 @@ describe('deleteOrListDuplicates()', () => {
       .mockReturnValueOnce(true);
 
     const duplicateFiles: Path[][] = [
-      Path.createMulti('/del/a', '/other/b'),
-      Path.createMulti('/other/e', '/del/c', '/other/d'),
+      [{path: '/del/a'}, {path: '/other/b'}],
+      [{path: '/other/e'}, {path: '/del/c'}, {path: '/other/d'}],
     ];
-    const dirsToAutomaticallyDeleteFrom: Path[] = [];
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
     const reallyDelete = true;
     const interactiveDeletion = true;
     const got = deleteOrListDuplicates(
@@ -255,15 +253,11 @@ describe('deleteOrListDuplicates()', () => {
     );
 
     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      1,
-      true,
-      Path.create('/del/a')
-    );
-    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-      2,
-      true,
-      Path.create('/other/e')
-    );
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(1, true, {
+      path: '/del/a',
+    });
+    expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(2, true, {
+      path: '/other/e',
+    });
   });
 });

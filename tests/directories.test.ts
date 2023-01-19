@@ -13,6 +13,10 @@ import {
 } from '../src/directories';
 import {silenceOutput} from '../src/display';
 import {Path} from '../src/path';
+import {
+  forceVerificationOfDirectoryPaths,
+  VerifiedDirectoryPath,
+} from '../src/secure_directory_path';
 jest.mock('fs');
 
 describe('isSubdirectory()', () => {
@@ -72,56 +76,62 @@ describe('getFilePaths()', () => {
   });
 
   it('returns expected files when dot files are not included', () => {
-    const dirs: Path[] = [Path.create('/tmp')];
+    const dirs: VerifiedDirectoryPath[] =
+      forceVerificationOfDirectoryPaths('/tmp');
     const excludeDirectoryNames: string[] = [];
     const includeDotfiles = false;
     const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
     const expected: [Path, number, number][] = [
-      [Path.create('/tmp/project/foo'), 29, 1007],
-      [Path.create('/tmp/project/bar'), 72, 1008],
+      [{path: '/tmp/project/foo'}, 29, 1007],
+      [{path: '/tmp/project/bar'}, 72, 1008],
     ];
     expect(got).toEqual(expected);
   });
 
   it('returns expected files when dot files are included', () => {
-    const dirs: Path[] = [Path.create('/tmp')];
+    const dirs: VerifiedDirectoryPath[] =
+      forceVerificationOfDirectoryPaths('/tmp');
     const excludeDirectoryNames: string[] = [];
     const includeDotfiles = true;
     const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
     const expected: [Path, number, number][] = [
-      [Path.create('/tmp/git/.git/foo'), 7, 1004],
-      [Path.create('/tmp/git/.git/bar'), 8, 1005],
-      [Path.create('/tmp/project/foo'), 29, 1007],
-      [Path.create('/tmp/project/bar'), 72, 1008],
-      [Path.create('/tmp/another-project/.config'), 31, 1010],
-      [Path.create('/tmp/another-project/.foo'), 32, 1011],
+      [{path: '/tmp/git/.git/foo'}, 7, 1004],
+      [{path: '/tmp/git/.git/bar'}, 8, 1005],
+      [{path: '/tmp/project/foo'}, 29, 1007],
+      [{path: '/tmp/project/bar'}, 72, 1008],
+      [{path: '/tmp/another-project/.config'}, 31, 1010],
+      [{path: '/tmp/another-project/.foo'}, 32, 1011],
     ];
     expect(got).toEqual(expected);
   });
 
   it('returns expected files when "project" is excluded', () => {
-    const dirs: Path[] = [Path.create('/tmp')];
+    const dirs: VerifiedDirectoryPath[] =
+      forceVerificationOfDirectoryPaths('/tmp');
     const excludeDirectoryNames: string[] = ['project'];
     const includeDotfiles = true;
     const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
     const expected: [Path, number, number][] = [
-      [Path.create('/tmp/git/.git/foo'), 7, 1004],
-      [Path.create('/tmp/git/.git/bar'), 8, 1005],
-      [Path.create('/tmp/another-project/.config'), 31, 1010],
-      [Path.create('/tmp/another-project/.foo'), 32, 1011],
+      [{path: '/tmp/git/.git/foo'}, 7, 1004],
+      [{path: '/tmp/git/.git/bar'}, 8, 1005],
+      [{path: '/tmp/another-project/.config'}, 31, 1010],
+      [{path: '/tmp/another-project/.foo'}, 32, 1011],
     ];
     expect(got).toEqual(expected);
   });
 
   it('when given duplicate directories, ignores the second one', () => {
     // duplicate directory /tmp
-    const dirs: Path[] = Path.createMulti('/tmp', '/tmp');
+    const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
+      '/tmp',
+      '/tmp'
+    );
     const excludeDirectoryNames: string[] = [];
     const includeDotfiles = false;
     const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
     const expected: [Path, number, number][] = [
-      [Path.create('/tmp/project/foo'), 29, 1007],
-      [Path.create('/tmp/project/bar'), 72, 1008],
+      [{path: '/tmp/project/foo'}, 29, 1007],
+      [{path: '/tmp/project/bar'}, 72, 1008],
     ];
     // output indicate that all branches in this function are fully covered by tests:
     expect(got).toEqual(expected);
@@ -136,40 +146,45 @@ describe('filesWithNonUniqueSizes()', () => {
   it('returns a list of files with duplicate sizes', () => {
     silenceOutput();
     const filesWithSizes: [Path, number][] = [
-      [Path.create('/a1'), 3],
-      [Path.create('/a2'), 7],
-      [Path.create('/a3'), 12],
-      [Path.create('/a4'), 10],
-      [Path.create('/a5'), 12],
-      [Path.create('/a6'), 3],
-      [Path.create('/a7'), 2],
+      [{path: '/a1'}, 3],
+      [{path: '/a2'}, 7],
+      [{path: '/a3'}, 12],
+      [{path: '/a4'}, 10],
+      [{path: '/a5'}, 12],
+      [{path: '/a6'}, 3],
+      [{path: '/a7'}, 2],
     ];
     const got = filesWithNonUniqueSizes(filesWithSizes);
-    const expected: Path[] = Path.createMulti('/a1', '/a3', '/a5', '/a6');
+    const expected: Path[] = [
+      {path: '/a1'},
+      {path: '/a3'},
+      {path: '/a5'},
+      {path: '/a6'},
+    ];
     expect(got).toEqual(expected);
   });
 });
 
 describe('fileIsInDirectoryOrSubdirectory()', () => {
   it('when given a file that is a a parent directory, returns false', () => {
-    const file = Path.create('/foo/bar');
-    const dir = Path.create('/foo/bar/baz');
+    const file = {path: '/foo/bar'};
+    const dir = {path: '/foo/bar/baz'};
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
   it('when given a file that is a sibling, returns false', () => {
-    const file = Path.create('/foo/bar');
-    const dir = Path.create('/foo/baz');
+    const file = {path: '/foo/bar'};
+    const dir = {path: '/foo/baz'};
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
   it('when given a file that is in the directory, returns true', () => {
-    const file = Path.create('/foo/bar/baz');
-    const dir = Path.create('/foo/bar');
+    const file = {path: '/foo/bar/baz'};
+    const dir = {path: '/foo/bar'};
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = true;
     expect(got).toEqual(expected);

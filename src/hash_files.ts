@@ -13,7 +13,7 @@ export type HashDatum = [Path, string];
 export async function hashFile(file: Path): Promise<HashDatum> {
   return await runCommand<HashDatum>(
     'shasum',
-    ['-a', '256', file.pathString],
+    ['-a', '256', file.path],
     stdout => [file, hashExtractor(stdout)]
   );
 }

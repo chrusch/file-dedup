@@ -8,18 +8,22 @@ import {Path} from './path';
 // All console output depends on this file, this makes
 // it easier to write tests that don't generated unwanted
 // text.
-const productionOutput = console.log;
-const devOutput = () => {};
-let outputFunction = productionOutput;
+const productionLog = console.log;
+const productionWarn = console.warn;
+const testOutput = () => {};
+let standardOutput = productionLog;
+let warnOutput = productionWarn;
 
-export const silentOutput = (): boolean => outputFunction === devOutput;
+export const silentOutput = (): boolean => standardOutput === testOutput;
 
 export function silenceOutput(): void {
-  outputFunction = devOutput;
+  standardOutput = testOutput;
+  warnOutput = testOutput;
 }
 
 export function unSilenceOutput(): void {
-  outputFunction = productionOutput;
+  standardOutput = productionLog;
+  warnOutput = productionLog;
 }
 
 export function showListLengths(filesWithSizes: number, files: number): void {
@@ -44,5 +48,9 @@ export function showTotalDeleted(
 }
 
 export function log(...values: unknown[]) {
-  outputFunction(...values);
+  standardOutput(...values);
+}
+
+export function warn(...values: unknown[]) {
+  warnOutput(...values);
 }

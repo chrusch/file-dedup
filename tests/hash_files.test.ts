@@ -7,12 +7,12 @@
 import {hashFile} from '../src/hash_files';
 import * as runCommand from '../src/run_command';
 import {jest} from '@jest/globals'; // needed for jest.Mocked to work
-import {Path} from '../src/path';
 
 jest.mock('../src/run_command.ts');
+jest.mock('fs');
 describe('hashFile()', () => {
   it('when called, calls runCommand with expected arguments', async () => {
-    const file = Path.create('/tmp/foo');
+    const file = {path: '/tmp/foo'};
     const got = await hashFile(file);
     const expected = undefined;
     expect(got).toEqual(expected);
@@ -21,7 +21,7 @@ describe('hashFile()', () => {
     type RC = jest.Mocked<typeof runCommand.runCommand>;
     const call = (runCommand.runCommand as unknown as RC).mock.calls[0];
     expect(call[0]).toEqual('shasum');
-    expect(call[1]).toEqual(['-a', '256', file.pathString]);
+    expect(call[1]).toEqual(['-a', '256', file.path]);
     expect(typeof call[2]).toEqual('function');
     expect(call[2]('abcd /tmp/cc')).toEqual([file, 'abcd']);
   });

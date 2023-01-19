@@ -9,6 +9,7 @@ import {
   getCandidateFiles,
 } from '../src/get_candidate_files';
 import {Path} from '../src/path';
+import {forceVerificationOfDirectoryPaths} from '../src/secure_directory_path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {
@@ -35,16 +36,16 @@ describe('getCandidateFiles()', () => {
 
   it('when given options, it returns candidate files (i.e. files with non-unique sizes)', () => {
     const options: CandidateFilesOptions = {
-      pathsToTraverse: [Path.create('/tmp')],
+      pathsToTraverse: forceVerificationOfDirectoryPaths('/tmp'),
       dirsToPossiblyDeleteFrom: [],
       exclude: [],
       includeDotfiles: true,
     };
     const got: Path[] = getCandidateFiles(options);
-    const expected: Path[] = Path.createMulti(
-      '/tmp/project/foo',
-      '/tmp/project/bar'
-    );
+    const expected: Path[] = [
+      {path: '/tmp/project/foo'},
+      {path: '/tmp/project/bar'},
+    ];
     expect(got).toEqual(expected);
   });
 });

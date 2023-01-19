@@ -7,7 +7,7 @@
 import {commandLineOptions} from './command_line';
 import {exclude} from './directories';
 import {dedup, DedupOptions} from './dedup';
-import {Path} from './path';
+import {verifyDirectoryPaths} from './secure_directory_path';
 
 // function commandLineDedup()
 //
@@ -20,8 +20,8 @@ export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const reallyDelete = options.reallyDelete;
   const includeDotfiles = options.dotFiles;
   const paths: readonly string[] = options.paths;
-  const dirsToPossiblyDeleteFrom = Path.createMulti(...paths);
-  const pathsToTraverse = Path.createMulti(...args);
+  const dirsToPossiblyDeleteFrom = verifyDirectoryPaths(...paths);
+  const pathsToTraverse = verifyDirectoryPaths(...args);
 
   const dedupOptions: DedupOptions = {
     dirsToPossiblyDeleteFrom,

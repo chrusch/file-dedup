@@ -24,6 +24,8 @@ interface Stat {
 
 export interface FS {
   __setMockFiles: (files: MockFileList) => void;
+  accessSync: (path: string, mode: number) => void;
+  existsSync: (path: string) => boolean;
   lstatSync: (path: string) => Stat;
   readdirSync: (dir: string) => string[];
   realpathSync: (path: string) => string;
@@ -120,10 +122,23 @@ export function realpathSync(path: string): string {
   return path;
 }
 
+// export function accessSync(_path: string, _mode: number): void {
+// return undefined if everything is okay, otherwise throws an error
+export function accessSync(): void {
+  return;
+}
+
+// export function existsSync(_path: string): boolean {
+export function existsSync(): boolean {
+  return true;
+}
+
 fs.__setMockFiles = __setMockFiles;
 fs.readdirSync = readdirSync;
 fs.lstatSync = lstatSync;
 fs.unlinkSync = jest.fn(unlinkSync);
 fs.realpathSync = jest.fn(realpathSync);
+fs.accessSync = jest.fn(accessSync);
+fs.existsSync = jest.fn(existsSync);
 
 export default fs;

@@ -10,6 +10,7 @@ import {readDirectory} from './read_directory';
 import {FileWithSize} from './one_path_per_inode';
 import _ from 'lodash';
 import {Path} from './path';
+import {VerifiedDirectoryPath} from './secure_directory_path';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.
@@ -21,7 +22,7 @@ export const isSubdirectory = (relativePath: string): boolean =>
   relativePath === '' || !relativePath.trim().match(/^\.\./) ? true : false;
 
 export function getFilePaths(
-  dirs: Path[],
+  dirs: VerifiedDirectoryPath[],
   excludeDirecoryNames: readonly string[],
   includeDotfiles: boolean
 ): [Path, number, number][] {
@@ -33,13 +34,13 @@ export function getFilePaths(
     // We avoid recording the same files twice by using the filename as the key
     // of an object. Elsewhere in the code, we ensure that the same inode is not
     // recorded twice under two different paths.
-    files[file.pathString] = [file, size, inode];
+    files[file.path] = [file, size, inode];
   };
 
   const dirCallback = (dir: Path): void => {
     // avoid traversing the same directory twice
-    if (directoriesRead[dir.pathString]) return;
-    directoriesRead[dir.pathString] = true;
+    if (directoriesRead[dir.path]) return;
+    directoriesRead[dir.path] = true;
     readDirectory(
       dir,
       dirCallback,
@@ -49,7 +50,7 @@ export function getFilePaths(
     );
   };
 
-  dirs.forEach(dir => dirCallback(dir));
+  dirs.forEach(dir => dirCallback({path: dir}));
   return Object.values(files);
 }
 
@@ -58,8 +59,8 @@ export const fileIsInDirectoryOrSubdirectory = (
   file: Path,
   dir: Path
 ): boolean => {
-  const realFilePath: string = fs.realpathSync(file.pathString);
-  const realDirPath: string = fs.realpathSync(dir.pathString);
+  const realFilePath: string = fs.realpathSync(file.path);
+  const realDirPath: string = fs.realpathSync(dir.path);
   const relativePath: string = path.relative(realDirPath, realFilePath);
   return isSubdirectory(relativePath);
 };
