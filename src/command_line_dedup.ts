@@ -7,7 +7,7 @@
 import {commandLineOptions} from './command_line';
 import {exclude} from './directories';
 import {dedup, DedupOptions} from './dedup';
-import {verifyDirectoryPaths} from './secure_directory_path';
+import {verifyDirectoryPaths} from './verified_directory_path';
 
 // function commandLineDedup()
 //

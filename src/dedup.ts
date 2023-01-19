@@ -9,7 +9,7 @@ import {deleteOrListDuplicates} from './remove_duplicates';
 import {hashFile} from './hash_files';
 import {doAllWorkInQueue, makeWorkQueue, Job, WorkQueue} from './work_queue';
 import {getCandidateFiles} from './get_candidate_files';
-import {VerifiedDirectoryPath} from './secure_directory_path';
+import {VerifiedDirectoryPath} from './verified_directory_path';
 import {Path} from './path';
 
 export type DedupOptions = {

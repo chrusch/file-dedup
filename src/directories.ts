@@ -10,7 +10,7 @@ import {readDirectory} from './read_directory';
 import {FileWithSize} from './one_path_per_inode';
 import _ from 'lodash';
 import {Path} from './path';
-import {VerifiedDirectoryPath} from './secure_directory_path';
+import {VerifiedDirectoryPath} from './verified_directory_path';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.

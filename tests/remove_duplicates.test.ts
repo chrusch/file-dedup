@@ -17,7 +17,7 @@ import Path from '../src/path';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
-} from '../src/secure_directory_path';
+} from '../src/verified_directory_path';
 jest.mock('fs');
 jest.mock('../src/delete_file.ts');
 jest.mock('../src/interaction.ts');

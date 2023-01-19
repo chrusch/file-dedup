@@ -10,7 +10,7 @@ import * as gcf from '../src/get_candidate_files';
 import * as hash_file from '../src/hash_files';
 import * as rd from '../src/remove_duplicates';
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {forceVerificationOfDirectoryPaths} from '../src/secure_directory_path';
+import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
 
 jest.mock('../src/get_candidate_files.ts');
 jest.mock('../src/hash_files.ts');

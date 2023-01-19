@@ -9,7 +9,7 @@ import {
   getCandidateFiles,
 } from '../src/get_candidate_files';
 import {Path} from '../src/path';
-import {forceVerificationOfDirectoryPaths} from '../src/secure_directory_path';
+import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {

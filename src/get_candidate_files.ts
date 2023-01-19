@@ -11,7 +11,7 @@ import {
   onePathPerInode,
 } from './one_path_per_inode';
 import {Path} from './path';
-import {VerifiedDirectoryPath} from './secure_directory_path';
+import {VerifiedDirectoryPath} from './verified_directory_path';
 
 export interface CandidateFilesOptions {
   pathsToTraverse: VerifiedDirectoryPath[];

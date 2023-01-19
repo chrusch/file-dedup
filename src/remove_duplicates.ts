@@ -9,7 +9,7 @@ import {fileIsInDirectoryOrSubdirectory} from './directories';
 import {showDuplicates, showTotalDeleted} from './display';
 import {confirmDelete} from './interaction';
 import {Path} from './path';
-import {VerifiedDirectoryPath} from './secure_directory_path';
+import {VerifiedDirectoryPath} from './verified_directory_path';
 
 export const fileIsInADeleteDirectory = (
   file: Path,
