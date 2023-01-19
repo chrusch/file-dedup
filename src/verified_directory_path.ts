@@ -13,7 +13,7 @@ import {warn} from './display';
 // represents a path that has been verified to represent
 // an exiting accessible directory
 // At runtime, it is a just string, but with TypeScript,
-// we pretent that it is an object with _brand property
+// we can pretend that it is also an object with _brand property
 export type VerifiedDirectoryPath = string & {
   _brand: 'VerifiedDirectoryPath';
 };
@@ -29,19 +29,24 @@ function createOneVerifiedDirectoryPath(
     verifyDirectoryPath(normalizedPath);
     return normalizedPath;
   } catch (err) {
-    const e = err as {message: string};
-    outputError(e.message, givenPath);
-    return undefined;
+    if (err && typeof err === 'object') {
+      if ('message' in err && typeof err.message === 'string') {
+        outputError(err.message, givenPath);
+        return undefined;
+      }
+    }
+    throw err;
   }
 }
 
-// Ignores invalid paths
+// discards invalid paths
 export function verifyDirectoryPaths(
   ...paths: readonly string[]
 ): VerifiedDirectoryPath[] {
   return _(paths).map(createOneVerifiedDirectoryPath).compact().value();
 }
 
+// circumvents normal verifications
 // strictly for testing
 export function forceVerificationOfDirectoryPaths(
   ...paths: readonly string[]
@@ -49,7 +54,7 @@ export function forceVerificationOfDirectoryPaths(
   return _(paths).map(forceVerificationOfDirectoryPath).compact().value();
 }
 
-// circumvents normal security checks
+// circumvents normal verifications
 // strictly for testing
 export function forceVerificationOfDirectoryPath(
   path: string
