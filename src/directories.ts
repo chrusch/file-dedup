@@ -7,7 +7,7 @@
 import path from 'path';
 import fs from 'fs';
 import {readDirectory} from './read_directory';
-import {FileWithSize} from './one_path_per_inode';
+import {FileWithSize, FileWithSizeAndInode} from './one_path_per_inode';
 import _ from 'lodash';
 import {Path} from './path';
 import {VerifiedDirectoryPath} from './verified_directory_path';
@@ -25,8 +25,8 @@ export function getFilePaths(
   dirs: VerifiedDirectoryPath[],
   excludeDirecoryNames: readonly string[],
   includeDotfiles: boolean
-): [Path, number, number][] {
-  const files: {[filepath: string]: [Path, number, number]} = {};
+): FileWithSizeAndInode[] {
+  const files: {[filepath: string]: FileWithSizeAndInode} = {};
   const directoriesRead: {[path: string]: true} = {};
 
   const fileCallback = (file: Path, size: number, inode: number): void => {
