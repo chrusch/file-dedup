@@ -6,12 +6,18 @@
 
 import {Command} from 'commander';
 
-// How this program runs depends on the options given on the command line.
-// Here is where those options are defined.
+/** How this program runs depends on the options given on the command line. */
 export interface Options {
+  /** interactively delete duplicate files */
   interactive: boolean;
+  /** read dot files and descend into dot directories? */
   dotFiles: boolean;
+  /** follow symlinks while traversing directory structures? */
+  followSymlinks: boolean;
+  /** paths to non-interactively delete files in */
   paths: readonly string[];
+  /** confirmation that the user really wants to let the program delete files
+   * according to the given options */
   reallyDelete: boolean;
 }
 
@@ -25,7 +31,7 @@ export function commandLineOptions(
 
   program
     .version('0.0.1', '-v, --version')
-    .usage('[-h] [-i] [-d] [-p <paths...>] [--reallyDelete] <dir...>')
+    .usage('[-h] [-i] [-d] [-l] [-p <paths...>] [--reallyDelete] <dir...>')
     .argument('<dir...>', 'directories to look for duplicates in')
     .option(
       '-p, --paths <paths...>',
@@ -40,6 +46,11 @@ export function commandLineOptions(
     .option(
       '-d, --dotFiles',
       'By default, files and directories whose names begin with "." are ignored. Use this option to override this behavior.',
+      false
+    )
+    .option(
+      '-l, --followSymlinks',
+      'By default, symlinks are ignored while traversing directories. Use this option to override this behavior.',
       false
     )
     .option(

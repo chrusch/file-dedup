@@ -38,12 +38,14 @@ describe('readDirectory()', () => {
     const folder = {path: '/tmp/project'};
     const excludedNames: string[] = ['foo', 'bar'];
     const includeDotfiles = true;
+    const followSymlinks = false;
     const functionCall = () =>
       readDirectory(
         folder,
         dirCallback,
         fileCallback,
         excludedNames,
+        followSymlinks,
         includeDotfiles
       );
     expect(functionCall).not.toThrowError();
@@ -52,6 +54,7 @@ describe('readDirectory()', () => {
   it('excludes dot files when configured to do so', () => {
     const folder = {path: '/tmp/git'};
     const excludedNames: string[] = [];
+    const followSymlinks = false;
     const includeDotfiles = false;
     const functionCall = () =>
       readDirectory(
@@ -59,6 +62,7 @@ describe('readDirectory()', () => {
         dirCallback,
         fileCallback,
         excludedNames,
+        followSymlinks,
         includeDotfiles
       );
     expect(functionCall).not.toThrowError();
@@ -67,6 +71,7 @@ describe('readDirectory()', () => {
   it('includes included files', () => {
     const folder = {path: '/tmp/project'};
     const excludedNames: string[] = ['foo'];
+    const followSymlinks = false;
     const includeDotfiles = true;
     const functionCall = () =>
       readDirectory(
@@ -74,6 +79,7 @@ describe('readDirectory()', () => {
         dirCallback,
         fileCallback,
         excludedNames,
+        followSymlinks,
         includeDotfiles
       );
     expect(functionCall).toThrowError('in file callback');
@@ -82,6 +88,7 @@ describe('readDirectory()', () => {
   it('includes included directories', () => {
     const folder = {path: '/tmp/git'};
     const excludedNames: string[] = ['foo'];
+    const followSymlinks = false;
     const includeDotfiles = true;
     const functionCall = () =>
       readDirectory(
@@ -89,6 +96,7 @@ describe('readDirectory()', () => {
         dirCallback,
         fileCallback,
         excludedNames,
+        followSymlinks,
         includeDotfiles
       );
     expect(functionCall).toThrowError('in dir callback');
@@ -97,6 +105,7 @@ describe('readDirectory()', () => {
   it('excludes dotfiles when configured to do so ', () => {
     const folder = {path: '/tmp/another-project'};
     const excludedNames: string[] = [];
+    const followSymlinks = false;
     const includeDotfiles = false;
     const functionCall = () =>
       readDirectory(
@@ -104,6 +113,7 @@ describe('readDirectory()', () => {
         dirCallback,
         fileCallback,
         excludedNames,
+        followSymlinks,
         includeDotfiles
       );
     expect(functionCall).not.toThrowError();
@@ -112,6 +122,7 @@ describe('readDirectory()', () => {
   it('includes dotfiles when configured to do so ', () => {
     const folder = {path: '/tmp/another-project'};
     const excludedNames: string[] = [];
+    const followSymlinks = false;
     const includeDotfiles = true;
     const functionCall = () =>
       readDirectory(
@@ -119,6 +130,7 @@ describe('readDirectory()', () => {
         dirCallback,
         fileCallback,
         excludedNames,
+        followSymlinks,
         includeDotfiles
       );
     expect(functionCall).toThrowError('in file callback');

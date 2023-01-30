@@ -79,8 +79,14 @@ describe('getFilePaths()', () => {
     const dirs: VerifiedDirectoryPath[] =
       forceVerificationOfDirectoryPaths('/tmp');
     const excludeDirectoryNames: string[] = [];
+    const followSymlinks = false;
     const includeDotfiles = false;
-    const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
+    const got = getFilePaths(
+      dirs,
+      excludeDirectoryNames,
+      followSymlinks,
+      includeDotfiles
+    );
     const expected: [Path, number, number][] = [
       [{path: '/tmp/project/foo'}, 29, 1007],
       [{path: '/tmp/project/bar'}, 72, 1008],
@@ -92,8 +98,14 @@ describe('getFilePaths()', () => {
     const dirs: VerifiedDirectoryPath[] =
       forceVerificationOfDirectoryPaths('/tmp');
     const excludeDirectoryNames: string[] = [];
+    const followSymlinks = false;
     const includeDotfiles = true;
-    const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
+    const got = getFilePaths(
+      dirs,
+      excludeDirectoryNames,
+      followSymlinks,
+      includeDotfiles
+    );
     const expected: [Path, number, number][] = [
       [{path: '/tmp/git/.git/foo'}, 7, 1004],
       [{path: '/tmp/git/.git/bar'}, 8, 1005],
@@ -109,8 +121,14 @@ describe('getFilePaths()', () => {
     const dirs: VerifiedDirectoryPath[] =
       forceVerificationOfDirectoryPaths('/tmp');
     const excludeDirectoryNames: string[] = ['project'];
+    const followSymlinks = false;
     const includeDotfiles = true;
-    const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
+    const got = getFilePaths(
+      dirs,
+      excludeDirectoryNames,
+      followSymlinks,
+      includeDotfiles
+    );
     const expected: [Path, number, number][] = [
       [{path: '/tmp/git/.git/foo'}, 7, 1004],
       [{path: '/tmp/git/.git/bar'}, 8, 1005],
@@ -127,8 +145,14 @@ describe('getFilePaths()', () => {
       '/tmp'
     );
     const excludeDirectoryNames: string[] = [];
+    const followSymlinks = false;
     const includeDotfiles = false;
-    const got = getFilePaths(dirs, excludeDirectoryNames, includeDotfiles);
+    const got = getFilePaths(
+      dirs,
+      excludeDirectoryNames,
+      followSymlinks,
+      includeDotfiles
+    );
     const expected: [Path, number, number][] = [
       [{path: '/tmp/project/foo'}, 29, 1007],
       [{path: '/tmp/project/bar'}, 72, 1008],

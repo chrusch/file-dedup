@@ -9,10 +9,12 @@ import {exclude} from './directories';
 import {dedup, DedupOptions} from './dedup';
 import {verifyDirectoryPaths} from './verified_directory_path';
 
-// function commandLineDedup()
-//
-// get options from the command line and list duplicate files or
-// deduplicate files as requested through the options
+/**
+ * Get options from the command line and list duplicate files or
+ * delete duplicate files according to the specific options given.
+ *
+ * @param argv - The arguments passed to the program through the command line
+ */
 export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const [options, args] = commandLineOptions(argv);
 
@@ -22,10 +24,12 @@ export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const paths: readonly string[] = options.paths;
   const dirsToPossiblyDeleteFrom = verifyDirectoryPaths(...paths);
   const pathsToTraverse = verifyDirectoryPaths(...args);
+  const followSymlinks = options.followSymlinks;
 
   const dedupOptions: DedupOptions = {
     dirsToPossiblyDeleteFrom,
     exclude,
+    followSymlinks,
     includeDotfiles,
     interactiveDeletion,
     pathsToTraverse,

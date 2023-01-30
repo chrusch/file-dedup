@@ -6,6 +6,7 @@
 
 import {hashFile} from '../src/hash_files';
 import * as runCommand from '../src/run_command';
+/* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked to work
 
 jest.mock('../src/run_command.ts');

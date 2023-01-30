@@ -39,6 +39,7 @@ describe('getCandidateFiles()', () => {
       pathsToTraverse: forceVerificationOfDirectoryPaths('/tmp'),
       dirsToPossiblyDeleteFrom: [],
       exclude: [],
+      followSymlinks: false,
       includeDotfiles: true,
     };
     const got: Path[] = getCandidateFiles(options);

@@ -17,6 +17,7 @@ export interface CandidateFilesOptions {
   pathsToTraverse: VerifiedDirectoryPath[];
   dirsToPossiblyDeleteFrom: VerifiedDirectoryPath[];
   exclude: readonly string[];
+  followSymlinks: boolean;
   includeDotfiles: boolean;
 }
 
@@ -34,6 +35,7 @@ export function getCandidateFiles(
   const filesWithSizesAndInodes: FileWithSizeAndInode[] = getFilePaths(
     dirsToTraverse,
     options.exclude,
+    options.followSymlinks,
     options.includeDotfiles
   );
 

@@ -9,6 +9,7 @@ import {silenceOutput} from '../src/display';
 import * as gcf from '../src/get_candidate_files';
 import * as hash_file from '../src/hash_files';
 import * as rd from '../src/remove_duplicates';
+/* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
 import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
 
@@ -26,6 +27,7 @@ describe('dedup()', () => {
       dirsToPossiblyDeleteFrom:
         forceVerificationOfDirectoryPaths('/tmp/tmp/foo'),
       exclude: [],
+      followSymlinks: false,
       includeDotfiles: false,
       interactiveDeletion: false,
       pathsToTraverse: forceVerificationOfDirectoryPaths('/tmp'),

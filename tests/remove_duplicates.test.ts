@@ -12,6 +12,7 @@ import fs from 'fs';
 import * as delete_file from '../src/delete_file';
 import * as interaction from '../src/interaction';
 import {silenceOutput} from '../src/display';
+/* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
 import Path from '../src/path';
 import {

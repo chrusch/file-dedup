@@ -24,6 +24,7 @@ export const isSubdirectory = (relativePath: string): boolean =>
 export function getFilePaths(
   dirs: VerifiedDirectoryPath[],
   excludeDirecoryNames: readonly string[],
+  followSymlinks: boolean,
   includeDotfiles: boolean
 ): FileWithSizeAndInode[] {
   const files: {[filepath: string]: FileWithSizeAndInode} = {};
@@ -31,8 +32,8 @@ export function getFilePaths(
 
   const fileCallback = (file: Path, size: number, inode: number): void => {
     // We are just recording information for each file.
-    // We avoid recording the same files twice by using the filename as the key
-    // of an object. Elsewhere in the code, we ensure that the same inode is not
+    // We avoid recording the same files twice by using the path as the key
+    // to the file information. Elsewhere in the code, we ensure that the same inode is not
     // recorded twice under two different paths.
     files[file.path] = [file, size, inode];
   };
@@ -46,6 +47,7 @@ export function getFilePaths(
       dirCallback,
       fileCallback,
       excludeDirecoryNames,
+      followSymlinks,
       includeDotfiles
     );
   };

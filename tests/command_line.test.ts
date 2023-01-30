@@ -18,6 +18,7 @@ describe('commandLineOptions(argv)', () => {
       interactive: false,
       paths: [],
       reallyDelete: false,
+      followSymlinks: false,
     };
     const args: string[] = ['/tmp'];
     const expected = [options, args];
@@ -33,6 +34,7 @@ describe('commandLineOptions(argv)', () => {
       '-p',
       '/baz/bar',
       '--reallyDelete',
+      '-l',
       '/tmp',
       '/foo/bar',
       '/baz',
@@ -40,6 +42,7 @@ describe('commandLineOptions(argv)', () => {
     const got = commandLineOptions(argv);
     const options: Options = {
       dotFiles: true,
+      followSymlinks: true,
       interactive: true,
       paths: ['/baz/bar'],
       reallyDelete: true,
@@ -62,6 +65,7 @@ describe('commandLineOptions(argv)', () => {
     const got = commandLineOptions(argv);
     const options: Options = {
       dotFiles: false,
+      followSymlinks: false,
       interactive: false,
       paths: ['/baza/bara', '/bazb/barb'],
       reallyDelete: true,
@@ -80,6 +84,7 @@ describe('commandLineOptions(argv)', () => {
       '--paths',
       '/baza/bara',
       '--reallyDelete',
+      '--followSymlinks',
       '/tmpa',
       '/fooa/bara',
       '/baza',
@@ -87,6 +92,7 @@ describe('commandLineOptions(argv)', () => {
     const got = commandLineOptions(argv);
     const options: Options = {
       dotFiles: true,
+      followSymlinks: true,
       interactive: true,
       paths: ['/baza/bara'],
       reallyDelete: true,

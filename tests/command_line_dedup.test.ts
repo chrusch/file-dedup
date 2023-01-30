@@ -36,6 +36,7 @@ describe('commandLineDedup()', () => {
     const args = {
       dirsToPossiblyDeleteFrom: [],
       exclude: ['node_modules', '.git'],
+      followSymlinks: false,
       includeDotfiles: false,
       interactiveDeletion: false,
       pathsToTraverse: ['/tmp'],
@@ -67,6 +68,7 @@ describe('commandLineDedup()', () => {
     const args = {
       dirsToPossiblyDeleteFrom: ['/tmp/a', '/tmp/b'],
       exclude: ['node_modules', '.git'],
+      followSymlinks: false,
       includeDotfiles: true,
       interactiveDeletion: true,
       pathsToTraverse: ['/tmp/c', '/tmp/d'],

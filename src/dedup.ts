@@ -15,6 +15,7 @@ import {Path} from './path';
 export type DedupOptions = {
   dirsToPossiblyDeleteFrom: VerifiedDirectoryPath[];
   exclude: readonly string[];
+  followSymlinks: boolean;
   includeDotfiles: boolean;
   interactiveDeletion: boolean;
   pathsToTraverse: VerifiedDirectoryPath[];
