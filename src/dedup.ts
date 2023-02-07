@@ -40,7 +40,7 @@ export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
 
   // create a job queue to hash all candidate files
   // using parallel processing
-  const workQueue: WorkQueue = makeWorkQueue<Path>(candidateFiles, hashOneFile);
+  const workQueue: WorkQueue = makeWorkQueue(candidateFiles, hashOneFile);
   await doAllWorkInQueue(workQueue, 100);
 
   const duplicateFiles: Path[][] = getDuplicates(hashData);
