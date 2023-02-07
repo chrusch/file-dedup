@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {deleteFile} from './delete_file';
-import {fileIsInDirectoryOrSubdirectory} from './directories';
+import {fileIsInDirectoryOrSubdirectory} from './subdirectories';
 import {showDuplicates, showTotalDeleted} from './display';
 import {confirmDelete} from './interaction';
 import {aPath, Path} from './path';

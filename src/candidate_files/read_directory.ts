@@ -6,7 +6,7 @@
 
 import pathModule from 'path';
 import {lstatSync, readdirSync, statSync} from 'fs';
-import {aPath, Path} from './path';
+import {aPath, Path} from '../path';
 
 export function getFileStatus(path: Path, followSymlinks: boolean) {
   return followSymlinks ? statSync(path) : lstatSync(path);
