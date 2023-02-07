@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {commandLineOptions} from './command_line';
+import {commandLineOptions, Options} from './command_line';
 import {dedup, DedupOptions} from './dedup';
 import {verifyDirectoryPaths} from './verified_directory_path';
 
@@ -20,7 +20,11 @@ export const exclude = ['node_modules', '.git'];
  */
 export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const [options, args] = commandLineOptions(argv);
+  const dedupOptions = processOptions(options, args);
+  await dedup(dedupOptions);
+}
 
+export function processOptions(options: Options, args: string[]): DedupOptions {
   const interactiveDeletion = options.interactive;
   const reallyDelete = options.reallyDelete;
   const includeDotfiles = options.dotFiles;
@@ -29,7 +33,7 @@ export async function commandLineDedup(argv: readonly string[]): Promise<void> {
   const pathsToTraverse = verifyDirectoryPaths(...args);
   const followSymlinks = options.followSymlinks;
 
-  const dedupOptions: DedupOptions = {
+  return {
     dirsToPossiblyDeleteFrom,
     exclude,
     followSymlinks,
@@ -38,6 +42,4 @@ export async function commandLineDedup(argv: readonly string[]): Promise<void> {
     pathsToTraverse,
     reallyDelete,
   };
-
-  await dedup(dedupOptions);
 }
