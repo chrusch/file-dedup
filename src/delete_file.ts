@@ -14,9 +14,9 @@ export const deleteFile = (
   reportDeletion = true
 ) => {
   if (reallyDelete) {
-    fs.unlinkSync(file.path);
-    if (reportDeletion) log(`deleting ${file.path};`);
+    fs.unlinkSync(file);
+    if (reportDeletion) log(`deleting ${file};`);
   } else {
-    if (reportDeletion) log(`not deleting ${file.path};`);
+    if (reportDeletion) log(`not deleting ${file};`);
   }
 };

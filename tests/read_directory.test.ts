@@ -5,6 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {readDirectory} from '../src/read_directory';
+import {aPath} from '../src/path';
 jest.mock('fs');
 
 describe('readDirectory()', () => {
@@ -35,7 +36,7 @@ describe('readDirectory()', () => {
   };
 
   it('excludes excluded files', () => {
-    const folder = {path: '/tmp/project'};
+    const folder = aPath('/tmp/project');
     const excludedNames: string[] = ['foo', 'bar'];
     const includeDotfiles = true;
     const followSymlinks = false;
@@ -52,7 +53,7 @@ describe('readDirectory()', () => {
   });
 
   it('excludes dot files when configured to do so', () => {
-    const folder = {path: '/tmp/git'};
+    const folder = aPath('/tmp/git');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
@@ -69,7 +70,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes included files', () => {
-    const folder = {path: '/tmp/project'};
+    const folder = aPath('/tmp/project');
     const excludedNames: string[] = ['foo'];
     const followSymlinks = false;
     const includeDotfiles = true;
@@ -86,7 +87,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes included directories', () => {
-    const folder = {path: '/tmp/git'};
+    const folder = aPath('/tmp/git');
     const excludedNames: string[] = ['foo'];
     const followSymlinks = false;
     const includeDotfiles = true;
@@ -103,7 +104,7 @@ describe('readDirectory()', () => {
   });
 
   it('excludes dotfiles when configured to do so ', () => {
-    const folder = {path: '/tmp/another-project'};
+    const folder = aPath('/tmp/another-project');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
@@ -120,7 +121,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes dotfiles when configured to do so ', () => {
-    const folder = {path: '/tmp/another-project'};
+    const folder = aPath('/tmp/another-project');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = true;

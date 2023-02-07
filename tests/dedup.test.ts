@@ -12,6 +12,7 @@ import * as rd from '../src/remove_duplicates';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
 import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
+import {aPath} from '../src/path';
 
 jest.mock('../src/get_candidate_files.ts');
 jest.mock('../src/hash_files.ts');
@@ -35,9 +36,9 @@ describe('dedup()', () => {
     };
     type GCF = jest.Mocked<typeof gcf.getCandidateFiles>;
     (gcf.getCandidateFiles as GCF).mockReturnValue([
-      {path: '/tmp/foo'},
-      {path: '/tmp/bar'},
-      {path: '/tmp/baz'},
+      aPath('/tmp/foo'),
+      aPath('/tmp/bar'),
+      aPath('/tmp/baz'),
     ]);
     type HashFile = jest.Mocked<typeof hash_file.hashFile>;
     (hash_file.hashFile as HashFile).mockImplementation(_file => {
@@ -45,7 +46,7 @@ describe('dedup()', () => {
     });
 
     const getDuplicatesRet = [
-      [{path: '/tmp/foo'}, {path: '/tmp/bar'}, {path: '/tmp/baz'}],
+      [aPath('/tmp/foo'), aPath('/tmp/bar'), aPath('/tmp/baz')],
     ];
     const got = await dedup(options);
 

@@ -8,7 +8,7 @@ import {deleteFile} from './delete_file';
 import {fileIsInDirectoryOrSubdirectory} from './directories';
 import {showDuplicates, showTotalDeleted} from './display';
 import {confirmDelete} from './interaction';
-import {Path} from './path';
+import {aPath, Path} from './path';
 import {VerifiedDirectoryPath} from './verified_directory_path';
 
 export const fileIsInADeleteDirectory = (
@@ -16,7 +16,7 @@ export const fileIsInADeleteDirectory = (
   dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[]
 ): boolean =>
   dirsToAutomaticallyDeleteFrom.some(dir =>
-    fileIsInDirectoryOrSubdirectory(file, {path: dir})
+    fileIsInDirectoryOrSubdirectory(file, aPath(dir))
   );
 
 // We have a list of duplicate files. Now we have to do something with them.
@@ -65,7 +65,7 @@ export const deleteOrListDuplicates = (
     if (!interactiveDeletion) return;
     remainingUndeletedFiles.forEach((file: Path) => {
       if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-      if (confirmDelete(file.path)) {
+      if (confirmDelete(file)) {
         deletionRecordKeeping();
         deleteFile(reallyDelete, file);
       }

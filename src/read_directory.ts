@@ -6,10 +6,10 @@
 
 import pathModule from 'path';
 import {lstatSync, readdirSync, statSync} from 'fs';
-import {Path} from './path';
+import {aPath, Path} from './path';
 
 export function getFileStatus(path: Path, followSymlinks: boolean) {
-  return followSymlinks ? statSync(path.path) : lstatSync(path.path);
+  return followSymlinks ? statSync(path) : lstatSync(path);
 }
 
 export function readDirectory(
@@ -20,18 +20,18 @@ export function readDirectory(
   followSymlinks: boolean,
   includeDotfiles: boolean
 ): void {
-  const files = readdirSync(dir.path);
+  const files = readdirSync(dir);
   files.forEach(file => {
     if (excludedNames.includes(file)) return;
     if (!includeDotfiles && file.match('^\\.')) return;
 
-    const aPath = new Path(pathModule.join(dir.path, file));
-    const fileStatus = getFileStatus(aPath, followSymlinks);
+    const pth = aPath(pathModule.join(dir, file));
+    const fileStatus = getFileStatus(pth, followSymlinks);
 
     if (fileStatus.isDirectory()) {
-      dirCallback(aPath);
+      dirCallback(pth);
     } else if (fileStatus.isFile()) {
-      fileCallback(aPath, fileStatus.size, fileStatus.ino);
+      fileCallback(pth, fileStatus.size, fileStatus.ino);
     }
   });
 }

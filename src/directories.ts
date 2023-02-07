@@ -9,7 +9,7 @@ import fs from 'fs';
 import {readDirectory} from './read_directory';
 import {FileWithSize, FileWithSizeAndInode} from './one_path_per_inode';
 import _ from 'lodash';
-import {Path} from './path';
+import {aPath, Path} from './path';
 import {VerifiedDirectoryPath} from './verified_directory_path';
 
 // For now we always exclude these directories.
@@ -27,21 +27,21 @@ export function getFilePaths(
   followSymlinks: boolean,
   includeDotfiles: boolean
 ): FileWithSizeAndInode[] {
-  const files: {[filepath: string]: FileWithSizeAndInode} = {};
-  const directoriesRead: {[path: string]: true} = {};
+  const files: Map<Path, FileWithSizeAndInode> = new Map();
+  const directoriesRead: Set<Path> = new Set();
 
   const fileCallback = (file: Path, size: number, inode: number): void => {
     // We are just recording information for each file.
     // We avoid recording the same files twice by using the path as the key
     // to the file information. Elsewhere in the code, we ensure that the same inode is not
     // recorded twice under two different paths.
-    files[file.path] = [file, size, inode];
+    files.set(file, [file, size, inode]);
   };
 
   const dirCallback = (dir: Path): void => {
     // avoid traversing the same directory twice
-    if (directoriesRead[dir.path]) return;
-    directoriesRead[dir.path] = true;
+    if (directoriesRead.has(dir)) return;
+    directoriesRead.add(dir);
     readDirectory(
       dir,
       dirCallback,
@@ -52,8 +52,8 @@ export function getFilePaths(
     );
   };
 
-  dirs.forEach(dir => dirCallback({path: dir}));
-  return Object.values(files);
+  dirs.forEach(dir => dirCallback(aPath(dir)));
+  return Array.from(files.values());
 }
 
 // Is file in dir or a subdirectory of dir?
@@ -61,8 +61,8 @@ export const fileIsInDirectoryOrSubdirectory = (
   file: Path,
   dir: Path
 ): boolean => {
-  const realFilePath: string = fs.realpathSync(file.path);
-  const realDirPath: string = fs.realpathSync(dir.path);
+  const realFilePath: string = fs.realpathSync(file);
+  const realDirPath: string = fs.realpathSync(dir);
   const relativePath: string = path.relative(realDirPath, realFilePath);
   return isSubdirectory(relativePath);
 };

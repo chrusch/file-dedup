@@ -12,6 +12,7 @@ import {
   showTotalDeleted,
   silenceOutput,
 } from '../src/display';
+import {aPath} from '../src/path';
 jest.mock('fs');
 
 describe('silentOutput()', () => {
@@ -56,7 +57,7 @@ describe('showListLengths()', () => {
 describe('showDuplicates()', () => {
   it('does not output anything when output is silenced', () => {
     silenceOutput();
-    const got = showDuplicates([{path: '/a'}, {path: '/b'}, {path: '/c'}]);
+    const got = showDuplicates([aPath('/a'), aPath('/b'), aPath('/c')]);
     const expected = undefined;
     expect(got).toEqual(expected);
   });

@@ -6,6 +6,7 @@
 
 import {deleteFile} from '../src/delete_file';
 import {silenceOutput} from '../src/display';
+import {aPath} from '../src/path';
 jest.mock('fs');
 
 describe('deleteFile()', () => {
@@ -26,14 +27,14 @@ describe('deleteFile()', () => {
 
   it('when reallyDelete is true, file is deleted', () => {
     const reallyDelete = true;
-    const file = {path: '/tmp/foo2'};
+    const file = aPath('/tmp/foo2');
     deleteFile(reallyDelete, file);
-    expect(deletedFile).toEqual(file.path);
+    expect(deletedFile).toEqual(file);
   });
 
   it('when reallyDelete is false, file is not deleted', () => {
     const reallyDelete = false;
-    const file = {path: '/tmp/foo3'};
+    const file = aPath('/tmp/foo3');
     deleteFile(reallyDelete, file);
     expect(deletedFile).toEqual('none');
   });

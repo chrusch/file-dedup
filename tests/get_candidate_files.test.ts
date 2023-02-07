@@ -10,6 +10,7 @@ import {
 } from '../src/get_candidate_files';
 import {Path} from '../src/path';
 import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
+import {aPath} from '../src/path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {
@@ -44,8 +45,8 @@ describe('getCandidateFiles()', () => {
     };
     const got: Path[] = getCandidateFiles(options);
     const expected: Path[] = [
-      {path: '/tmp/project/foo'},
-      {path: '/tmp/project/bar'},
+      aPath('/tmp/project/foo'),
+      aPath('/tmp/project/bar'),
     ];
     expect(got).toEqual(expected);
   });

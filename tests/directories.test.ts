@@ -12,7 +12,7 @@ import {
   isSubdirectory,
 } from '../src/directories';
 import {silenceOutput} from '../src/display';
-import {Path} from '../src/path';
+import {aPath, Path} from '../src/path';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
@@ -88,8 +88,8 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number, number][] = [
-      [{path: '/tmp/project/foo'}, 29, 1007],
-      [{path: '/tmp/project/bar'}, 72, 1008],
+      [aPath('/tmp/project/foo'), 29, 1007],
+      [aPath('/tmp/project/bar'), 72, 1008],
     ];
     expect(got).toEqual(expected);
   });
@@ -107,12 +107,12 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number, number][] = [
-      [{path: '/tmp/git/.git/foo'}, 7, 1004],
-      [{path: '/tmp/git/.git/bar'}, 8, 1005],
-      [{path: '/tmp/project/foo'}, 29, 1007],
-      [{path: '/tmp/project/bar'}, 72, 1008],
-      [{path: '/tmp/another-project/.config'}, 31, 1010],
-      [{path: '/tmp/another-project/.foo'}, 32, 1011],
+      [aPath('/tmp/git/.git/foo'), 7, 1004],
+      [aPath('/tmp/git/.git/bar'), 8, 1005],
+      [aPath('/tmp/project/foo'), 29, 1007],
+      [aPath('/tmp/project/bar'), 72, 1008],
+      [aPath('/tmp/another-project/.config'), 31, 1010],
+      [aPath('/tmp/another-project/.foo'), 32, 1011],
     ];
     expect(got).toEqual(expected);
   });
@@ -130,10 +130,10 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number, number][] = [
-      [{path: '/tmp/git/.git/foo'}, 7, 1004],
-      [{path: '/tmp/git/.git/bar'}, 8, 1005],
-      [{path: '/tmp/another-project/.config'}, 31, 1010],
-      [{path: '/tmp/another-project/.foo'}, 32, 1011],
+      [aPath('/tmp/git/.git/foo'), 7, 1004],
+      [aPath('/tmp/git/.git/bar'), 8, 1005],
+      [aPath('/tmp/another-project/.config'), 31, 1010],
+      [aPath('/tmp/another-project/.foo'), 32, 1011],
     ];
     expect(got).toEqual(expected);
   });
@@ -154,8 +154,8 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number, number][] = [
-      [{path: '/tmp/project/foo'}, 29, 1007],
-      [{path: '/tmp/project/bar'}, 72, 1008],
+      [aPath('/tmp/project/foo'), 29, 1007],
+      [aPath('/tmp/project/bar'), 72, 1008],
     ];
     // output indicate that all branches in this function are fully covered by tests:
     expect(got).toEqual(expected);
@@ -170,20 +170,20 @@ describe('filesWithNonUniqueSizes()', () => {
   it('returns a list of files with duplicate sizes', () => {
     silenceOutput();
     const filesWithSizes: [Path, number][] = [
-      [{path: '/a1'}, 3],
-      [{path: '/a2'}, 7],
-      [{path: '/a3'}, 12],
-      [{path: '/a4'}, 10],
-      [{path: '/a5'}, 12],
-      [{path: '/a6'}, 3],
-      [{path: '/a7'}, 2],
+      [aPath('/a1'), 3],
+      [aPath('/a2'), 7],
+      [aPath('/a3'), 12],
+      [aPath('/a4'), 10],
+      [aPath('/a5'), 12],
+      [aPath('/a6'), 3],
+      [aPath('/a7'), 2],
     ];
     const got = filesWithNonUniqueSizes(filesWithSizes);
     const expected: Path[] = [
-      {path: '/a1'},
-      {path: '/a3'},
-      {path: '/a5'},
-      {path: '/a6'},
+      aPath('/a1'),
+      aPath('/a3'),
+      aPath('/a5'),
+      aPath('/a6'),
     ];
     expect(got).toEqual(expected);
   });
@@ -191,24 +191,24 @@ describe('filesWithNonUniqueSizes()', () => {
 
 describe('fileIsInDirectoryOrSubdirectory()', () => {
   it('when given a file that is a a parent directory, returns false', () => {
-    const file = {path: '/foo/bar'};
-    const dir = {path: '/foo/bar/baz'};
+    const file = aPath('/foo/bar');
+    const dir = aPath('/foo/bar/baz');
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
   it('when given a file that is a sibling, returns false', () => {
-    const file = {path: '/foo/bar'};
-    const dir = {path: '/foo/baz'};
+    const file = aPath('/foo/bar');
+    const dir = aPath('/foo/baz');
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
   it('when given a file that is in the directory, returns true', () => {
-    const file = {path: '/foo/bar/baz'};
-    const dir = {path: '/foo/bar'};
+    const file = aPath('/foo/bar/baz');
+    const dir = aPath('/foo/bar');
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = true;
     expect(got).toEqual(expected);
