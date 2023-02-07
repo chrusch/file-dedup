@@ -7,21 +7,21 @@
 import {
   deleteOrListDuplicates,
   fileIsInADeleteDirectory,
-} from '../src/remove_duplicates';
+} from '../remove_duplicates';
 import fs from 'fs';
-import * as delete_file from '../src/delete_file';
-import * as interaction from '../src/interaction';
-import {silenceOutput} from '../src/display';
+import * as delete_file from '../delete_file';
+import * as interaction from '../interaction';
+import {silenceOutput} from '../display';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {aPath, Path} from '../src/path';
+import {aPath, Path} from '../path';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
-} from '../src/verified_directory_path';
+} from '../verified_directory_path';
 jest.mock('fs');
-jest.mock('../src/delete_file.ts');
-jest.mock('../src/interaction.ts');
+jest.mock('../delete_file.ts');
+jest.mock('../interaction.ts');
 
 describe('fileIsInADeleteDirectory()', () => {
   it('when file is in given directory, return true', () => {

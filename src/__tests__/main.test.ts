@@ -4,11 +4,11 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {setArgv} from '../src/interaction';
-import {commandLineDedup} from '../src/command_line_dedup';
-import {main} from '../src/main';
+import {setArgv} from '../interaction';
+import {commandLineDedup} from '../command_line_dedup';
+import {main} from '../main';
 
-jest.mock('../src/command_line_dedup.ts');
+jest.mock('../command_line_dedup.ts');
 describe('main()', () => {
   it('calls commandLineDedup with the argv', () => {
     const myArgv = ['a', 'b'];

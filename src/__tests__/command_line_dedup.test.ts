@@ -4,10 +4,10 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {commandLineDedup} from '../src/command_line_dedup';
-import {dedup} from '../src/dedup';
+import {commandLineDedup} from '../command_line_dedup';
+import {dedup} from '../dedup';
 
-jest.mock('../src/dedup');
+jest.mock('../dedup');
 jest.mock('fs');
 describe('commandLineDedup()', () => {
   const MOCK_FILE_INFO = {

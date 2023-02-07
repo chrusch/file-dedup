@@ -8,8 +8,8 @@
 import {
   fileIsInDirectoryOrSubdirectory,
   isSubdirectory,
-} from '../src/subdirectories';
-import {aPath} from '../src/path';
+} from '../subdirectories';
+import {aPath} from '../path';
 jest.mock('fs');
 
 describe('isSubdirectory()', () => {

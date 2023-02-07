@@ -5,16 +5,13 @@
 // LICENSE file in the root directory of this source tree.
 
 // ./src/tests/directories.test.ts
-import {
-  filesWithNonUniqueSizes,
-  getFilePaths,
-} from '../../src/candidate_files/directories';
-import {silenceOutput} from '../../src/display';
-import {aPath, Path} from '../../src/path';
+import {filesWithNonUniqueSizes, getFilePaths} from '../directories';
+import {silenceOutput} from '../../display';
+import {aPath, Path} from '../../path';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
-} from '../../src/verified_directory_path';
+} from '../../verified_directory_path';
 jest.mock('fs');
 
 describe('getFilePaths()', () => {

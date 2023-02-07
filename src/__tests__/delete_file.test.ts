@@ -4,9 +4,9 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {deleteFile} from '../src/delete_file';
-import {silenceOutput} from '../src/display';
-import {aPath} from '../src/path';
+import {deleteFile} from '../delete_file';
+import {silenceOutput} from '../display';
+import {aPath} from '../path';
 jest.mock('fs');
 
 describe('deleteFile()', () => {

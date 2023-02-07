@@ -4,12 +4,9 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {
-  CandidateFilesOptions,
-  getCandidateFiles,
-} from '../../src/candidate_files/get_candidate_files';
-import {aPath, Path} from '../../src/path';
-import {forceVerificationOfDirectoryPaths} from '../../src/verified_directory_path';
+import {CandidateFilesOptions, getCandidateFiles} from '../get_candidate_files';
+import {aPath, Path} from '../../path';
+import {forceVerificationOfDirectoryPaths} from '../../verified_directory_path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {

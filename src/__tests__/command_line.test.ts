@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {commandLineOptions, Options} from '../src/command_line';
+import {commandLineOptions, Options} from '../command_line';
 
 describe('commandLineOptions(argv)', () => {
   const nodeExecutable = '/path/to/node';

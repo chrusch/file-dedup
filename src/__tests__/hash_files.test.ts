@@ -4,13 +4,13 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {hashFile} from '../src/hash_files';
-import * as runCommand from '../src/run_command';
+import {hashFile} from '../hash_files';
+import * as runCommand from '../run_command';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked to work
-import {aPath} from '../src/path';
+import {aPath} from '../path';
 
-jest.mock('../src/run_command.ts');
+jest.mock('../run_command.ts');
 jest.mock('fs');
 describe('hashFile()', () => {
   it('when called, calls runCommand with expected arguments', async () => {

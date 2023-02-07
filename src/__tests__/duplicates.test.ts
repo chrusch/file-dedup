@@ -4,8 +4,8 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {getDuplicates} from '../src/duplicates';
-import {aPath, Path} from '../src/path';
+import {getDuplicates} from '../duplicates';
+import {aPath, Path} from '../path';
 jest.mock('fs');
 
 describe('getDuplicates()', () => {

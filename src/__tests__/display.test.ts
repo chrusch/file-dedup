@@ -11,8 +11,8 @@ import {
   showListLengths,
   showTotalDeleted,
   silenceOutput,
-} from '../src/display';
-import {aPath} from '../src/path';
+} from '../display';
+import {aPath} from '../path';
 jest.mock('fs');
 
 describe('silentOutput()', () => {

@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {hashExtractor} from '../src/hash_extractor';
+import {hashExtractor} from '../hash_extractor';
 
 describe('hashExtractor(stdout)', () => {
   it('extracts a hex hash from the begining of a string', () => {

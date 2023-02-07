@@ -9,7 +9,7 @@ import {
   runCommand,
   ExecHandlerFunction,
   StdoutHandlerFunction,
-} from '../src/run_command';
+} from '../run_command';
 import child_process from 'child_process';
 jest.mock('child_process');
 

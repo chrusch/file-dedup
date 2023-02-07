@@ -10,7 +10,7 @@ import {
   // workItemMakerToWorkQueue,
   WorkItem,
   Job,
-} from '../src/work_queue';
+} from '../work_queue';
 import {exec} from 'child_process';
 import {ExecException} from 'child_process';
 

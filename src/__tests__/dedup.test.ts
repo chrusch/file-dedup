@@ -4,19 +4,19 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {dedup, DedupOptions} from '../src/dedup';
-import {silenceOutput} from '../src/display';
-import * as gcf from '../src/candidate_files/get_candidate_files';
-import * as hash_file from '../src/hash_files';
-import * as rd from '../src/remove_duplicates';
+import {dedup, DedupOptions} from '../dedup';
+import {silenceOutput} from '../display';
+import * as gcf from '../candidate_files/get_candidate_files';
+import * as hash_file from '../hash_files';
+import * as rd from '../remove_duplicates';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
-import {aPath} from '../src/path';
+import {forceVerificationOfDirectoryPaths} from '../verified_directory_path';
+import {aPath} from '../path';
 
-jest.mock('../src/candidate_files/get_candidate_files.ts');
-jest.mock('../src/hash_files.ts');
-jest.mock('../src/remove_duplicates.ts');
+jest.mock('../candidate_files/get_candidate_files.ts');
+jest.mock('../hash_files.ts');
+jest.mock('../remove_duplicates.ts');
 jest.mock('fs');
 
 describe('dedup()', () => {
