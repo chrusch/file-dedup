@@ -12,7 +12,7 @@ import {
   showTotalDeleted,
   silenceOutput,
 } from '../display';
-import {aPath} from '../path';
+import {aPath} from '../../path';
 jest.mock('fs');
 
 describe('silentOutput()', () => {

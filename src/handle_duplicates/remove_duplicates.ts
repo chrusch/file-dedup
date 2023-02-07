@@ -8,8 +8,8 @@ import {deleteFile} from './delete_file';
 import {fileIsInDirectoryOrSubdirectory} from './subdirectories';
 import {showDuplicates, showTotalDeleted} from './display';
 import {confirmDelete} from './interaction';
-import {aPath, Path} from './path';
-import {VerifiedDirectoryPath} from './verified_directory_path';
+import {aPath, Path} from '../path';
+import {VerifiedDirectoryPath} from '../verified_directory_path';
 
 export const fileIsInADeleteDirectory = (
   file: Path,

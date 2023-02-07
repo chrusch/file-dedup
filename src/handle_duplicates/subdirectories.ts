@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import {Path} from './path';
+import {Path} from '../path';
 
 // Returns true if the relative path indicates the same directory
 // or a subdirectory of the directory it is relative to.

@@ -5,10 +5,10 @@
 // LICENSE file in the root directory of this source tree.
 
 import {dedup, DedupOptions} from '../dedup';
-import {silenceOutput} from '../display';
+import {silenceOutput} from '../handle_duplicates/display';
 import * as gcf from '../candidate_files/get_candidate_files';
 import * as hash_file from '../hash_files';
-import * as rd from '../remove_duplicates';
+import * as rd from '../handle_duplicates/remove_duplicates';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
 import {forceVerificationOfDirectoryPaths} from '../verified_directory_path';
@@ -16,7 +16,7 @@ import {aPath} from '../path';
 
 jest.mock('../candidate_files/get_candidate_files.ts');
 jest.mock('../hash_files.ts');
-jest.mock('../remove_duplicates.ts');
+jest.mock('../handle_duplicates/remove_duplicates.ts');
 jest.mock('fs');
 
 describe('dedup()', () => {

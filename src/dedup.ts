@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getDuplicates} from './duplicates';
-import {deleteOrListDuplicates} from './remove_duplicates';
+import {deleteOrListDuplicates} from './handle_duplicates/remove_duplicates';
 import {hashFile} from './hash_files';
 import {doAllWorkInQueue, makeWorkQueue, Job, WorkQueue} from './work_queue';
 import {getCandidateFiles} from './candidate_files/get_candidate_files';

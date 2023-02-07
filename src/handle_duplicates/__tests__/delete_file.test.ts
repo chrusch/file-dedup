@@ -6,7 +6,7 @@
 
 import {deleteFile} from '../delete_file';
 import {silenceOutput} from '../display';
-import {aPath} from '../path';
+import {aPath} from '../../path';
 jest.mock('fs');
 
 describe('deleteFile()', () => {

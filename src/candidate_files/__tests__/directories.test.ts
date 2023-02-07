@@ -6,7 +6,7 @@
 
 // ./src/tests/directories.test.ts
 import {filesWithNonUniqueSizes, getFilePaths} from '../directories';
-import {silenceOutput} from '../../display';
+import {silenceOutput} from '../../handle_duplicates/display';
 import {aPath, Path} from '../../path';
 import {
   forceVerificationOfDirectoryPaths,

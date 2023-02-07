@@ -14,11 +14,11 @@ import * as interaction from '../interaction';
 import {silenceOutput} from '../display';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {aPath, Path} from '../path';
+import {aPath, Path} from '../../path';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
-} from '../verified_directory_path';
+} from '../../verified_directory_path';
 jest.mock('fs');
 jest.mock('../delete_file.ts');
 jest.mock('../interaction.ts');

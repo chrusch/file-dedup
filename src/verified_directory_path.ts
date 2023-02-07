@@ -8,7 +8,7 @@ import pathModule from 'path';
 import {accessSync, existsSync, lstatSync} from 'fs';
 import fs from 'fs';
 import _ from 'lodash';
-import {warn} from './display';
+import {warn} from './handle_duplicates/display';
 
 // represents a path that has been verified to represent
 // an exiting accessible directory
