@@ -4,8 +4,8 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {readDirectory} from '../src/read_directory';
-import {aPath} from '../src/path';
+import {readDirectory} from '../../src/candidate_files/read_directory';
+import {aPath} from '../../src/path';
 jest.mock('fs');
 
 describe('readDirectory()', () => {

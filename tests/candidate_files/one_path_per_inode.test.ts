@@ -4,8 +4,8 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {onePathPerInode} from '../src/one_path_per_inode';
-import {aPath, Path} from '../src/path';
+import {onePathPerInode} from '../../src/candidate_files/one_path_per_inode';
+import {aPath, Path} from '../../src/path';
 
 jest.mock('fs');
 

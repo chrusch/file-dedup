@@ -4,11 +4,11 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {readDirectory} from '../src/read_directory';
+import {readDirectory} from '../../src/candidate_files/read_directory';
 // import outputFiles from 'output-files';
 import outputFiles from 'output-files';
 import withLocalTmpDir from 'with-local-tmp-dir';
-import {aPath} from '../src/path';
+import {aPath} from '../../src/path';
 
 describe('getFileStatus()', () => {
   let resetWithLocalTmpDir: () => Promise<void>;

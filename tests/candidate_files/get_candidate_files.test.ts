@@ -7,10 +7,9 @@
 import {
   CandidateFilesOptions,
   getCandidateFiles,
-} from '../src/get_candidate_files';
-import {Path} from '../src/path';
-import {forceVerificationOfDirectoryPaths} from '../src/verified_directory_path';
-import {aPath} from '../src/path';
+} from '../../src/candidate_files/get_candidate_files';
+import {aPath, Path} from '../../src/path';
+import {forceVerificationOfDirectoryPaths} from '../../src/verified_directory_path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {
