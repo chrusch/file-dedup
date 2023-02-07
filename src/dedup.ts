@@ -6,7 +6,7 @@
 
 import {getDuplicates} from './duplicates';
 import {deleteOrListDuplicates} from './handle_duplicates/remove_duplicates';
-import {hashFile} from './hash_files';
+import {hashFile} from './hash_file/hash_files';
 import {doAllWorkInQueue, makeWorkQueue, Job, WorkQueue} from './work_queue';
 import {getCandidateFiles} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './verified_directory_path';

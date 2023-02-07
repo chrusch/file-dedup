@@ -8,7 +8,7 @@ import {hashFile} from '../hash_files';
 import * as runCommand from '../run_command';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked to work
-import {aPath} from '../path';
+import {aPath} from '../../path';
 
 jest.mock('../run_command.ts');
 jest.mock('fs');
