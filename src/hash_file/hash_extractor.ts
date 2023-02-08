@@ -4,8 +4,6 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-// ./src/hash_extractor.ts
-//
 // Expects the stdout output of the following command:
 // shasum -a 256 <file>
 // This output might look like this:
