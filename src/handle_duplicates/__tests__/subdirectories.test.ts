@@ -9,7 +9,7 @@ import {
   fileIsInDirectoryOrSubdirectory,
   isSubdirectory,
 } from '../subdirectories';
-import {aPath} from '../../path';
+import {aPath} from '../../common/path';
 jest.mock('fs');
 
 describe('isSubdirectory()', () => {

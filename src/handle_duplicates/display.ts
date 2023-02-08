@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {Path} from '../path';
+import {Path} from '../common/path';
 // All console output depends on this file, this makes
 // it easier to write tests that don't generated unwanted
 // text.

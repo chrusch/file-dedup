@@ -6,7 +6,7 @@
 
 import fs from 'fs';
 import {log} from './display';
-import {Path} from '../path';
+import {Path} from '../common/path';
 
 export const deleteFile = (
   reallyDelete: boolean,

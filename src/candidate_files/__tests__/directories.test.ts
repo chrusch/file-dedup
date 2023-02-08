@@ -7,11 +7,11 @@
 // ./src/tests/directories.test.ts
 import {filesWithNonUniqueSizes, getFilePaths} from '../directories';
 import {silenceOutput} from '../../handle_duplicates/display';
-import {aPath, Path} from '../../path';
+import {aPath, Path} from '../../common/path';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
-} from '../../verified_directory_path';
+} from '../../common/verified_directory_path';
 jest.mock('fs');
 
 describe('getFilePaths()', () => {

@@ -6,7 +6,7 @@
 
 import {HashData} from '../dedup';
 import _ from 'lodash';
-import {Path} from '../path';
+import {Path} from '../common/path';
 
 type FileList = Path[];
 // We are given a list like this:

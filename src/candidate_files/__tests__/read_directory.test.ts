@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {readDirectory} from '../read_directory';
-import {aPath} from '../../path';
+import {aPath} from '../../common/path';
 jest.mock('fs');
 
 describe('readDirectory()', () => {

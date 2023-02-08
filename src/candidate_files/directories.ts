@@ -7,8 +7,8 @@
 import {readDirectory} from './read_directory';
 import {FileWithSize, FileWithSizeAndInode} from './one_path_per_inode';
 import _ from 'lodash';
-import {aPath, Path} from '../path';
-import {VerifiedDirectoryPath} from '../verified_directory_path';
+import {aPath, Path} from '../common/path';
+import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
 export function getFilePaths(
   dirs: VerifiedDirectoryPath[],

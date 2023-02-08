@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getDuplicates} from '../duplicates';
-import {aPath, Path} from '../../path';
+import {aPath, Path} from '../../common/path';
 jest.mock('fs');
 
 describe('getDuplicates()', () => {

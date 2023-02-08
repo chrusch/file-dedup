@@ -8,7 +8,7 @@ import {readDirectory} from '../read_directory';
 // import outputFiles from 'output-files';
 import outputFiles from 'output-files';
 import withLocalTmpDir from 'with-local-tmp-dir';
-import {aPath} from '../../path';
+import {aPath} from '../../common/path';
 
 describe('getFileStatus()', () => {
   let resetWithLocalTmpDir: () => Promise<void>;

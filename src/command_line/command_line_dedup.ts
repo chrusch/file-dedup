@@ -6,7 +6,7 @@
 
 import {commandLineOptions, Options} from './command_line';
 import {DedupOptions} from '../dedup';
-import {verifyDirectoryPaths} from '../verified_directory_path';
+import {verifyDirectoryPaths} from '../common/verified_directory_path';
 
 // For now we always exclude these directories.
 // Later we can allow the user to choose.

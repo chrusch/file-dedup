@@ -6,7 +6,7 @@
 
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
-import {Path} from '../path';
+import {Path} from '../common/path';
 
 /** A pair consisting of the path of the file hashed and
   the SHA sum of the file content */

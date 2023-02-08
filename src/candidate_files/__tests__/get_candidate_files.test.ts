@@ -5,8 +5,8 @@
 // LICENSE file in the root directory of this source tree.
 
 import {CandidateFilesOptions, getCandidateFiles} from '../get_candidate_files';
-import {aPath, Path} from '../../path';
-import {forceVerificationOfDirectoryPaths} from '../../verified_directory_path';
+import {aPath, Path} from '../../common/path';
+import {forceVerificationOfDirectoryPaths} from '../../common/verified_directory_path';
 jest.mock('fs');
 
 const MOCK_FILE_INFO = {

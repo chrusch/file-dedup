@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {onePathPerInode} from '../one_path_per_inode';
-import {aPath, Path} from '../../path';
+import {aPath, Path} from '../../common/path';
 
 jest.mock('fs');
 

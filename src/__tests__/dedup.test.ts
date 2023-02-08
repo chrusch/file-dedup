@@ -11,8 +11,8 @@ import * as hash_file from '../hash_file/hash_files';
 import * as rd from '../handle_duplicates/remove_duplicates';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {forceVerificationOfDirectoryPaths} from '../verified_directory_path';
-import {aPath} from '../path';
+import {forceVerificationOfDirectoryPaths} from '../common/verified_directory_path';
+import {aPath} from '../common/path';
 
 jest.mock('../candidate_files/get_candidate_files.ts');
 jest.mock('../hash_file/hash_files.ts');

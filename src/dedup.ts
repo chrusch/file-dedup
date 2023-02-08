@@ -14,8 +14,8 @@ import {
   WorkQueue,
 } from './work_queue/work_queue';
 import {getCandidateFiles} from './candidate_files/get_candidate_files';
-import {VerifiedDirectoryPath} from './verified_directory_path';
-import {Path} from './path';
+import {VerifiedDirectoryPath} from './common/verified_directory_path';
+import {Path} from './common/path';
 
 export type DedupOptions = {
   dirsToPossiblyDeleteFrom: VerifiedDirectoryPath[];
