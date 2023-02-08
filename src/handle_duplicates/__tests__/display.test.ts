@@ -8,7 +8,7 @@ import {
   silentOutput,
   unSilenceOutput,
   showDuplicates,
-  showListLengths,
+  // showListLengths,
   showTotalDeleted,
   silenceOutput,
 } from '../display';
@@ -45,14 +45,14 @@ describe('unSilenceOutput()', () => {
   });
 });
 
-describe('showListLengths()', () => {
-  it('does not output anything when output is silenced', () => {
-    silenceOutput();
-    const got = showListLengths(22, 45);
-    const expected = undefined;
-    expect(got).toEqual(expected);
-  });
-});
+// describe('showListLengths()', () => {
+//   it('does not output anything when output is silenced', () => {
+//     silenceOutput();
+//     const got = showListLengths(22, 45);
+//     const expected = undefined;
+//     expect(got).toEqual(expected);
+//   });
+// });
 
 describe('showDuplicates()', () => {
   it('does not output anything when output is silenced', () => {

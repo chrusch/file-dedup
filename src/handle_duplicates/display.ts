@@ -23,12 +23,12 @@ export function silenceOutput(): void {
 
 export function unSilenceOutput(): void {
   standardOutput = productionLog;
-  warnOutput = productionLog;
+  warnOutput = productionWarn;
 }
 
-export function showListLengths(filesWithSizes: number, files: number): void {
-  log('file list lengths:', filesWithSizes, files);
-}
+// export function showListLengths(filesWithSizes: number, files: number): void {
+//   log('file list lengths:', filesWithSizes, files);
+// }
 
 export function showDuplicates(duplicatesList: Path[]): void {
   log('Duplicates', duplicatesList);
