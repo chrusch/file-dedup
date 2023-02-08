@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {setArgv} from '../handle_duplicates/interaction';
+import {setArgv} from '../command_line/argv';
 import {getDedupOptionsFromCommandLine} from '../command_line/command_line_dedup';
 import {main} from '../main';
 import {dedup} from '../dedup';
