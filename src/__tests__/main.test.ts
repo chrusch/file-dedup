@@ -5,11 +5,11 @@
 // LICENSE file in the root directory of this source tree.
 
 import {setArgv} from '../handle_duplicates/interaction';
-import {getDedupOptionsFromCommandLine} from '../command_line_dedup';
+import {getDedupOptionsFromCommandLine} from '../command_line/command_line_dedup';
 import {main} from '../main';
 import {dedup} from '../dedup';
 
-jest.mock('../command_line_dedup.ts');
+jest.mock('../command_line/command_line_dedup.ts');
 jest.mock('../dedup.ts');
 describe('main()', () => {
   it('calls commandLineDedup with the argv', async () => {
