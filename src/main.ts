@@ -5,8 +5,10 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getArgv} from './handle_duplicates/interaction';
-import {commandLineDedup} from './command_line_dedup';
+import {getDedupOptionsFromCommandLine} from './command_line_dedup';
+import {dedup} from './dedup';
 
-export function main() {
-  commandLineDedup(getArgv());
+export async function main(): Promise<void> {
+  const dedupOptions = getDedupOptionsFromCommandLine(getArgv());
+  await dedup(dedupOptions);
 }

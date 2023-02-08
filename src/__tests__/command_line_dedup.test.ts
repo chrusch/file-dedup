@@ -4,10 +4,8 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {commandLineDedup} from '../command_line_dedup';
-import {dedup} from '../dedup';
+import {getDedupOptionsFromCommandLine} from '../command_line_dedup';
 
-jest.mock('../dedup');
 jest.mock('fs');
 describe('commandLineDedup()', () => {
   const MOCK_FILE_INFO = {
@@ -28,12 +26,9 @@ describe('commandLineDedup()', () => {
 
   it('when called in the simplest way, calls dedup with the expected arguments', async () => {
     const argv: string[] = ['node', 'index.js', '/tmp'];
-    const got = await commandLineDedup(argv);
-    const expected = undefined;
-    expect(got).toEqual(expected);
-    expect(dedup).toHaveBeenCalledTimes(1);
+    const got = getDedupOptionsFromCommandLine(argv);
 
-    const args = {
+    const expected = {
       dirsToPossiblyDeleteFrom: [],
       exclude: ['node_modules', '.git'],
       followSymlinks: false,
@@ -42,8 +37,7 @@ describe('commandLineDedup()', () => {
       pathsToTraverse: ['/tmp'],
       reallyDelete: false,
     };
-
-    expect(dedup).toHaveBeenCalledWith(args);
+    expect(got).toEqual(expected);
   });
 
   it('when called in a more complicated way, calls dedup with the expected arguments', async () => {
@@ -60,12 +54,9 @@ describe('commandLineDedup()', () => {
       '/tmp/c',
       '/tmp/d',
     ];
-    const got = await commandLineDedup(argv);
-    const expected = undefined;
-    expect(got).toEqual(expected);
-    expect(dedup).toHaveBeenCalledTimes(1);
+    const got = getDedupOptionsFromCommandLine(argv);
 
-    const args = {
+    const expected = {
       dirsToPossiblyDeleteFrom: ['/tmp/a', '/tmp/b'],
       exclude: ['node_modules', '.git'],
       followSymlinks: false,
@@ -74,7 +65,6 @@ describe('commandLineDedup()', () => {
       pathsToTraverse: ['/tmp/c', '/tmp/d'],
       reallyDelete: true,
     };
-
-    expect(dedup).toHaveBeenCalledWith(args);
+    expect(got).toEqual(expected);
   });
 });

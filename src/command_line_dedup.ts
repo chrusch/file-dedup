@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {commandLineOptions, Options} from './command_line';
-import {dedup, DedupOptions} from './dedup';
+import {DedupOptions} from './dedup';
 import {verifyDirectoryPaths} from './verified_directory_path';
 
 // For now we always exclude these directories.
@@ -18,10 +18,11 @@ export const exclude = ['node_modules', '.git'];
  *
  * @param argv - The arguments passed to the program through the command line
  */
-export async function commandLineDedup(argv: readonly string[]): Promise<void> {
+export function getDedupOptionsFromCommandLine(
+  argv: readonly string[]
+): DedupOptions {
   const [options, args] = commandLineOptions(argv);
-  const dedupOptions = processOptions(options, args);
-  await dedup(dedupOptions);
+  return processOptions(options, args);
 }
 
 export function processOptions(options: Options, args: string[]): DedupOptions {

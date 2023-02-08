@@ -5,18 +5,23 @@
 // LICENSE file in the root directory of this source tree.
 
 import {setArgv} from '../handle_duplicates/interaction';
-import {commandLineDedup} from '../command_line_dedup';
+import {getDedupOptionsFromCommandLine} from '../command_line_dedup';
 import {main} from '../main';
+import {dedup} from '../dedup';
 
 jest.mock('../command_line_dedup.ts');
+jest.mock('../dedup.ts');
 describe('main()', () => {
-  it('calls commandLineDedup with the argv', () => {
+  it('calls commandLineDedup with the argv', async () => {
     const myArgv = ['a', 'b'];
     setArgv(myArgv);
-    const got = main();
+    const got = await main();
     const expected = undefined;
     expect(got).toEqual(expected);
-    expect(commandLineDedup).toHaveBeenCalledWith(myArgv);
-    expect(commandLineDedup).toHaveBeenCalledTimes(1);
+    expect(getDedupOptionsFromCommandLine).toHaveBeenCalledWith(myArgv);
+    expect(getDedupOptionsFromCommandLine).toHaveBeenCalledTimes(1);
+    expect(dedup).toHaveBeenCalledTimes(1);
+    // maybe verify that dedup can be called with something other than undefined
+    expect(dedup).toHaveBeenCalledWith(undefined);
   });
 });
