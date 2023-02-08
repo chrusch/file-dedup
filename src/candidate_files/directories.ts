@@ -12,7 +12,7 @@ import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
 export function getFilePaths(
   dirs: VerifiedDirectoryPath[],
-  excludeDirecoryNames: readonly string[],
+  excludeDirectoryNames: readonly string[],
   followSymlinks: boolean,
   includeDotfiles: boolean
 ): FileWithSizeAndInode[] {
@@ -35,7 +35,7 @@ export function getFilePaths(
       dir,
       dirCallback,
       fileCallback,
-      excludeDirecoryNames,
+      excludeDirectoryNames,
       followSymlinks,
       includeDotfiles
     );
