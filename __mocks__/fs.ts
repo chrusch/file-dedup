@@ -27,6 +27,7 @@ export interface FS {
   accessSync: (path: string, mode: number) => void;
   existsSync: (path: string) => boolean;
   lstatSync: (path: string) => Stat;
+  statSync: (path: string) => Stat;
   readdirSync: (dir: string) => string[];
   realpathSync: (path: string) => string;
   unlinkSync: (path: string) => void;
@@ -58,8 +59,9 @@ export function lstatSync(pathString: string): Stat {
   const dir = path.dirname(pathString);
   // it's a directory
   if (mockFiles[pathString]) {
+    const basename = path.basename(pathString);
     const parentDir = path.dirname(pathString);
-    const hasDirname = (element: MockFile) => element[0] === parentDir;
+    const hasDirname = (element: MockFile) => element[0] === basename;
     let fileInfo: MockFile = [parentDir, -1, -1];
     if (mockFiles[parentDir]) {
       fileInfo = mockFiles[parentDir].find(hasDirname) || fileInfo;
@@ -96,6 +98,10 @@ export function lstatSync(pathString: string): Stat {
     ino: -1,
     size: -1,
   };
+}
+
+export function statSync(pathString: string): Stat {
+  return lstatSync(pathString);
 }
 
 // A custom version of `readdirSync` that reads from the special mocked out
@@ -136,6 +142,7 @@ export function existsSync(): boolean {
 fs.__setMockFiles = __setMockFiles;
 fs.readdirSync = readdirSync;
 fs.lstatSync = lstatSync;
+fs.statSync = statSync;
 fs.unlinkSync = jest.fn(unlinkSync);
 fs.realpathSync = jest.fn(realpathSync);
 fs.accessSync = jest.fn(accessSync);

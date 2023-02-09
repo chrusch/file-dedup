@@ -5,11 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getFilePaths, filesWithNonUniqueSizes} from './directories';
-import {
-  FileWithSize,
-  FileWithSizeAndInode,
-  onePathPerInode,
-} from './one_path_per_inode';
+import {FileWithSize} from './one_path_per_inode';
 import {Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
@@ -32,17 +28,18 @@ export function getCandidateFiles(
     ...options.pathsToTraverse,
     ...options.dirsToPossiblyDeleteFrom,
   ];
-  const filesWithSizesAndInodes: FileWithSizeAndInode[] = getFilePaths(
+  const filesWithSizes: FileWithSize[] = getFilePaths(
     dirsToTraverse,
     options.exclude,
     options.followSymlinks,
     options.includeDotfiles
   );
 
+  // no longer needed
   // Deal properly with hard links by considering only one path per inode.
-  const filesWithSizes: FileWithSize[] = onePathPerInode(
-    filesWithSizesAndInodes
-  );
+  // const filesWithSizes: FileWithSize[] = onePathPerInode(
+  //   filesWithSizesAndInodes
+  // );
 
   // Every file with a unique file size has unique content. Consequently, files
   // with a unique size do not need to be hashed, because they can't possibly be

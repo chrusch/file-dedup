@@ -5,16 +5,24 @@
 // LICENSE file in the root directory of this source tree.
 
 import pathModule from 'path';
-import {lstatSync, readdirSync, statSync} from 'fs';
+import {lstatSync, readdirSync, statSync, Stats} from 'fs';
 import {aPath, Path} from '../common/path';
+import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
-export function getFileStatus(path: Path, followSymlinks: boolean) {
+// when path is a symlink and followSymlinks is true, returns the Stats of the
+// linked file, otherwise returns the Stats of the literal file system indicated
+// by path, whether file, symlink, directory, or whatever.
+export function getFileStatus(path: Path, followSymlinks: boolean): Stats {
   return followSymlinks ? statSync(path) : lstatSync(path);
+}
+
+export function getInode(path: VerifiedDirectoryPath): number {
+  return statSync(path).ino;
 }
 
 export function readDirectory(
   dir: Path,
-  dirCallback: (dir: Path) => void,
+  dirCallback: (dir: Path, inode: number) => void,
   fileCallback: (file: Path, size: number, ino: number) => void,
   excludedNames: readonly string[],
   followSymlinks: boolean,
@@ -29,9 +37,9 @@ export function readDirectory(
     const fileStatus = getFileStatus(pth, followSymlinks);
 
     if (fileStatus.isDirectory()) {
-      dirCallback(pth);
+      dirCallback(pth, fileStatus.ino);
     } else if (fileStatus.isFile()) {
       fileCallback(pth, fileStatus.size, fileStatus.ino);
-    }
+    } // silently ignore symlinks and other file system objects
   });
 }

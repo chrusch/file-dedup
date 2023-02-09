@@ -4,8 +4,8 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {readDirectory} from './read_directory';
-import {FileWithSize, FileWithSizeAndInode} from './one_path_per_inode';
+import {getInode, readDirectory} from './read_directory';
+import {FileWithSize} from './one_path_per_inode';
 import _ from 'lodash';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
@@ -15,22 +15,23 @@ export function getFilePaths(
   excludeDirectoryNames: readonly string[],
   followSymlinks: boolean,
   includeDotfiles: boolean
-): FileWithSizeAndInode[] {
-  const files: Map<Path, FileWithSizeAndInode> = new Map();
-  const directoriesRead: Set<Path> = new Set();
+): FileWithSize[] {
+  const files: Map<number, FileWithSize> = new Map();
+  const directoriesRead: Set<number> = new Set();
 
   const fileCallback = (file: Path, size: number, inode: number): void => {
     // We are just recording information for each file.
     // We avoid recording the same files twice by using the path as the key
     // to the file information. Elsewhere in the code, we ensure that the same inode is not
     // recorded twice under two different paths.
-    files.set(file, [file, size, inode]);
+    if (files.get(inode)) return;
+    files.set(inode, [file, size]);
   };
 
-  const dirCallback = (dir: Path): void => {
+  const dirCallback = (dir: Path, inode: number): void => {
     // avoid traversing the same directory twice
-    if (directoriesRead.has(dir)) return;
-    directoriesRead.add(dir);
+    if (directoriesRead.has(inode)) return;
+    directoriesRead.add(inode);
     readDirectory(
       dir,
       dirCallback,
@@ -41,7 +42,7 @@ export function getFilePaths(
     );
   };
 
-  dirs.forEach(dir => dirCallback(aPath(dir)));
+  dirs.forEach(dir => dirCallback(aPath(dir), getInode(dir)));
   return Array.from(files.values());
 }
 

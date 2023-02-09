@@ -45,9 +45,9 @@ describe('getFilePaths()', () => {
       followSymlinks,
       includeDotfiles
     );
-    const expected: [Path, number, number][] = [
-      [aPath('/tmp/project/foo'), 29, 1007],
-      [aPath('/tmp/project/bar'), 72, 1008],
+    const expected: [Path, number][] = [
+      [aPath('/tmp/project/foo'), 29],
+      [aPath('/tmp/project/bar'), 72],
     ];
     expect(got).toEqual(expected);
   });
@@ -64,13 +64,13 @@ describe('getFilePaths()', () => {
       followSymlinks,
       includeDotfiles
     );
-    const expected: [Path, number, number][] = [
-      [aPath('/tmp/git/.git/foo'), 7, 1004],
-      [aPath('/tmp/git/.git/bar'), 8, 1005],
-      [aPath('/tmp/project/foo'), 29, 1007],
-      [aPath('/tmp/project/bar'), 72, 1008],
-      [aPath('/tmp/another-project/.config'), 31, 1010],
-      [aPath('/tmp/another-project/.foo'), 32, 1011],
+    const expected: [Path, number][] = [
+      [aPath('/tmp/git/.git/foo'), 7],
+      [aPath('/tmp/git/.git/bar'), 8],
+      [aPath('/tmp/project/foo'), 29],
+      [aPath('/tmp/project/bar'), 72],
+      [aPath('/tmp/another-project/.config'), 31],
+      [aPath('/tmp/another-project/.foo'), 32],
     ];
     expect(got).toEqual(expected);
   });
@@ -87,11 +87,11 @@ describe('getFilePaths()', () => {
       followSymlinks,
       includeDotfiles
     );
-    const expected: [Path, number, number][] = [
-      [aPath('/tmp/git/.git/foo'), 7, 1004],
-      [aPath('/tmp/git/.git/bar'), 8, 1005],
-      [aPath('/tmp/another-project/.config'), 31, 1010],
-      [aPath('/tmp/another-project/.foo'), 32, 1011],
+    const expected: [Path, number][] = [
+      [aPath('/tmp/git/.git/foo'), 7],
+      [aPath('/tmp/git/.git/bar'), 8],
+      [aPath('/tmp/another-project/.config'), 31],
+      [aPath('/tmp/another-project/.foo'), 32],
     ];
     expect(got).toEqual(expected);
   });
@@ -111,9 +111,9 @@ describe('getFilePaths()', () => {
       followSymlinks,
       includeDotfiles
     );
-    const expected: [Path, number, number][] = [
-      [aPath('/tmp/project/foo'), 29, 1007],
-      [aPath('/tmp/project/bar'), 72, 1008],
+    const expected: [Path, number][] = [
+      [aPath('/tmp/project/foo'), 29],
+      [aPath('/tmp/project/bar'), 72],
     ];
     // output indicate that all branches in this function are fully covered by tests:
     expect(got).toEqual(expected);
