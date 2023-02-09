@@ -22,10 +22,7 @@ describe('readDirectory()', () => {
   });
 
   it('does what is expected', async () => {
-    // const data = {};
-    // const got = getFileStatus();
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = false;
 
     await outputFiles({
       'foo.txt': 'abc',
@@ -37,7 +34,6 @@ describe('readDirectory()', () => {
     const dirCallback = jest.fn();
     const fileCallback = jest.fn();
     const excludedNames: string[] = [];
-    const followSymlinks = false;
     const includeDotFiles = true;
     readDirectory(
       dir,
@@ -71,14 +67,12 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a regular file when folowSymlinks is false', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = false;
 
     await outputFiles({
       'foo.txt': 'abc',
     });
     const path = aPath('./foo.txt');
-    const followSymlinks = false;
     const stats: Stats = getFileStatus(path, followSymlinks);
 
     const statKeys = [
@@ -109,14 +103,12 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a regular file when followSymlinks is true', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = true;
 
     await outputFiles({
       'foo.txt': 'abc',
     });
     const path = aPath('./foo.txt');
-    const followSymlinks = true;
     const stats: Stats = getFileStatus(path, followSymlinks);
 
     const statKeys = [
@@ -147,8 +139,7 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a directory when followSymlinks is false', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = false;
 
     await outputFiles({
       'foo.txt': 'abc',
@@ -157,7 +148,6 @@ describe('getFileStatus()', () => {
       },
     });
     const path = aPath('./adir');
-    const followSymlinks = false;
     const stats: Stats = getFileStatus(path, followSymlinks);
 
     expect(stats.isFile()).toEqual(false);
@@ -166,8 +156,7 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a directory when followSymlinks is true', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = true;
 
     await outputFiles({
       'foo.txt': 'abc',
@@ -176,7 +165,6 @@ describe('getFileStatus()', () => {
       },
     });
     const path = aPath('./adir');
-    const followSymlinks = true;
     const stats: Stats = getFileStatus(path, followSymlinks);
 
     expect(stats.isFile()).toEqual(false);
@@ -185,8 +173,7 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a link when followSymlinks is false', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = false;
 
     await outputFiles({
       'foo.txt': 'abc',
@@ -196,7 +183,6 @@ describe('getFileStatus()', () => {
     });
     fs.symlinkSync('foo.txt', 'foo-symlink.txt');
     const path = aPath('./foo-symlink.txt');
-    const followSymlinks = false;
     const stats: Stats = getFileStatus(path, followSymlinks);
 
     expect(stats.isSymbolicLink()).toEqual(true);
@@ -205,8 +191,7 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a linked file when followSymlinks is true', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = true;
 
     await outputFiles({
       'foo.txt': 'abc',
@@ -216,7 +201,6 @@ describe('getFileStatus()', () => {
     });
     fs.symlinkSync('foo.txt', 'foo-symlink.txt');
     const path = aPath('./foo-symlink.txt');
-    const followSymlinks = true;
     const stats: Stats = getFileStatus(path, followSymlinks);
 
     expect(stats.isSymbolicLink()).toEqual(false);
@@ -225,8 +209,7 @@ describe('getFileStatus()', () => {
   });
 
   it('Returns the Stats of a triply linked file when followSymlinks is true', async () => {
-    const reset = await withLocalTmpDir();
-    await reset();
+    const followSymlinks = true;
 
     await outputFiles({
       'foo.txt': 'abc',
@@ -245,8 +228,6 @@ describe('getFileStatus()', () => {
     const path3 = aPath('./foo-symlink3.txt');
 
     const pathz = aPath('./zoo.txt');
-
-    const followSymlinks = true;
 
     const stats1: Stats = getFileStatus(path1, followSymlinks);
     const stats2: Stats = getFileStatus(path2, followSymlinks);
@@ -268,6 +249,76 @@ describe('getFileStatus()', () => {
     expect(stats2.isDirectory()).toEqual(false);
     expect(stats1.isDirectory()).toEqual(false);
     expect(statso.isDirectory()).toEqual(false);
+
+    const ino = statso.ino;
+    expect(stats1.ino).toEqual(ino);
+    expect(stats2.ino).toEqual(ino);
+    expect(stats3.ino).toEqual(ino);
+    expect(statsz.ino).not.toEqual(ino);
+  });
+
+  it('Returns the Stats of a linked dir when followSymlinks is true', async () => {
+    const followSymlinks = true;
+
+    await outputFiles({
+      'foo.txt': 'abc',
+      adir: {
+        'bar.txt': 'dec',
+      },
+    });
+    fs.symlinkSync('adir', 'adir-symlink');
+    const path = aPath('./adir-symlink');
+    const stats: Stats = getFileStatus(path, followSymlinks);
+
+    expect(stats.isSymbolicLink()).toEqual(false);
+    expect(stats.isFile()).toEqual(false);
+    expect(stats.isDirectory()).toEqual(true);
+  });
+
+  it('Returns the Stats of a triply linked dir when followSymlinks is true', async () => {
+    const followSymlinks = true;
+
+    await outputFiles({
+      'foo.txt': 'abc',
+      'zoo.txt': 'abcd',
+      adir: {
+        'bar.txt': 'dec',
+      },
+      anotherdir: {
+        'zar.txt': 'efg',
+      },
+    });
+    fs.symlinkSync('adir', 'adir-symlink1');
+    fs.symlinkSync('adir-symlink1', 'adir-symlink2');
+    fs.symlinkSync('adir-symlink2', 'adir-symlink3');
+
+    const patho = aPath('./adir');
+    const path1 = aPath('./adir-symlink1');
+    const path2 = aPath('./adir-symlink2');
+    const path3 = aPath('./adir-symlink3');
+
+    const pathz = aPath('./anotherdir');
+
+    const stats1: Stats = getFileStatus(path1, followSymlinks);
+    const stats2: Stats = getFileStatus(path2, followSymlinks);
+    const stats3: Stats = getFileStatus(path3, followSymlinks);
+    const statso: Stats = getFileStatus(patho, followSymlinks);
+    const statsz: Stats = getFileStatus(pathz, followSymlinks);
+
+    expect(statso.isFile()).toEqual(false);
+    expect(stats1.isFile()).toEqual(false);
+    expect(stats2.isFile()).toEqual(false);
+    expect(stats3.isFile()).toEqual(false);
+
+    expect(statso.isSymbolicLink()).toEqual(false);
+    expect(stats1.isSymbolicLink()).toEqual(false);
+    expect(stats2.isSymbolicLink()).toEqual(false);
+    expect(stats3.isSymbolicLink()).toEqual(false);
+
+    expect(stats3.isDirectory()).toEqual(true);
+    expect(stats2.isDirectory()).toEqual(true);
+    expect(stats1.isDirectory()).toEqual(true);
+    expect(statso.isDirectory()).toEqual(true);
 
     const ino = statso.ino;
     expect(stats1.ino).toEqual(ino);
