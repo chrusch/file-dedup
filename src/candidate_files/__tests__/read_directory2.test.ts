@@ -280,7 +280,6 @@ describe('getFileStatus()', () => {
 
     await outputFiles({
       'foo.txt': 'abc',
-      'zoo.txt': 'abcd',
       adir: {
         'bar.txt': 'dec',
       },
