@@ -5,39 +5,49 @@
 // LICENSE file in the root directory of this source tree.
 
 import {readDirectory} from '../read_directory';
-import {aPath} from '../../common/path';
-jest.mock('fs');
+import {aPath, Path} from '../../common/path';
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
 
 describe('readDirectory()', () => {
-  const fs = require('fs');
-  const MOCK_FILE_INFO = {
-    '/tmp': '',
-    '/tmp/git': '',
-    '/tmp/git/.git': '',
-    '/tmp/git/.git/foo': 'foo content',
-    '/tmp/git/.git/bar': 'bar content',
-    '/tmp/project': '',
-    '/tmp/project/foo': 'foo project content',
-    '/tmp/project/bar': 'bar project content',
-    '/tmp/another-project': '',
-    '/tmp/another-project/.config': 'baz project content',
-    '/tmp/another-project/.foo': 'bam project content',
-  };
+  let resetWithLocalTmpDir: () => Promise<void>;
 
-  beforeEach(() => {
-    fs.__setMockFiles(MOCK_FILE_INFO);
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        anotherproject: {
+          '.config': '123456',
+          '.foo': '12345',
+        },
+      },
+    });
   });
 
-  const dirCallback = (): void => {
-    throw new Error('in dir callback');
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
+  const dirCallback = (pth: Path): void => {
+    throw new Error(`in dir callback: ${pth}`);
   };
-  const fileCallback = (): void => {
-    throw new Error('in file callback');
+  const fileCallback = (file: Path, size: number): void => {
+    throw new Error(`in file callback ${file} ${size}`);
   };
 
   it('excludes excluded files', () => {
-    const folder = aPath('/tmp/project');
-    const excludedNames: string[] = ['foo', 'bar'];
+    const folder = aPath('tmp/project');
+    const excludedNames: string[] = ['foo2', 'bar2'];
     const includeDotfiles = true;
     const followSymlinks = false;
     const functionCall = () =>
@@ -53,7 +63,7 @@ describe('readDirectory()', () => {
   });
 
   it('excludes dot files when configured to do so', () => {
-    const folder = aPath('/tmp/git');
+    const folder = aPath('tmp/git');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
@@ -70,8 +80,8 @@ describe('readDirectory()', () => {
   });
 
   it('includes included files', () => {
-    const folder = aPath('/tmp/project');
-    const excludedNames: string[] = ['foo'];
+    const folder = aPath('tmp/project');
+    const excludedNames: string[] = ['foo2'];
     const followSymlinks = false;
     const includeDotfiles = true;
     const functionCall = () =>
@@ -83,11 +93,11 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).toThrowError('in file callback');
+    expect(functionCall).toThrowError('in file callback tmp/project/bar2 9');
   });
 
   it('includes included directories', () => {
-    const folder = aPath('/tmp/git');
+    const folder = aPath('tmp/git');
     const excludedNames: string[] = ['foo'];
     const followSymlinks = false;
     const includeDotfiles = true;
@@ -100,11 +110,11 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).toThrowError('in dir callback');
+    expect(functionCall).toThrowError('in dir callback: tmp/git/.git');
   });
 
   it('excludes dotfiles when configured to do so ', () => {
-    const folder = aPath('/tmp/another-project');
+    const folder = aPath('tmp/anotherproject');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
@@ -121,7 +131,7 @@ describe('readDirectory()', () => {
   });
 
   it('includes dotfiles when configured to do so ', () => {
-    const folder = aPath('/tmp/another-project');
+    const folder = aPath('tmp/anotherproject');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = true;
@@ -134,6 +144,8 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).toThrowError('in file callback');
+    expect(functionCall).toThrowError(
+      'in file callback tmp/anotherproject/.config 6'
+    );
   });
 });
