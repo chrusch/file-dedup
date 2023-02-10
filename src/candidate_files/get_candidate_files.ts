@@ -5,9 +5,11 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getFilePaths, filesWithNonUniqueSizes} from './directories';
-import {FileWithSize} from './one_path_per_inode';
+// import {FileWithSize} from './one_path_per_inode';
 import {Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
+
+export type FileWithSize = [Path, number];
 
 export interface CandidateFilesOptions {
   pathsToTraverse: VerifiedDirectoryPath[];

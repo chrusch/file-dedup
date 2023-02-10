@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getInode, readDirectory} from './read_directory';
-import {FileWithSize} from './one_path_per_inode';
+import {FileWithSize} from './get_candidate_files';
 import _ from 'lodash';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
