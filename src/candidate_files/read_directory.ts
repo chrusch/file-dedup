@@ -17,7 +17,7 @@ export function getFileStatus(path: Path, followSymlinks: boolean): Stats {
 }
 
 export function getInode(path: VerifiedDirectoryPath): number {
-  return statSync(path).ino;
+  return getFileStatus(aPath(path), true).ino;
 }
 
 export function readDirectory(
