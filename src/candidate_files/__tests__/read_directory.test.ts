@@ -189,6 +189,32 @@ describe('getFileStatus()', () => {
     await resetWithLocalTmpDir();
   });
 
+  it('raises an error if the file does not exist and followSymlinks is false', async () => {
+    const followSymlinks = false;
+    await outputFiles({
+      'foo.txt': 'abc',
+    });
+    const path = aPath('./bar.txt');
+    const expectedErrorMessage =
+      "ENOENT: no such file or directory, lstat './bar.txt'";
+    expect(() => getFileStatus(path, followSymlinks)).toThrowError(
+      expectedErrorMessage
+    );
+  });
+
+  it('raises an error if the file does not exist and followSymlinks is true', async () => {
+    const followSymlinks = true;
+    await outputFiles({
+      'foo.txt': 'abc',
+    });
+    const path = aPath('./bar.txt');
+    const expectedErrorMessage =
+      "ENOENT: no such file or directory, stat './bar.txt'";
+    expect(() => getFileStatus(path, followSymlinks)).toThrowError(
+      expectedErrorMessage
+    );
+  });
+
   it('Returns the Stats of a regular file when folowSymlinks is false', async () => {
     const followSymlinks = false;
 
