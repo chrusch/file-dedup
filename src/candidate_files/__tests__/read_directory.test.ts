@@ -17,6 +17,10 @@ describe('readDirectory()', () => {
     resetWithLocalTmpDir = await withLocalTmpDir();
     await outputFiles({
       tmp: {
+        anotherproject: {
+          '.config': '123456',
+          '.foo': '12345',
+        },
         git: {
           '.git': {
             foo: 'foo content',
@@ -27,10 +31,8 @@ describe('readDirectory()', () => {
           foo2: 'foo project content',
           bar2: '123456789',
         },
-        anotherproject: {
-          '.config': '123456',
-          '.foo': '12345',
-        },
+        bat: '12',
+        bim: '123',
       },
     });
   });
@@ -148,6 +150,32 @@ describe('readDirectory()', () => {
     expect(functionCall).toThrowError(
       'in file callback tmp/anotherproject/.config 6'
     );
+  });
+
+  it('calls dirCallback and fileCallback multiple times', async () => {
+    const followSymlinks = false;
+
+    const dir = aPath('tmp');
+    const dirCallback = jest.fn();
+    const fileCallback = jest.fn();
+    const excludedNames: string[] = [];
+    const includeDotFiles = true;
+    readDirectory(
+      dir,
+      dirCallback,
+      fileCallback,
+      excludedNames,
+      followSymlinks,
+      includeDotFiles
+    );
+    expect(fileCallback).toHaveBeenCalledTimes(2);
+    expect(dirCallback).toHaveBeenCalledTimes(3);
+    expect(fileCallback.mock.calls[0].slice(0, 2)).toEqual(['tmp/bat', 2]);
+    expect(fileCallback.mock.calls[1].slice(0, 2)).toEqual(['tmp/bim', 3]);
+    expect(dirCallback).toHaveBeenCalledTimes(3);
+    expect(dirCallback.mock.calls[0][0]).toEqual('tmp/anotherproject');
+    expect(dirCallback.mock.calls[1][0]).toEqual('tmp/git');
+    expect(dirCallback.mock.calls[2][0]).toEqual('tmp/project');
   });
 });
 
