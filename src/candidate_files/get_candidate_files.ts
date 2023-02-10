@@ -35,15 +35,9 @@ export function getCandidateFiles(
     options.includeDotfiles
   );
 
-  // no longer needed
-  // Deal properly with hard links by considering only one path per inode.
-  // const filesWithSizes: FileWithSize[] = onePathPerInode(
-  //   filesWithSizesAndInodes
-  // );
-
   // Every file with a unique file size has unique content. Consequently, files
   // with a unique size do not need to be hashed, because they can't possibly be
   // duplicates.
-  const files: Path[] = filesWithNonUniqueSizes(filesWithSizes);
-  return files;
+  const candidateFiles: Path[] = filesWithNonUniqueSizes(filesWithSizes);
+  return candidateFiles;
 }
