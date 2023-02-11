@@ -8,34 +8,45 @@
 import {filesWithNonUniqueSizes, getFilePaths} from '../directories';
 import {silenceOutput} from '../../handle_duplicates/display';
 import {aPath, Path} from '../../common/path';
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
 import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
 } from '../../common/verified_directory_path';
-jest.mock('fs');
 
 describe('getFilePaths()', () => {
-  const MOCK_FILE_INFO = {
-    '/tmp': [1001, 256],
-    '/tmp/git': [1002, 256],
-    '/tmp/git/.git': [1003, 256],
-    '/tmp/git/.git/foo': [1004, 7],
-    '/tmp/git/.git/bar': [1005, 8],
-    '/tmp/project': [1006, 256],
-    '/tmp/project/foo': [1007, 29],
-    '/tmp/project/bar': [1008, 72],
-    '/tmp/another-project': [1009, 256],
-    '/tmp/another-project/.config': [1010, 31],
-    '/tmp/another-project/.foo': [1011, 32],
-  };
+  let resetWithLocalTmpDir: () => Promise<void>;
 
-  beforeEach(() => {
-    require('fs').__setMockFiles(MOCK_FILE_INFO);
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123',
+          '.foo': '123',
+        },
+        git: {
+          '.git': {
+            foo: 'foo',
+            bar: 'bar',
+          },
+        },
+        project: {
+          foo: '987',
+          bar: '123',
+        },
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
   });
 
   it('returns expected files when dot files are not included', () => {
     const dirs: VerifiedDirectoryPath[] =
-      forceVerificationOfDirectoryPaths('/tmp');
+      forceVerificationOfDirectoryPaths('tmp');
     const excludeDirectoryNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
@@ -46,15 +57,15 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number][] = [
-      [aPath('/tmp/project/foo'), 29],
-      [aPath('/tmp/project/bar'), 72],
+      [aPath('tmp/project/bar'), 3],
+      [aPath('tmp/project/foo'), 3],
     ];
     expect(got).toEqual(expected);
   });
 
   it('returns expected files when dot files are included', () => {
     const dirs: VerifiedDirectoryPath[] =
-      forceVerificationOfDirectoryPaths('/tmp');
+      forceVerificationOfDirectoryPaths('tmp');
     const excludeDirectoryNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = true;
@@ -65,19 +76,19 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number][] = [
-      [aPath('/tmp/git/.git/foo'), 7],
-      [aPath('/tmp/git/.git/bar'), 8],
-      [aPath('/tmp/project/foo'), 29],
-      [aPath('/tmp/project/bar'), 72],
-      [aPath('/tmp/another-project/.config'), 31],
-      [aPath('/tmp/another-project/.foo'), 32],
+      [aPath('tmp/anotherproject/.config'), 3],
+      [aPath('tmp/anotherproject/.foo'), 3],
+      [aPath('tmp/git/.git/bar'), 3],
+      [aPath('tmp/git/.git/foo'), 3],
+      [aPath('tmp/project/bar'), 3],
+      [aPath('tmp/project/foo'), 3],
     ];
     expect(got).toEqual(expected);
   });
 
   it('returns expected files when "project" is excluded', () => {
     const dirs: VerifiedDirectoryPath[] =
-      forceVerificationOfDirectoryPaths('/tmp');
+      forceVerificationOfDirectoryPaths('tmp');
     const excludeDirectoryNames: string[] = ['project'];
     const followSymlinks = false;
     const includeDotfiles = true;
@@ -88,19 +99,19 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number][] = [
-      [aPath('/tmp/git/.git/foo'), 7],
-      [aPath('/tmp/git/.git/bar'), 8],
-      [aPath('/tmp/another-project/.config'), 31],
-      [aPath('/tmp/another-project/.foo'), 32],
+      [aPath('tmp/anotherproject/.config'), 3],
+      [aPath('tmp/anotherproject/.foo'), 3],
+      [aPath('tmp/git/.git/bar'), 3],
+      [aPath('tmp/git/.git/foo'), 3],
     ];
     expect(got).toEqual(expected);
   });
 
   it('when given duplicate directories, ignores the second one', () => {
-    // duplicate directory /tmp
+    // duplicate directory tmp
     const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
-      '/tmp',
-      '/tmp'
+      'tmp',
+      'tmp'
     );
     const excludeDirectoryNames: string[] = [];
     const followSymlinks = false;
@@ -112,8 +123,8 @@ describe('getFilePaths()', () => {
       includeDotfiles
     );
     const expected: [Path, number][] = [
-      [aPath('/tmp/project/foo'), 29],
-      [aPath('/tmp/project/bar'), 72],
+      [aPath('tmp/project/bar'), 3],
+      [aPath('tmp/project/foo'), 3],
     ];
     // output indicate that all branches in this function are fully covered by tests:
     expect(got).toEqual(expected);
