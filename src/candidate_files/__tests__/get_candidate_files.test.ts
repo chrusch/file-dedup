@@ -7,42 +7,54 @@
 import {CandidateFilesOptions, getCandidateFiles} from '../get_candidate_files';
 import {aPath, Path} from '../../common/path';
 import {forceVerificationOfDirectoryPaths} from '../../common/verified_directory_path';
-jest.mock('fs');
-
-const MOCK_FILE_INFO = {
-  '/tmp': [1001, 256],
-  '/tmp/git': [1002, 256],
-  '/tmp/git/.git': [1003, 256],
-  '/tmp/git/.git/foo': [1004, 7],
-  '/tmp/git/.git/bar': [1005, 8],
-  '/tmp/project': [1006, 256],
-  '/tmp/project/foo': [1007, 72],
-  '/tmp/project/bar': [1008, 72],
-  '/tmp/another-project': [1009, 256],
-  '/tmp/another-project/.config': [1010, 31],
-  '/tmp/another-project/.foo': [1011, 32],
-};
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
 
 describe('getCandidateFiles()', () => {
-  const fs = require('fs');
+  // const fs = require('fs');
+  let resetWithLocalTmpDir: () => Promise<void>;
 
-  beforeEach(() => {
-    fs.__setMockFiles(MOCK_FILE_INFO);
-    // silenceOutput();
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123',
+          '.foo': '123',
+        },
+        git: {
+          '.git': {
+            foo: 'foo',
+            bar: 'bar',
+          },
+        },
+        project: {
+          foo2: '987',
+          bar2: '123',
+        },
+        bat: '231',
+        bim: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
   });
 
   it('when given options, it returns candidate files (i.e. files with non-unique sizes)', () => {
     const options: CandidateFilesOptions = {
-      pathsToTraverse: forceVerificationOfDirectoryPaths('/tmp'),
+      pathsToTraverse: forceVerificationOfDirectoryPaths('tmp'),
       dirsToPossiblyDeleteFrom: [],
-      exclude: [],
+      exclude: ['bim'],
       followSymlinks: false,
-      includeDotfiles: true,
+      includeDotfiles: false,
     };
     const got: Path[] = getCandidateFiles(options);
     const expected: Path[] = [
-      aPath('/tmp/project/foo'),
-      aPath('/tmp/project/bar'),
+      aPath('tmp/bat'),
+      aPath('tmp/project/bar2'),
+      aPath('tmp/project/foo2'),
     ];
     expect(got).toEqual(expected);
   });
