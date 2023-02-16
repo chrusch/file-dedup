@@ -7,7 +7,7 @@ In the project root directory, run:
 ```
 yarn install
 yarn run compile
-node build/src/index.js [-h] [-i] [-d] [-p <paths...>] [--reallyDelete] <dir...>
+node build/src/index.js [-h] [-i] [-d] [-l] [-n] [-p <paths...> --] [--reallyDelete] <dir...>
 ```
 
 ### Arguments
@@ -44,6 +44,20 @@ node build/src/index.js [-h] [-i] [-d] [-p <paths...>] [--reallyDelete] <dir...>
                           actually delete files.
 
   -h, --help              Display help for command.
+
+  -l, --followSymlinks    By default, symlinks are ignored while traversing
+                          directories. Use this option to override this behavior.
+
+  -n, --nodeHashing       To find duplicate files, this program calculates the
+                          SHA256 hash digest of each file. If you specify
+                          --nodeHashing, this program will calculate the hash
+                          using node's built-in crypto library instead of using
+                          the shasum command found on your system. If the shasum
+                          command cannot be found, node's crypto library will
+                          always be used. In most circumstances, it is
+                          recommended not to use this option since your system's
+                          shasum command is likely the faster implementation of
+                          the two.
 ```
 
 ### Examples:
