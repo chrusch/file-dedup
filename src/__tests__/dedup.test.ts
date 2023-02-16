@@ -6,62 +6,73 @@
 
 import {dedup, DedupOptions} from '../dedup';
 import {silenceOutput} from '../handle_duplicates/display';
-import * as gcf from '../candidate_files/get_candidate_files';
-import * as hash_file from '../hash_file/hash_files';
-import * as rd from '../handle_duplicates/remove_duplicates';
+import * as remove_duplicates from '../handle_duplicates/remove_duplicates';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked
 import {forceVerificationOfDirectoryPaths} from '../common/verified_directory_path';
 import {aPath} from '../common/path';
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
+import {Path} from '../common/path';
 
-jest.mock('../candidate_files/get_candidate_files.ts');
-jest.mock('../hash_file/hash_files.ts');
 jest.mock('../handle_duplicates/remove_duplicates.ts');
-jest.mock('fs');
 
 describe('dedup()', () => {
   beforeAll(() => {
     silenceOutput();
   });
+
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        bar: '123',
+        baz: '123',
+        foo: '123',
+        tmp: {
+          zoo: '1234',
+        },
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
   it('calls certain functions with expected args and returns a void promise', async () => {
     const options: DedupOptions = {
-      dirsToPossiblyDeleteFrom:
-        forceVerificationOfDirectoryPaths('/tmp/tmp/foo'),
+      dirsToPossiblyDeleteFrom: forceVerificationOfDirectoryPaths('tmp/tmp'),
       exclude: [],
       followSymlinks: false,
       includeDotfiles: false,
       interactiveDeletion: false,
-      pathsToTraverse: forceVerificationOfDirectoryPaths('/tmp'),
+      nodeHashing: false,
+      pathsToTraverse: forceVerificationOfDirectoryPaths('tmp'),
       reallyDelete: true,
     };
-    type GCF = jest.Mocked<typeof gcf.getCandidateFiles>;
-    (gcf.getCandidateFiles as GCF).mockReturnValue([
-      aPath('/tmp/foo'),
-      aPath('/tmp/bar'),
-      aPath('/tmp/baz'),
-    ]);
-    type HashFile = jest.Mocked<typeof hash_file.hashFile>;
-    (hash_file.hashFile as HashFile).mockImplementation(_file => {
-      return Promise.resolve([_file, 'abcd']);
-    });
 
     const getDuplicatesRet = [
-      [aPath('/tmp/foo'), aPath('/tmp/bar'), aPath('/tmp/baz')],
+      [aPath('tmp/bar'), aPath('tmp/baz'), aPath('tmp/foo')],
     ];
     const got = await dedup(options);
 
-    expect(gcf.getCandidateFiles).toHaveBeenCalledTimes(1);
-    expect(gcf.getCandidateFiles).toHaveBeenNthCalledWith(1, options);
-
-    expect(hash_file.hashFile).toHaveBeenCalledTimes(3);
-
-    expect(rd.deleteOrListDuplicates).toHaveBeenCalledTimes(1);
-    expect(rd.deleteOrListDuplicates).toHaveBeenCalledWith(
-      getDuplicatesRet,
+    expect(remove_duplicates.deleteOrListDuplicates).toHaveBeenCalledTimes(1);
+    type RC = jest.Mocked<typeof remove_duplicates.deleteOrListDuplicates>;
+    const call = (remove_duplicates.deleteOrListDuplicates as unknown as RC)
+      .mock.calls[0];
+    const firstParam: Path[][] = (call.shift() as Path[][]).map(pathArray =>
+      pathArray.sort()
+    );
+    expect(firstParam).toEqual(expect.arrayContaining(getDuplicatesRet));
+    expect(getDuplicatesRet).toEqual(expect.arrayContaining(firstParam));
+    expect(call).toEqual([
       options.dirsToPossiblyDeleteFrom,
       options.reallyDelete,
-      options.interactiveDeletion
-    );
+      options.interactiveDeletion,
+    ]);
 
     const expected = undefined;
     expect(got).toEqual(expected);

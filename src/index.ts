@@ -6,4 +6,13 @@
 
 import {main} from './main';
 
-main();
+async function exitWhenPromiseCompletes(entryPoint: () => Promise<void>) {
+  const pollTime = 1000 * 1000 * 1000;
+  const interval = setInterval(() => {}, pollTime);
+
+  return entryPoint().finally(() => {
+    clearInterval(interval);
+  });
+}
+
+exitWhenPromiseCompletes(main);

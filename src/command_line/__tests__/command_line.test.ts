@@ -15,10 +15,11 @@ describe('commandLineOptions(argv)', () => {
     const got = commandLineOptions(argv);
     const options: Options = {
       dotFiles: false,
+      followSymlinks: false,
       interactive: false,
+      nodeHashing: false,
       paths: [],
       reallyDelete: false,
-      followSymlinks: false,
     };
     const args: string[] = ['/tmp'];
     const expected = [options, args];
@@ -44,6 +45,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: true,
       followSymlinks: true,
       interactive: true,
+      nodeHashing: false,
       paths: ['/baz/bar'],
       reallyDelete: true,
     };
@@ -67,6 +69,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: false,
       followSymlinks: false,
       interactive: false,
+      nodeHashing: false,
       paths: ['/baza/bara', '/bazb/barb'],
       reallyDelete: true,
     };
@@ -94,6 +97,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: true,
       followSymlinks: true,
       interactive: true,
+      nodeHashing: false,
       paths: ['/baza/bara'],
       reallyDelete: true,
     };

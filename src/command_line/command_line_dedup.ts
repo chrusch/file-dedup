@@ -26,13 +26,15 @@ export function getDedupOptionsFromCommandLine(
 }
 
 export function processOptions(options: Options, args: string[]): DedupOptions {
-  const interactiveDeletion = options.interactive;
-  const reallyDelete = options.reallyDelete;
   const includeDotfiles = options.dotFiles;
+  const interactiveDeletion = options.interactive;
+  const followSymlinks = options.followSymlinks;
+  const reallyDelete = options.reallyDelete;
+  const nodeHashing = options.nodeHashing;
+
   const paths: readonly string[] = options.paths;
   const dirsToPossiblyDeleteFrom = verifyDirectoryPaths(...paths);
   const pathsToTraverse = verifyDirectoryPaths(...args);
-  const followSymlinks = options.followSymlinks;
 
   return {
     dirsToPossiblyDeleteFrom,
@@ -40,6 +42,7 @@ export function processOptions(options: Options, args: string[]): DedupOptions {
     followSymlinks,
     includeDotfiles,
     interactiveDeletion,
+    nodeHashing,
     pathsToTraverse,
     reallyDelete,
   };

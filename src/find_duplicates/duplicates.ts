@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {HashData} from '../dedup';
+import {HashData} from '../hash_file/hash_files';
 import _ from 'lodash';
 import {Path} from '../common/path';
 

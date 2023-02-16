@@ -15,7 +15,8 @@ jest.mock('fs');
 describe('hashFile()', () => {
   it('when called, calls runCommand with expected arguments', async () => {
     const file = aPath('/tmp/foo');
-    const got = await hashFile(file);
+    const cmd = aPath('shasum');
+    const got = await hashFile(file, cmd);
     const expected = undefined;
     expect(got).toEqual(expected);
     expect(runCommand.runCommand).toHaveBeenCalledTimes(1);

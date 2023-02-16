@@ -6,13 +6,7 @@
 
 import {getDuplicates} from './find_duplicates/duplicates';
 import {deleteOrListDuplicates} from './handle_duplicates/remove_duplicates';
-import {hashFile} from './hash_file/hash_files';
-import {
-  doAllWorkInQueue,
-  makeWorkQueue,
-  Job,
-  WorkQueue,
-} from './work_queue/work_queue';
+import {hashAllCandidateFiles} from './hash_file/hash_files';
 import {getCandidateFiles} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './common/verified_directory_path';
 import {Path} from './common/path';
@@ -23,12 +17,10 @@ export type DedupOptions = {
   followSymlinks: boolean;
   includeDotfiles: boolean;
   interactiveDeletion: boolean;
+  nodeHashing: boolean;
   pathsToTraverse: VerifiedDirectoryPath[];
   reallyDelete: boolean;
 };
-
-export type HashDatum = readonly [Path, string];
-export type HashData = HashDatum[];
 
 // Deduplicate files.
 //
@@ -36,17 +28,12 @@ export type HashData = HashDatum[];
 // files. Print out these duplicates or optionally delete them depending on the
 // exact options provided.
 export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
-  // Get files that might potentially be duplicates.
   const candidateFiles = getCandidateFiles(options);
-  const hashData: HashData = [];
-  const hashOneFile: Job<Path> = async file => {
-    hashData.push(await hashFile(file));
-  };
 
-  // create a job queue to hash all candidate files
-  // using parallel processing
-  const workQueue: WorkQueue = makeWorkQueue(candidateFiles, hashOneFile);
-  await doAllWorkInQueue(workQueue, 100);
+  const hashData = await hashAllCandidateFiles(
+    candidateFiles,
+    options.nodeHashing
+  );
 
   const duplicateFiles: Path[][] = getDuplicates(hashData);
 

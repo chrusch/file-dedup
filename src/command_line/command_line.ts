@@ -14,6 +14,8 @@ export interface Options {
   dotFiles: boolean;
   /** follow symlinks while traversing directory structures? */
   followSymlinks: boolean;
+  /** use node's buildin crypto library to calculuate the hash digest of files? */
+  nodeHashing: boolean;
   /** paths to non-interactively delete files in */
   paths: readonly string[];
   /** confirmation that the user really wants to let the program delete files
@@ -31,7 +33,7 @@ export function commandLineOptions(
 
   program
     .version('0.0.1', '-v, --version')
-    .usage('[-h] [-i] [-d] [-l] [-p <paths...>] [--reallyDelete] <dir...>')
+    .usage('[-h] [-i] [-d] [-l] [-n] [-p <paths...>] [--reallyDelete] <dir...>')
     .argument('<dir...>', 'directories to look for duplicates in')
     .option(
       '-p, --paths <paths...>',
@@ -56,6 +58,11 @@ export function commandLineOptions(
     .option(
       '--reallyDelete',
       'Really delete files. Unless this option is provided, file-dedup will not delete any files, but only display which files would have been deleted.',
+      false
+    )
+    .option(
+      '-n, --nodeHashing',
+      "To find duplicate files, this program calculates the SHA256 hash digest of each file. If you specify --nodeHashing, this program will calculate the hash using node's built-in crypto library instead of using the shasum command found on your system. If the shasum command cannot be found, node's crypto library will always be used. In most circumstances, it is recommended not to use this option since your system's shasum command is likely the faster implementation of the two.",
       false
     );
 
