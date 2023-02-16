@@ -800,6 +800,11 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.1.tgz#20f18294f797f2209b5f65c8e3b5c8e8261d127c"
   integrity sha512-Hl219/BT5fLAaz6NDkSuhzasy49dwQS/DSdu4MdggFB8zcXv7vflBI3xp7FEmkmdDkBUI2bPUNeMttp2knYdxw==
 
+"@types/which@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@types/which/-/which-2.0.2.tgz#54541d02d6b1daee5ec01ac0d1b37cecf37db1ae"
+  integrity sha512-113D3mDkZDjo+EeUEHCFy0qniNc1ZpecGiAU7WSo7YDoSzolZIQKpYFHrPpjkB2nuyahcKfrmLXeQlh7gqJYdw==
+
 "@types/yargs-parser@*":
   version "21.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-21.0.0.tgz#0c60e537fa790f5f9472ed2776c2b71ec117351b"
@@ -2087,7 +2092,7 @@ jest-config@^29.4.1:
     slash "^3.0.0"
     strip-json-comments "^3.1.1"
 
-jest-diff@^29.0.0, jest-diff@^29.4.1:
+jest-diff@^29.4.1:
   version "29.4.1"
   resolved "https://registry.yarnpkg.com/jest-diff/-/jest-diff-29.4.1.tgz#9a6dc715037e1fa7a8a44554e7d272088c4029bd"
   integrity sha512-uazdl2g331iY56CEyfbNA0Ut7Mn2ulAG5vUaEHXycf1L6IPyuImIxSz4F0VYBKi7LYIuxOwTZzK3wh5jHzASMw==
@@ -2127,15 +2132,7 @@ jest-environment-node@^29.4.1:
     jest-mock "^29.4.1"
     jest-util "^29.4.1"
 
-jest-extended@^3.1.0:
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/jest-extended/-/jest-extended-3.2.3.tgz#286c19b4622e2ab828e1bb28d3b2d4a1ed64f8b9"
-  integrity sha512-YcdjfFv3+N2AiWq4aG6gT/r1mfLtDKnbXs0hKXNlL/hf37TKQJTlh2zNwuMUYnvwKRRMtO/X9CfZU1EmOgUREA==
-  dependencies:
-    jest-diff "^29.0.0"
-    jest-get-type "^29.0.0"
-
-jest-get-type@^29.0.0, jest-get-type@^29.2.0:
+jest-get-type@^29.2.0:
   version "29.2.0"
   resolved "https://registry.yarnpkg.com/jest-get-type/-/jest-get-type-29.2.0.tgz#726646f927ef61d583a3b3adb1ab13f3a5036408"
   integrity sha512-uXNJlg8hKFEnDgFsrCjznB+sTxdkuqiCL6zMgA75qEbAJjJYTs9XPrvDctrEig2GDow22T/LvHgO57iJhXB/UA==
@@ -3382,6 +3379,13 @@ which@^2.0.1:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/which/-/which-2.0.2.tgz#7c6a8dd0a636a0327e10b59c9286eee93f3f51b1"
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
+  dependencies:
+    isexe "^2.0.0"
+
+which@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/which/-/which-3.0.0.tgz#a9efd016db59728758a390d23f1687b6e8f59f8e"
+  integrity sha512-nla//68K9NU6yRiwDY/Q8aU6siKlSs64aEC7+IV56QoAuyQT2ovsJcgGYGyqMOmI/CGN1BOR6mM5EN0FBO+zyQ==
   dependencies:
     isexe "^2.0.0"
 
