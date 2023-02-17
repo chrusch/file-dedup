@@ -44,13 +44,13 @@ describe('getFilePaths()', () => {
     await resetWithLocalTmpDir();
   });
 
-  it('returns expected files when dot files are not included', () => {
+  it('returns expected files when dot files are not included', async () => {
     const dirs: VerifiedDirectoryPath[] =
       forceVerificationOfDirectoryPaths('tmp');
     const excludeDirectoryNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
-    const got = getFilePaths(
+    const got = await getFilePaths(
       dirs,
       excludeDirectoryNames,
       followSymlinks,
@@ -63,13 +63,13 @@ describe('getFilePaths()', () => {
     expect(got).toEqual(expected);
   });
 
-  it('returns expected files when dot files are included', () => {
+  it('returns expected files when dot files are included', async () => {
     const dirs: VerifiedDirectoryPath[] =
       forceVerificationOfDirectoryPaths('tmp');
     const excludeDirectoryNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = true;
-    const got = getFilePaths(
+    const got = await getFilePaths(
       dirs,
       excludeDirectoryNames,
       followSymlinks,
@@ -83,16 +83,17 @@ describe('getFilePaths()', () => {
       [aPath('tmp/project/bar'), 3],
       [aPath('tmp/project/foo'), 3],
     ];
+    got.sort((a, b) => a[0].localeCompare(b[0]));
     expect(got).toEqual(expected);
   });
 
-  it('returns expected files when "project" is excluded', () => {
+  it('returns expected files when "project" is excluded', async () => {
     const dirs: VerifiedDirectoryPath[] =
       forceVerificationOfDirectoryPaths('tmp');
     const excludeDirectoryNames: string[] = ['project'];
     const followSymlinks = false;
     const includeDotfiles = true;
-    const got = getFilePaths(
+    const got = await getFilePaths(
       dirs,
       excludeDirectoryNames,
       followSymlinks,
@@ -107,7 +108,7 @@ describe('getFilePaths()', () => {
     expect(got).toEqual(expected);
   });
 
-  it('when given duplicate directories, ignores the second one', () => {
+  it('when given duplicate directories, ignores the second one', async () => {
     // duplicate directory tmp
     const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
       'tmp',
@@ -116,7 +117,7 @@ describe('getFilePaths()', () => {
     const excludeDirectoryNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = false;
-    const got = getFilePaths(
+    const got = await getFilePaths(
       dirs,
       excludeDirectoryNames,
       followSymlinks,

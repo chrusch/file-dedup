@@ -10,12 +10,12 @@ import _ from 'lodash';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
-export function getFilePaths(
+export async function getFilePaths(
   dirs: VerifiedDirectoryPath[],
   excludeDirectoryNames: readonly string[],
   followSymlinks: boolean,
   includeDotfiles: boolean
-): FileWithSize[] {
+): Promise<FileWithSize[]> {
   const files: Map<number, FileWithSize> = new Map();
   const directoriesRead: Set<number> = new Set();
 
@@ -28,11 +28,11 @@ export function getFilePaths(
     files.set(inode, [file, size]);
   };
 
-  const dirCallback = (dir: Path, inode: number): void => {
+  const dirCallback = async (dir: Path, inode: number): Promise<void> => {
     // avoid traversing the same directory twice
     if (directoriesRead.has(inode)) return;
     directoriesRead.add(inode);
-    readDirectory(
+    await readDirectory(
       dir,
       dirCallback,
       fileCallback,
@@ -42,7 +42,7 @@ export function getFilePaths(
     );
   };
 
-  dirs.forEach(dir => dirCallback(aPath(dir), getInode(dir)));
+  await Promise.all(dirs.map(dir => dirCallback(aPath(dir), getInode(dir))));
   return Array.from(files.values());
 }
 

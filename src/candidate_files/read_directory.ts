@@ -5,7 +5,8 @@
 // LICENSE file in the root directory of this source tree.
 
 import pathModule from 'path';
-import {lstatSync, readdirSync, statSync, Stats} from 'fs';
+import {lstatSync, statSync, Stats} from 'fs';
+import {readdir} from 'node:fs/promises';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
@@ -20,15 +21,16 @@ export function getInode(path: VerifiedDirectoryPath): number {
   return getFileStatus(aPath(path), true).ino;
 }
 
-export function readDirectory(
+export async function readDirectory(
   dir: Path,
-  dirCallback: (dir: Path, inode: number) => void,
+  dirCallback: (dir: Path, inode: number) => Promise<void>,
   fileCallback: (file: Path, size: number, ino: number) => void,
   excludedNames: readonly string[],
   followSymlinks: boolean,
   includeDotfiles: boolean
-): void {
-  const files = readdirSync(dir);
+): Promise<void> {
+  const files = await readdir(dir);
+  const dirPromises: Promise<void>[] = [];
   files.forEach(file => {
     if (excludedNames.includes(file)) return;
     if (!includeDotfiles && file.match('^\\.')) return;
@@ -37,9 +39,10 @@ export function readDirectory(
     const fileStatus = getFileStatus(pth, followSymlinks);
 
     if (fileStatus.isDirectory()) {
-      dirCallback(pth, fileStatus.ino);
+      dirPromises.push(dirCallback(pth, fileStatus.ino));
     } else if (fileStatus.isFile()) {
       fileCallback(pth, fileStatus.size, fileStatus.ino);
     } // silently ignore symlinks and other file system objects
   });
+  await Promise.all(dirPromises);
 }

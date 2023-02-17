@@ -23,14 +23,14 @@ export interface CandidateFilesOptions {
 // specified files and directories, and optionally including hidden dot files.
 // Filter out all files with unique sizes (they can't be duplicates), and
 // return an array of the paths of the all files with non-unique sizes.
-export function getCandidateFiles(
+export async function getCandidateFiles(
   options: Readonly<CandidateFilesOptions>
-): Path[] {
+): Promise<Path[]> {
   const dirsToTraverse = [
     ...options.pathsToTraverse,
     ...options.dirsToPossiblyDeleteFrom,
   ];
-  const filesWithSizes: FileWithSize[] = getFilePaths(
+  const filesWithSizes: FileWithSize[] = await getFilePaths(
     dirsToTraverse,
     options.exclude,
     options.followSymlinks,

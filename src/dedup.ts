@@ -28,7 +28,7 @@ export type DedupOptions = {
 // files. Print out these duplicates or optionally delete them depending on the
 // exact options provided.
 export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
-  const candidateFiles = getCandidateFiles(options);
+  const candidateFiles = await getCandidateFiles(options);
 
   const hashData = await hashAllCandidateFiles(
     candidateFiles,

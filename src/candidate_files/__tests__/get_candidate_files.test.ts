@@ -42,7 +42,7 @@ describe('getCandidateFiles()', () => {
     await resetWithLocalTmpDir();
   });
 
-  it('when given options, it returns candidate files (i.e. files with non-unique sizes)', () => {
+  it('when given options, it returns candidate files (i.e. files with non-unique sizes)', async () => {
     const options: CandidateFilesOptions = {
       pathsToTraverse: forceVerificationOfDirectoryPaths('tmp'),
       dirsToPossiblyDeleteFrom: [],
@@ -50,7 +50,7 @@ describe('getCandidateFiles()', () => {
       followSymlinks: false,
       includeDotfiles: false,
     };
-    const got: Path[] = getCandidateFiles(options);
+    const got: Path[] = await getCandidateFiles(options);
     const expected: Path[] = [
       aPath('tmp/bat'),
       aPath('tmp/project/bar2'),

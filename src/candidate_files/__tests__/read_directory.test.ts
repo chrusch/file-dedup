@@ -41,14 +41,14 @@ describe('readDirectory()', () => {
     await resetWithLocalTmpDir();
   });
 
-  const dirCallback = (pth: Path): void => {
+  const dirCallback = (pth: Path): Promise<void> => {
     throw new Error(`in dir callback: ${pth}`);
   };
-  const fileCallback = (file: Path, size: number): void => {
+  const fileCallback = (file: Path, size: number): Promise<void> => {
     throw new Error(`in file callback ${file} ${size}`);
   };
 
-  it('excludes excluded files', () => {
+  it('excludes excluded files', async () => {
     const folder = aPath('tmp/project');
     const excludedNames: string[] = ['foo2', 'bar2'];
     const includeDotfiles = true;
@@ -62,10 +62,10 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).not.toThrowError();
+    await expect(functionCall()).resolves.toEqual(undefined);
   });
 
-  it('excludes dot files when configured to do so', () => {
+  it('excludes dot files when configured to do so', async () => {
     const folder = aPath('tmp/git');
     const excludedNames: string[] = [];
     const followSymlinks = false;
@@ -79,16 +79,16 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).not.toThrowError();
+    await expect(functionCall()).resolves.toEqual(undefined);
   });
 
-  it('includes included files', () => {
+  it('includes included files', async () => {
     const folder = aPath('tmp/project');
     const excludedNames: string[] = ['foo2'];
     const followSymlinks = false;
     const includeDotfiles = true;
-    const functionCall = () =>
-      readDirectory(
+    const functionCall = async () =>
+      await readDirectory(
         folder,
         dirCallback,
         fileCallback,
@@ -96,16 +96,19 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).toThrowError('in file callback tmp/project/bar2 9');
+    await expect(functionCall()).rejects.toThrowError(
+      'in file callback tmp/project/bar2 9'
+    );
+    // expect(functionCall).toThrowError('in file callback tmp/project/bar2 9');
   });
 
-  it('includes included directories', () => {
+  it('includes included directories', async () => {
     const folder = aPath('tmp/git');
     const excludedNames: string[] = ['foo'];
     const followSymlinks = false;
     const includeDotfiles = true;
-    const functionCall = () =>
-      readDirectory(
+    const functionCall = async () =>
+      await readDirectory(
         folder,
         dirCallback,
         fileCallback,
@@ -113,10 +116,13 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).toThrowError('in dir callback: tmp/git/.git');
+    // expect(functionCall).toThrowError('in dir callback: tmp/git/.git');
+    await expect(functionCall()).rejects.toThrowError(
+      'in dir callback: tmp/git/.git'
+    );
   });
 
-  it('excludes dotfiles when configured to do so ', () => {
+  it('excludes dotfiles when configured to do so', async () => {
     const folder = aPath('tmp/anotherproject');
     const excludedNames: string[] = [];
     const followSymlinks = false;
@@ -130,16 +136,16 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).not.toThrowError();
+    await expect(functionCall()).resolves.toEqual(undefined);
   });
 
-  it('includes dotfiles when configured to do so ', () => {
+  it('includes dotfiles when configured to do so ', async () => {
     const folder = aPath('tmp/anotherproject');
     const excludedNames: string[] = [];
     const followSymlinks = false;
     const includeDotfiles = true;
-    const functionCall = () =>
-      readDirectory(
+    const functionCall = async () =>
+      await readDirectory(
         folder,
         dirCallback,
         fileCallback,
@@ -147,7 +153,7 @@ describe('readDirectory()', () => {
         followSymlinks,
         includeDotfiles
       );
-    expect(functionCall).toThrowError(
+    await expect(functionCall()).rejects.toThrowError(
       'in file callback tmp/anotherproject/.config 6'
     );
   });
@@ -160,7 +166,7 @@ describe('readDirectory()', () => {
     const fileCallback = jest.fn();
     const excludedNames: string[] = [];
     const includeDotFiles = true;
-    readDirectory(
+    await readDirectory(
       dir,
       dirCallback,
       fileCallback,

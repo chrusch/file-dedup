@@ -54,28 +54,17 @@ export async function beAWorkerThread<WorkerInput, WorkerResult>(
   parentPort: MessagePort | null,
   workerData: WorkerInput,
   workerLogic: (message: WorkerInput) => Promise<WorkerResult>
-) {
+): Promise<void> {
   if (parentPort === null) throw 'parentPort unexpectedly null';
-  let interval: NodeJS.Timeout;
-
-  // wait up to 2 seconds for the next message to come in.
-  const waitForNewMessage = () => {
-    // if (interval) clearInterval(interval);
-    new Promise(resolve => {
-      // interval = setInterval(resolve, 2000);
-    });
-  };
 
   const getAndPostResult = async (data: WorkerInput) => {
     parentPort.postMessage(await workerLogic(data));
-    waitForNewMessage();
   };
 
   parentPort.on('message', async (message: WorkerInput) => {
     if (message === null) {
-      process.exit();
       // we are done
-      // clearInterval(interval);
+      parentPort.close();
     } else {
       await getAndPostResult(message);
     }
