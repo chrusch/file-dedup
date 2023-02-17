@@ -123,12 +123,16 @@ describe('getFilePaths()', () => {
       followSymlinks,
       includeDotfiles
     );
-    const expected: [Path, number][] = [
-      [aPath('tmp/project/bar'), 3],
-      [aPath('tmp/project/foo'), 3],
+    const gotFilesSorted = got.map(a => a[0]).sort();
+    const gotSizesSorted = got.map(a => a[1]).sort();
+    const expectedSizesSorted: number[] = [3, 3];
+    const expectedFilesSorted: Path[] = [
+      aPath('tmp/project/bar'),
+      aPath('tmp/project/foo'),
     ];
     // output indicate that all branches in this function are fully covered by tests:
-    expect(got).toEqual(expected);
+    expect(gotFilesSorted).toEqual(expectedFilesSorted);
+    expect(gotSizesSorted).toEqual(expectedSizesSorted);
   });
 });
 

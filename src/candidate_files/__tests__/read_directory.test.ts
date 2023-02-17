@@ -179,9 +179,13 @@ describe('readDirectory()', () => {
     expect(fileCallback.mock.calls[0].slice(0, 2)).toEqual(['tmp/bat', 2]);
     expect(fileCallback.mock.calls[1].slice(0, 2)).toEqual(['tmp/bim', 3]);
     expect(dirCallback).toHaveBeenCalledTimes(3);
-    expect(dirCallback.mock.calls[0][0]).toEqual('tmp/anotherproject');
-    expect(dirCallback.mock.calls[1][0]).toEqual('tmp/git');
-    expect(dirCallback.mock.calls[2][0]).toEqual('tmp/project');
+    const dirCalls = dirCallback.mock.calls;
+    const firstParams = dirCalls.map(a => a[0]).sort();
+    expect(firstParams).toEqual([
+      'tmp/anotherproject',
+      'tmp/git',
+      'tmp/project',
+    ]);
   });
 });
 
@@ -203,7 +207,7 @@ describe('getFileStatus()', () => {
     const path = aPath('./bar.txt');
     const expectedErrorMessage =
       "ENOENT: no such file or directory, lstat './bar.txt'";
-    expect(() => getFileStatus(path, followSymlinks)).toThrowError(
+    expect(getFileStatus(path, followSymlinks)).rejects.toThrowError(
       expectedErrorMessage
     );
   });
@@ -216,7 +220,7 @@ describe('getFileStatus()', () => {
     const path = aPath('./bar.txt');
     const expectedErrorMessage =
       "ENOENT: no such file or directory, stat './bar.txt'";
-    expect(() => getFileStatus(path, followSymlinks)).toThrowError(
+    expect(getFileStatus(path, followSymlinks)).rejects.toThrowError(
       expectedErrorMessage
     );
   });
@@ -228,7 +232,7 @@ describe('getFileStatus()', () => {
       'foo.txt': 'abc',
     });
     const path = aPath('./foo.txt');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     const statKeys = [
       'dev',
@@ -264,7 +268,7 @@ describe('getFileStatus()', () => {
       'foo.txt': 'abc',
     });
     const path = aPath('./foo.txt');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     const statKeys = [
       'dev',
@@ -303,7 +307,7 @@ describe('getFileStatus()', () => {
       },
     });
     const path = aPath('./adir');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     expect(stats.isFile()).toEqual(false);
     expect(stats.isSymbolicLink()).toEqual(false);
@@ -320,7 +324,7 @@ describe('getFileStatus()', () => {
       },
     });
     const path = aPath('./adir');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     expect(stats.isFile()).toEqual(false);
     expect(stats.isSymbolicLink()).toEqual(false);
@@ -338,7 +342,7 @@ describe('getFileStatus()', () => {
     });
     fs.symlinkSync('foo.txt', 'foo-symlink.txt');
     const path = aPath('./foo-symlink.txt');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     expect(stats.isSymbolicLink()).toEqual(true);
     expect(stats.isFile()).toEqual(false);
@@ -356,7 +360,7 @@ describe('getFileStatus()', () => {
     });
     fs.symlinkSync('foo.txt', 'foo-symlink.txt');
     const path = aPath('./foo-symlink.txt');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     expect(stats.isSymbolicLink()).toEqual(false);
     expect(stats.isFile()).toEqual(true);
@@ -384,11 +388,11 @@ describe('getFileStatus()', () => {
 
     const pathz = aPath('./zoo.txt');
 
-    const stats1: Stats = getFileStatus(path1, followSymlinks);
-    const stats2: Stats = getFileStatus(path2, followSymlinks);
-    const stats3: Stats = getFileStatus(path3, followSymlinks);
-    const statso: Stats = getFileStatus(patho, followSymlinks);
-    const statsz: Stats = getFileStatus(pathz, followSymlinks);
+    const stats1: Stats = await getFileStatus(path1, followSymlinks);
+    const stats2: Stats = await getFileStatus(path2, followSymlinks);
+    const stats3: Stats = await getFileStatus(path3, followSymlinks);
+    const statso: Stats = await getFileStatus(patho, followSymlinks);
+    const statsz: Stats = await getFileStatus(pathz, followSymlinks);
 
     expect(statso.isFile()).toEqual(true);
     expect(stats1.isFile()).toEqual(true);
@@ -423,7 +427,7 @@ describe('getFileStatus()', () => {
     });
     fs.symlinkSync('adir', 'adir-symlink');
     const path = aPath('./adir-symlink');
-    const stats: Stats = getFileStatus(path, followSymlinks);
+    const stats: Stats = await getFileStatus(path, followSymlinks);
 
     expect(stats.isSymbolicLink()).toEqual(false);
     expect(stats.isFile()).toEqual(false);
@@ -453,11 +457,11 @@ describe('getFileStatus()', () => {
 
     const pathz = aPath('./anotherdir');
 
-    const stats1: Stats = getFileStatus(path1, followSymlinks);
-    const stats2: Stats = getFileStatus(path2, followSymlinks);
-    const stats3: Stats = getFileStatus(path3, followSymlinks);
-    const statso: Stats = getFileStatus(patho, followSymlinks);
-    const statsz: Stats = getFileStatus(pathz, followSymlinks);
+    const stats1: Stats = await getFileStatus(path1, followSymlinks);
+    const stats2: Stats = await getFileStatus(path2, followSymlinks);
+    const stats3: Stats = await getFileStatus(path3, followSymlinks);
+    const statso: Stats = await getFileStatus(patho, followSymlinks);
+    const statsz: Stats = await getFileStatus(pathz, followSymlinks);
 
     expect(statso.isFile()).toEqual(false);
     expect(stats1.isFile()).toEqual(false);

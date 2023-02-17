@@ -42,7 +42,9 @@ export async function getFilePaths(
     );
   };
 
-  await Promise.all(dirs.map(dir => dirCallback(aPath(dir), getInode(dir))));
+  await Promise.all(
+    dirs.map(async dir => dirCallback(aPath(dir), await getInode(dir)))
+  );
   return Array.from(files.values());
 }
 

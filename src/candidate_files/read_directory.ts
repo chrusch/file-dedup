@@ -5,20 +5,23 @@
 // LICENSE file in the root directory of this source tree.
 
 import pathModule from 'path';
-import {lstatSync, statSync, Stats} from 'fs';
-import {readdir} from 'node:fs/promises';
+import {Stats} from 'fs';
+import {lstat, readdir, stat} from 'node:fs/promises';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 
 // when path is a symlink and followSymlinks is true, returns the Stats of the
 // linked file, otherwise returns the Stats of the literal file system indicated
 // by path, whether file, symlink, directory, or whatever.
-export function getFileStatus(path: Path, followSymlinks: boolean): Stats {
-  return followSymlinks ? statSync(path) : lstatSync(path);
+export async function getFileStatus(
+  path: Path,
+  followSymlinks: boolean
+): Promise<Stats> {
+  return followSymlinks ? await stat(path) : await lstat(path);
 }
 
-export function getInode(path: VerifiedDirectoryPath): number {
-  return getFileStatus(aPath(path), true).ino;
+export async function getInode(path: VerifiedDirectoryPath): Promise<number> {
+  return (await getFileStatus(aPath(path), true)).ino;
 }
 
 export async function readDirectory(
@@ -30,19 +33,19 @@ export async function readDirectory(
   includeDotfiles: boolean
 ): Promise<void> {
   const files = await readdir(dir);
-  const dirPromises: Promise<void>[] = [];
-  files.forEach(file => {
+  // const dirPromises: Promise<void>[] = [];
+  const filePromises = files.map(async file => {
     if (excludedNames.includes(file)) return;
     if (!includeDotfiles && file.match('^\\.')) return;
 
     const pth = aPath(pathModule.join(dir, file));
-    const fileStatus = getFileStatus(pth, followSymlinks);
+    const fileStatus = await getFileStatus(pth, followSymlinks);
 
     if (fileStatus.isDirectory()) {
-      dirPromises.push(dirCallback(pth, fileStatus.ino));
+      await dirCallback(pth, fileStatus.ino);
     } else if (fileStatus.isFile()) {
       fileCallback(pth, fileStatus.size, fileStatus.ino);
     } // silently ignore symlinks and other file system objects
   });
-  await Promise.all(dirPromises);
+  await Promise.all(filePromises);
 }
