@@ -4,9 +4,10 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {HashData} from '../hash_file/hash_files';
+import {HashData, HashDatum} from '../hash_file/hash_files';
 import _ from 'lodash';
 import {Path} from '../common/path';
+import {Duplex} from 'node:stream';
 
 type FileList = Path[];
 // We are given a list like this:
@@ -40,3 +41,69 @@ export const getDuplicates = (allData: Readonly<HashData>): FileList[] => {
 
   return fileLists;
 };
+
+export function getFindDuplicatesStream(): Duplex {
+  const indexByHash = new Map<string, number>();
+  let currentReadIndex = 0;
+  let currentWriteIndex = 0;
+  const fileLists: Path[][] = [];
+  const hashes: string[] = [];
+  const duplicatesRead: boolean[] = [];
+  const unreadDuplicates = new Set<number>();
+
+  const nextUnreadDuplicates = (): Path[] | null => {
+    const numEntries = duplicatesRead.length;
+    for (let i = 0; i < numEntries; i++) {
+      const index = (currentReadIndex + i) % numEntries;
+      if (duplicatesRead !== undefined && duplicatesRead[index] === false) {
+        duplicatesRead[index] = true;
+        currentReadIndex = (index + 1) % numEntries;
+        return fileLists[index];
+      }
+    }
+    return null;
+  };
+  let noMoreData = false;
+  let timeout: NodeJS.Timeout;
+  const findDuplicatesStream = new Duplex({
+    objectMode: true,
+    write(chunk: HashDatum, _encoding, callback) {
+      const [filename, hash] = chunk;
+      const fileListIndex = indexByHash.get(hash);
+      if (fileListIndex !== undefined) {
+        const filesWithThisHash = fileLists[fileListIndex];
+        const duplicates = [...filesWithThisHash, filename];
+        fileLists[fileListIndex] = duplicates;
+        duplicatesRead[fileListIndex] = false;
+        unreadDuplicates.add(fileListIndex);
+      } else {
+        fileLists[currentWriteIndex] = [filename];
+        hashes[currentWriteIndex] = hash;
+        indexByHash.set(hash, currentWriteIndex);
+        currentWriteIndex += 1;
+      }
+      callback();
+    },
+
+    read(_size) {
+      const pushData = () => {
+        let duplicates = nextUnreadDuplicates();
+        if (duplicates) {
+          do {
+            this.push(duplicates);
+          } while ((duplicates = nextUnreadDuplicates()));
+        } else if (noMoreData) {
+          this.push(null);
+        } else {
+          if (timeout) clearInterval(timeout);
+          timeout = setTimeout(pushData, 100);
+        }
+      };
+      pushData();
+    },
+  });
+  findDuplicatesStream.on('finish', () => {
+    noMoreData = true;
+  });
+  return findDuplicatesStream;
+}

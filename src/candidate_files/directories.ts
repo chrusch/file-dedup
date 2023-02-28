@@ -9,6 +9,7 @@ import {FileWithSize} from './get_candidate_files';
 import _ from 'lodash';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
+import {Transform} from 'node:stream';
 
 export async function getFilePaths(
   dirs: VerifiedDirectoryPath[],
@@ -51,7 +52,7 @@ export async function getFilePaths(
 // files with unique sizes are certainly not duplicates
 // files with non-unique sizes might be. These are the ones
 // we are interested in.
-export function filesWithNonUniqueSizes(
+export function filesWithNonUniqueSizesOld(
   filesWithSizes: FileWithSize[]
 ): Path[] {
   const fileSizeCount = _.countBy(filesWithSizes, '1');
@@ -65,3 +66,37 @@ export function filesWithNonUniqueSizes(
     .value();
   return files;
 }
+
+const fileSizeCount: {
+  [size: number]: {firstFile: Path; count: number};
+} = {};
+export const filesWithNonUniqueSizesStream: Transform = new Transform({
+  objectMode: true,
+  transform(fileWithSize, _encoding, callback) {
+    // console.log('in filesWithNonUniqueSizesStream transform');
+    const [filePath, size] = fileWithSize;
+    if (!fileSizeCount[size]) {
+      fileSizeCount[size] = {firstFile: filePath, count: 1};
+    } else {
+      fileSizeCount[size].count += 1;
+    }
+    const count = fileSizeCount[size].count;
+    if (count === 2) {
+      this.push(fileSizeCount[size].firstFile);
+      this.push(filePath);
+    } else if (count > 2) {
+      this.push(filePath);
+    }
+    callback();
+  },
+  flush(callback) {
+    // console.log('in filesWithNonUniqueSizesStream flush');
+    this.push(null);
+    callback();
+  },
+  final(callback) {
+    // console.log('in filesWithNonUniqueSizesStream FINAL');
+
+    callback();
+  }
+});

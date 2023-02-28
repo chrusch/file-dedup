@@ -2,5 +2,6 @@ node_modules/
 coverage/
 build/
 quicktest/
+sandbox.ts
 readme.html
 todo

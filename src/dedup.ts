@@ -4,12 +4,13 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {getDuplicates} from './find_duplicates/duplicates';
-import {deleteOrListDuplicates} from './handle_duplicates/remove_duplicates';
+import {getFindDuplicatesStream} from './find_duplicates/duplicates';
+import {
+  getHandleDuplicatesStream,
+} from './handle_duplicates/remove_duplicates';
 import {hashAllCandidateFiles} from './hash_file/hash_files';
 import {getCandidateFiles} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './common/verified_directory_path';
-import {Path} from './common/path';
 
 export type DedupOptions = {
   dirsToPossiblyDeleteFrom: VerifiedDirectoryPath[];
@@ -28,19 +29,20 @@ export type DedupOptions = {
 // files. Print out these duplicates or optionally delete them depending on the
 // exact options provided.
 export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
-  const candidateFiles = await getCandidateFiles(options);
+  const candidateFilesStream = getCandidateFiles(options);
 
-  const hashData = await hashAllCandidateFiles(
-    candidateFiles,
+  const hashDataStream = await hashAllCandidateFiles(
     options.nodeHashing
   );
 
-  const duplicateFiles: Path[][] = getDuplicates(hashData);
-
-  deleteOrListDuplicates(
-    duplicateFiles,
+  const handleDuplicatesStream = getHandleDuplicatesStream(
     options.dirsToPossiblyDeleteFrom,
     options.reallyDelete,
     options.interactiveDeletion
   );
+
+  candidateFilesStream
+    .pipe(hashDataStream)
+    .pipe(getFindDuplicatesStream())
+    .pipe(handleDuplicatesStream);
 }

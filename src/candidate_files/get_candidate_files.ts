@@ -4,10 +4,11 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {getFilePaths, filesWithNonUniqueSizes} from './directories';
-// import {FileWithSize} from './one_path_per_inode';
+import {filesWithNonUniqueSizesStream} from './directories';
 import {Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
+import {createDirectoryReadingStream} from './read_directory';
+import {Transform} from 'node:stream';
 
 export type FileWithSize = [Path, number];
 
@@ -23,23 +24,22 @@ export interface CandidateFilesOptions {
 // specified files and directories, and optionally including hidden dot files.
 // Filter out all files with unique sizes (they can't be duplicates), and
 // return an array of the paths of the all files with non-unique sizes.
-export async function getCandidateFiles(
+export function getCandidateFiles(
   options: Readonly<CandidateFilesOptions>
-): Promise<Path[]> {
+): Transform {
   const dirsToTraverse = [
     ...options.pathsToTraverse,
     ...options.dirsToPossiblyDeleteFrom,
   ];
-  const filesWithSizes: FileWithSize[] = await getFilePaths(
+
+  return createDirectoryReadingStream(
     dirsToTraverse,
     options.exclude,
     options.followSymlinks,
     options.includeDotfiles
-  );
+  ).pipe(filesWithNonUniqueSizesStream);
 
   // Every file with a unique file size has unique content. Consequently, files
   // with a unique size do not need to be hashed, because they can't possibly be
   // duplicates.
-  const candidateFiles: Path[] = filesWithNonUniqueSizes(filesWithSizes);
-  return candidateFiles;
 }

@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 // ./src/tests/directories.test.ts
-import {filesWithNonUniqueSizes, getFilePaths} from '../directories';
+import {filesWithNonUniqueSizesOld, getFilePaths} from '../directories';
 import {silenceOutput} from '../../handle_duplicates/display';
 import {aPath, Path} from '../../common/path';
 import withLocalTmpDir from 'with-local-tmp-dir';
@@ -60,6 +60,7 @@ describe('getFilePaths()', () => {
       [aPath('tmp/project/bar'), 3],
       [aPath('tmp/project/foo'), 3],
     ];
+    got.sort((a, b) => a[0].localeCompare(b[0]));
     expect(got).toEqual(expected);
   });
 
@@ -105,6 +106,7 @@ describe('getFilePaths()', () => {
       [aPath('tmp/git/.git/bar'), 3],
       [aPath('tmp/git/.git/foo'), 3],
     ];
+    got.sort((a, b) => a[0].localeCompare(b[0]));
     expect(got).toEqual(expected);
   });
 
@@ -152,13 +154,13 @@ describe('filesWithNonUniqueSizes()', () => {
       [aPath('/a6'), 3],
       [aPath('/a7'), 2],
     ];
-    const got = filesWithNonUniqueSizes(filesWithSizes);
+    const got = filesWithNonUniqueSizesOld(filesWithSizes);
     const expected: Path[] = [
       aPath('/a1'),
       aPath('/a3'),
       aPath('/a5'),
       aPath('/a6'),
     ];
-    expect(got).toEqual(expected);
+    expect(got.sort()).toEqual(expected);
   });
 });

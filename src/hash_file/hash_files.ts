@@ -7,12 +7,15 @@
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
 import {aPath, Path} from '../common/path';
+import {Duplex} from 'stream';
 import which from 'which';
 import {
-  doAllWorkInQueue,
+  // doAllWorkInQueue,
   makeWorkQueue,
   Job,
   WorkQueue,
+  WorkQueue2,
+  startWorkQueue,
 } from '../work_queue/work_queue';
 import {hashFilesInWorkerThreads} from '../worker_threads/worker_threads';
 
@@ -37,24 +40,24 @@ export async function commandExists(cmd: string) {
 }
 
 export async function hashAllCandidateFiles(
-  candidateFiles: Path[],
+  // candidateFiles: Path[],
   nodeHashing: boolean
-) {
+): Promise<Duplex> {
   const cmd = await commandExists('shasum');
   if (cmd && !nodeHashing) {
-    return await hashAllCandidateFilesWithShasumCommand(
-      candidateFiles,
+    return hashAllCandidateFilesWithShasumCommand(
       aPath(cmd)
     );
   } else {
-    return await hashAllCandidateFilesWithNode(candidateFiles);
+    throw 'NOT YET IMPLEMENTED';
+    // return await hashAllCandidateFilesWithNode(candidateFiles);
   }
 }
 
-export async function hashAllCandidateFilesWithShasumCommand(
-  candidateFiles: Path[],
+export function hashAllCandidateFilesWithShasumCommand(
+  // candidateFiles: Path[],
   shasumCommand: Path
-): Promise<HashData> {
+): Duplex {
   const hashData: HashData = [];
   const hashOneFile: Job<Path> = async file => {
     hashData.push(await hashFile(file, shasumCommand));
@@ -62,9 +65,49 @@ export async function hashAllCandidateFilesWithShasumCommand(
 
   // create a job queue to hash all candidate files
   // using parallel processing
-  const workQueue: WorkQueue = makeWorkQueue(candidateFiles, hashOneFile);
-  await doAllWorkInQueue(workQueue, 100);
-  return hashData;
+  const workQueue: WorkQueue = makeWorkQueue([], hashOneFile);
+  let noMoreJobsToComplete = false;
+  const workQueueEmitter: WorkQueue2 = startWorkQueue(workQueue, 100).on(
+    'all_work_done',
+    () => {
+      noMoreJobsToComplete = true;
+    }
+  );
+
+  let noMoreNewJobs = false;
+  const hashStream: Duplex = new Duplex({
+    objectMode: true,
+
+    write(chunk, _endcoding, callback) {
+      const workQueue: WorkQueue = makeWorkQueue([chunk], hashOneFile);
+      noMoreJobsToComplete = false;
+      workQueueEmitter.addJobs(workQueue);
+      callback();
+    },
+    read() {
+      const pushDataOrExit = () => {
+        if (hashData.length > 0) {
+          const hashDatum = hashData.shift();
+          this.push(hashDatum);
+        } else if (noMoreNewJobs && noMoreJobsToComplete) {
+          // we're done
+          this.push(null);
+        } else {
+          setTimeout(pushDataOrExit, 100);
+        }
+      };
+      pushDataOrExit();
+    },
+  }).on('finish', () => {
+    noMoreNewJobs = true;
+  });
+
+  workQueueEmitter.on('work_item_complete', () => {
+    // console.log('work item complete. reading');
+    hashStream._read(1);
+  });
+
+  return hashStream;
 }
 
 export async function hashAllCandidateFilesWithNode(

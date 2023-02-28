@@ -19,7 +19,6 @@ describe('readDirectory()', () => {
       tmp: {
         anotherproject: {
           '.config': '123456',
-          '.foo': '12345',
         },
         git: {
           '.git': {
@@ -176,8 +175,10 @@ describe('readDirectory()', () => {
     );
     expect(fileCallback).toHaveBeenCalledTimes(2);
     expect(dirCallback).toHaveBeenCalledTimes(3);
-    expect(fileCallback.mock.calls[0].slice(0, 2)).toEqual(['tmp/bat', 2]);
-    expect(fileCallback.mock.calls[1].slice(0, 2)).toEqual(['tmp/bim', 3]);
+    const calls = fileCallback.mock.calls;
+    calls.sort((a, b) => a[0].localeCompare(b[0]));
+    expect(calls[0].slice(0, 2)).toEqual(['tmp/bat', 2]);
+    expect(calls[1].slice(0, 2)).toEqual(['tmp/bim', 3]);
     expect(dirCallback).toHaveBeenCalledTimes(3);
     const dirCalls = dirCallback.mock.calls;
     const firstParams = dirCalls.map(a => a[0]).sort();
