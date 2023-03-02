@@ -45,9 +45,7 @@ export async function hashAllCandidateFiles(
 ): Promise<Duplex> {
   const cmd = await commandExists('shasum');
   if (cmd && !nodeHashing) {
-    return hashAllCandidateFilesWithShasumCommand(
-      aPath(cmd)
-    );
+    return hashAllCandidateFilesWithShasumCommand(aPath(cmd));
   } else {
     throw 'NOT YET IMPLEMENTED';
     // return await hashAllCandidateFilesWithNode(candidateFiles);

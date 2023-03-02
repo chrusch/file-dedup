@@ -85,7 +85,8 @@ export function getFindDuplicatesStream(): Duplex {
       callback();
     },
 
-    read(_size) {
+    // unused parameter _size
+    read() {
       const pushData = () => {
         let duplicates = nextUnreadDuplicates();
         if (duplicates) {

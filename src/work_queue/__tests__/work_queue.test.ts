@@ -43,7 +43,6 @@ describe('doAllWorkInQueue()', () => {
   //   const dataItems: string[] = ['i', 'j', 'k', 'l', 'm'];
   //   let count = 0;
   //   let output = 'output:';
-
   //   const doAJob: Job<string> = (dataItem: string) => {
   //     output += dataItem;
   //     const callback = (
@@ -60,7 +59,6 @@ describe('doAllWorkInQueue()', () => {
   //       )
   //     );
   //   };
-
   //   const workQueue = makeWorkQueue<string>(dataItems, doAJob);
   //   // const processLimit = 2;
   //   // const got = await doAllWorkInQueue(workQueue, processLimit);

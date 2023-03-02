@@ -5,9 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getFindDuplicatesStream} from './find_duplicates/duplicates';
-import {
-  getHandleDuplicatesStream,
-} from './handle_duplicates/remove_duplicates';
+import {getHandleDuplicatesStream} from './handle_duplicates/remove_duplicates';
 import {hashAllCandidateFiles} from './hash_file/hash_files';
 import {getCandidateFiles} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './common/verified_directory_path';
@@ -31,9 +29,7 @@ export type DedupOptions = {
 export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
   const candidateFilesStream = getCandidateFiles(options);
 
-  const hashDataStream = await hashAllCandidateFiles(
-    options.nodeHashing
-  );
+  const hashDataStream = await hashAllCandidateFiles(options.nodeHashing);
 
   const handleDuplicatesStream = getHandleDuplicatesStream(
     options.dirsToPossiblyDeleteFrom,
@@ -41,8 +37,11 @@ export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
     options.interactiveDeletion
   );
 
-  candidateFilesStream
-    .pipe(hashDataStream)
-    .pipe(getFindDuplicatesStream())
-    .pipe(handleDuplicatesStream);
+  await new Promise(resolve => {
+    candidateFilesStream
+      .pipe(hashDataStream)
+      .pipe(getFindDuplicatesStream())
+      .pipe(handleDuplicatesStream)
+      .on('finish', resolve);
+  });
 }

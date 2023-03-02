@@ -90,13 +90,10 @@ export const filesWithNonUniqueSizesStream: Transform = new Transform({
     callback();
   },
   flush(callback) {
-    // console.log('in filesWithNonUniqueSizesStream flush');
     this.push(null);
     callback();
   },
   final(callback) {
-    // console.log('in filesWithNonUniqueSizesStream FINAL');
-
     callback();
-  }
+  },
 });
