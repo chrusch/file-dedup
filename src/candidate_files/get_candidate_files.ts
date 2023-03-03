@@ -37,9 +37,9 @@ export function getCandidateFiles(
     options.exclude,
     options.followSymlinks,
     options.includeDotfiles
-  ).pipe(filesWithNonUniqueSizesStream);
+  ).pipe(new filesWithNonUniqueSizesStream());
 
-  // Every file with a unique file size has unique content. Consequently, files
+  // Every file with a unique file size necessarily has unique content. Consequently, files
   // with a unique size do not need to be hashed, because they can't possibly be
   // duplicates.
 }

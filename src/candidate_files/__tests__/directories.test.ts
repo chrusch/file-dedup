@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 // ./src/tests/directories.test.ts
-import {filesWithNonUniqueSizesOld, getFilePaths} from '../directories';
+import {filesWithNonUniqueSizesStream, getFilePaths} from '../directories';
 import {silenceOutput} from '../../handle_duplicates/display';
 import {aPath, Path} from '../../common/path';
 import withLocalTmpDir from 'with-local-tmp-dir';
@@ -14,6 +14,7 @@ import {
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
 } from '../../common/verified_directory_path';
+import {outputOfDuplexStreamWithInput} from '../../__tests__/test_utilities';
 
 describe('getFilePaths()', () => {
   let resetWithLocalTmpDir: () => Promise<void>;
@@ -138,12 +139,12 @@ describe('getFilePaths()', () => {
   });
 });
 
-describe('filesWithNonUniqueSizes()', () => {
+describe('filesWithNonUniqueSizesStream()', () => {
   beforeAll(() => {
     silenceOutput();
   });
 
-  it('returns a list of files with duplicate sizes', () => {
+  it('returns a list of files with duplicate sizes', async () => {
     silenceOutput();
     const filesWithSizes: [Path, number][] = [
       [aPath('/a1'), 3],
@@ -154,7 +155,8 @@ describe('filesWithNonUniqueSizes()', () => {
       [aPath('/a6'), 3],
       [aPath('/a7'), 2],
     ];
-    const got = filesWithNonUniqueSizesOld(filesWithSizes);
+    const stream = new filesWithNonUniqueSizesStream();
+    const got = await outputOfDuplexStreamWithInput(stream, filesWithSizes);
     const expected: Path[] = [
       aPath('/a1'),
       aPath('/a3'),
