@@ -7,14 +7,17 @@
 import {Duplex, Readable, Writable} from 'node:stream';
 
 export function outputOfReadableStream(stream: Readable) {
-  return new Promise((resolve: (output: unknown[]) => void) => {
+  return new Promise((resolve: (output: unknown[]) => void, reject) => {
     const output: unknown[] = [];
     stream
       .on('data', chunk => {
         output.push(chunk);
       })
-      .on('finish', () => {
+      .on('end', () => {
         resolve(output);
+      })
+      .on('error', err => {
+        reject(err);
       });
   });
 }
@@ -32,4 +35,14 @@ export async function outputOfDuplexStreamWithInput(
 ) {
   inputToWritableStream(stream, input);
   return await outputOfReadableStream(stream);
+}
+
+export async function asyncGeneratorToArray<T>(
+  gen: AsyncIterable<T>
+): Promise<T[]> {
+  const out: T[] = [];
+  for await (const x of gen) {
+    out.push(x);
+  }
+  return out;
 }

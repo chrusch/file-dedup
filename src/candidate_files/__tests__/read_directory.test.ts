@@ -4,191 +4,202 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {getFileStatus, readDirectory} from '../read_directory';
+import {
+  createDirectoryReadingStream,
+  directoryGenerator,
+  filePathGenerator,
+  getFileStatus,
+  readDirectory,
+} from '../read_directory';
 import {aPath, Path} from '../../common/path';
+import {forceVerificationOfDirectoryPaths} from '../../common/verified_directory_path';
 import withLocalTmpDir from 'with-local-tmp-dir';
 import outputFiles from 'output-files';
 import fs, {Stats} from 'fs';
+import {
+  asyncGeneratorToArray,
+  outputOfReadableStream,
+} from '../../__tests__/test_utilities';
 
-describe('readDirectory()', () => {
-  let resetWithLocalTmpDir: () => Promise<void>;
+// describe('readDirectory()', () => {
+//   let resetWithLocalTmpDir: () => Promise<void>;
 
-  beforeEach(async () => {
-    resetWithLocalTmpDir = await withLocalTmpDir();
-    await outputFiles({
-      tmp: {
-        anotherproject: {
-          '.config': '123456',
-        },
-        git: {
-          '.git': {
-            foo: 'foo content',
-            bar: 'bar content',
-          },
-        },
-        project: {
-          foo2: 'foo project content',
-          bar2: '123456789',
-        },
-        bat: '12',
-        bim: '123',
-      },
-    });
-  });
+//   beforeEach(async () => {
+//     resetWithLocalTmpDir = await withLocalTmpDir();
+//     await outputFiles({
+//       tmp: {
+//         anotherproject: {
+//           '.config': '123456',
+//         },
+//         git: {
+//           '.git': {
+//             foo: 'foo content',
+//             bar: 'bar content',
+//           },
+//         },
+//         project: {
+//           foo2: 'foo project content',
+//           bar2: '123456789',
+//         },
+//         bat: '12',
+//         bim: '123',
+//       },
+//     });
+//   });
 
-  afterEach(async () => {
-    await resetWithLocalTmpDir();
-  });
+//   afterEach(async () => {
+//     await resetWithLocalTmpDir();
+//   });
 
-  const dirCallback = (pth: Path): Promise<void> => {
-    throw new Error(`in dir callback: ${pth}`);
-  };
-  const fileCallback = (file: Path, size: number): Promise<void> => {
-    throw new Error(`in file callback ${file} ${size}`);
-  };
+//   const dirCallback = (pth: Path): Promise<void> => {
+//     throw new Error(`in dir callback: ${pth}`);
+//   };
+//   const fileCallback = (file: Path, size: number): Promise<void> => {
+//     throw new Error(`in file callback ${file} ${size}`);
+//   };
 
-  it('excludes excluded files', async () => {
-    const folder = aPath('tmp/project');
-    const excludedNames: string[] = ['foo2', 'bar2'];
-    const includeDotfiles = true;
-    const followSymlinks = false;
-    const functionCall = () =>
-      readDirectory(
-        folder,
-        dirCallback,
-        fileCallback,
-        excludedNames,
-        followSymlinks,
-        includeDotfiles
-      );
-    await expect(functionCall()).resolves.toEqual(undefined);
-  });
+//   it('excludes excluded files', async () => {
+//     const folder = aPath('tmp/project');
+//     const excludedNames: string[] = ['foo2', 'bar2'];
+//     const includeDotfiles = true;
+//     const followSymlinks = false;
+//     const functionCall = () =>
+//       readDirectory(
+//         folder,
+//         dirCallback,
+//         fileCallback,
+//         excludedNames,
+//         followSymlinks,
+//         includeDotfiles
+//       );
+//     await expect(functionCall()).resolves.toEqual(undefined);
+//   });
 
-  it('excludes dot files when configured to do so', async () => {
-    const folder = aPath('tmp/git');
-    const excludedNames: string[] = [];
-    const followSymlinks = false;
-    const includeDotfiles = false;
-    const functionCall = () =>
-      readDirectory(
-        folder,
-        dirCallback,
-        fileCallback,
-        excludedNames,
-        followSymlinks,
-        includeDotfiles
-      );
-    await expect(functionCall()).resolves.toEqual(undefined);
-  });
+//   it('excludes dot files when configured to do so', async () => {
+//     const folder = aPath('tmp/git');
+//     const excludedNames: string[] = [];
+//     const followSymlinks = false;
+//     const includeDotfiles = false;
+//     const functionCall = () =>
+//       readDirectory(
+//         folder,
+//         dirCallback,
+//         fileCallback,
+//         excludedNames,
+//         followSymlinks,
+//         includeDotfiles
+//       );
+//     await expect(functionCall()).resolves.toEqual(undefined);
+//   });
 
-  it('includes included files', async () => {
-    const folder = aPath('tmp/project');
-    const excludedNames: string[] = ['foo2'];
-    const followSymlinks = false;
-    const includeDotfiles = true;
-    const functionCall = async () =>
-      await readDirectory(
-        folder,
-        dirCallback,
-        fileCallback,
-        excludedNames,
-        followSymlinks,
-        includeDotfiles
-      );
-    await expect(functionCall()).rejects.toThrowError(
-      'in file callback tmp/project/bar2 9'
-    );
-    // expect(functionCall).toThrowError('in file callback tmp/project/bar2 9');
-  });
+//   it('includes included files', async () => {
+//     const folder = aPath('tmp/project');
+//     const excludedNames: string[] = ['foo2'];
+//     const followSymlinks = false;
+//     const includeDotfiles = true;
+//     const functionCall = async () =>
+//       await readDirectory(
+//         folder,
+//         dirCallback,
+//         fileCallback,
+//         excludedNames,
+//         followSymlinks,
+//         includeDotfiles
+//       );
+//     await expect(functionCall()).rejects.toThrowError(
+//       'in file callback tmp/project/bar2 9'
+//     );
+//     // expect(functionCall).toThrowError('in file callback tmp/project/bar2 9');
+//   });
 
-  it('includes included directories', async () => {
-    const folder = aPath('tmp/git');
-    const excludedNames: string[] = ['foo'];
-    const followSymlinks = false;
-    const includeDotfiles = true;
-    const functionCall = async () =>
-      await readDirectory(
-        folder,
-        dirCallback,
-        fileCallback,
-        excludedNames,
-        followSymlinks,
-        includeDotfiles
-      );
-    // expect(functionCall).toThrowError('in dir callback: tmp/git/.git');
-    await expect(functionCall()).rejects.toThrowError(
-      'in dir callback: tmp/git/.git'
-    );
-  });
+//   it('includes included directories', async () => {
+//     const folder = aPath('tmp/git');
+//     const excludedNames: string[] = ['foo'];
+//     const followSymlinks = false;
+//     const includeDotfiles = true;
+//     const functionCall = async () =>
+//       await readDirectory(
+//         folder,
+//         dirCallback,
+//         fileCallback,
+//         excludedNames,
+//         followSymlinks,
+//         includeDotfiles
+//       );
+//     // expect(functionCall).toThrowError('in dir callback: tmp/git/.git');
+//     await expect(functionCall()).rejects.toThrowError(
+//       'in dir callback: tmp/git/.git'
+//     );
+//   });
 
-  it('excludes dotfiles when configured to do so', async () => {
-    const folder = aPath('tmp/anotherproject');
-    const excludedNames: string[] = [];
-    const followSymlinks = false;
-    const includeDotfiles = false;
-    const functionCall = () =>
-      readDirectory(
-        folder,
-        dirCallback,
-        fileCallback,
-        excludedNames,
-        followSymlinks,
-        includeDotfiles
-      );
-    await expect(functionCall()).resolves.toEqual(undefined);
-  });
+//   it('excludes dotfiles when configured to do so', async () => {
+//     const folder = aPath('tmp/anotherproject');
+//     const excludedNames: string[] = [];
+//     const followSymlinks = false;
+//     const includeDotfiles = false;
+//     const functionCall = () =>
+//       readDirectory(
+//         folder,
+//         dirCallback,
+//         fileCallback,
+//         excludedNames,
+//         followSymlinks,
+//         includeDotfiles
+//       );
+//     await expect(functionCall()).resolves.toEqual(undefined);
+//   });
 
-  it('includes dotfiles when configured to do so ', async () => {
-    const folder = aPath('tmp/anotherproject');
-    const excludedNames: string[] = [];
-    const followSymlinks = false;
-    const includeDotfiles = true;
-    const functionCall = async () =>
-      await readDirectory(
-        folder,
-        dirCallback,
-        fileCallback,
-        excludedNames,
-        followSymlinks,
-        includeDotfiles
-      );
-    await expect(functionCall()).rejects.toThrowError(
-      'in file callback tmp/anotherproject/.config 6'
-    );
-  });
+//   it('includes dotfiles when configured to do so ', async () => {
+//     const folder = aPath('tmp/anotherproject');
+//     const excludedNames: string[] = [];
+//     const followSymlinks = false;
+//     const includeDotfiles = true;
+//     const functionCall = async () =>
+//       await readDirectory(
+//         folder,
+//         dirCallback,
+//         fileCallback,
+//         excludedNames,
+//         followSymlinks,
+//         includeDotfiles
+//       );
+//     await expect(functionCall()).rejects.toThrowError(
+//       'in file callback tmp/anotherproject/.config 6'
+//     );
+//   });
 
-  it('calls dirCallback and fileCallback multiple times', async () => {
-    const followSymlinks = false;
+//   it('calls dirCallback and fileCallback multiple times', async () => {
+//     const followSymlinks = false;
 
-    const dir = aPath('tmp');
-    const dirCallback = jest.fn();
-    const fileCallback = jest.fn();
-    const excludedNames: string[] = [];
-    const includeDotFiles = true;
-    await readDirectory(
-      dir,
-      dirCallback,
-      fileCallback,
-      excludedNames,
-      followSymlinks,
-      includeDotFiles
-    );
-    expect(fileCallback).toHaveBeenCalledTimes(2);
-    expect(dirCallback).toHaveBeenCalledTimes(3);
-    const calls = fileCallback.mock.calls;
-    calls.sort((a, b) => a[0].localeCompare(b[0]));
-    expect(calls[0].slice(0, 2)).toEqual(['tmp/bat', 2]);
-    expect(calls[1].slice(0, 2)).toEqual(['tmp/bim', 3]);
-    expect(dirCallback).toHaveBeenCalledTimes(3);
-    const dirCalls = dirCallback.mock.calls;
-    const firstParams = dirCalls.map(a => a[0]).sort();
-    expect(firstParams).toEqual([
-      'tmp/anotherproject',
-      'tmp/git',
-      'tmp/project',
-    ]);
-  });
-});
+//     const dir = aPath('tmp');
+//     const dirCallback = jest.fn();
+//     const fileCallback = jest.fn();
+//     const excludedNames: string[] = [];
+//     const includeDotFiles = true;
+//     await readDirectory(
+//       dir,
+//       dirCallback,
+//       fileCallback,
+//       excludedNames,
+//       followSymlinks,
+//       includeDotFiles
+//     );
+//     expect(fileCallback).toHaveBeenCalledTimes(2);
+//     expect(dirCallback).toHaveBeenCalledTimes(3);
+//     const calls = fileCallback.mock.calls;
+//     calls.sort((a, b) => a[0].localeCompare(b[0]));
+//     expect(calls[0].slice(0, 2)).toEqual(['tmp/bat', 2]);
+//     expect(calls[1].slice(0, 2)).toEqual(['tmp/bim', 3]);
+//     expect(dirCallback).toHaveBeenCalledTimes(3);
+//     const dirCalls = dirCallback.mock.calls;
+//     const firstParams = dirCalls.map(a => a[0]).sort();
+//     expect(firstParams).toEqual([
+//       'tmp/anotherproject',
+//       'tmp/git',
+//       'tmp/project',
+//     ]);
+//   });
+// });
 
 describe('getFileStatus()', () => {
   let resetWithLocalTmpDir: () => Promise<void>;
@@ -484,5 +495,321 @@ describe('getFileStatus()', () => {
     expect(stats2.ino).toEqual(ino);
     expect(stats3.ino).toEqual(ino);
     expect(statsz.ino).not.toEqual(ino);
+  });
+});
+
+describe('directoryGenerator()', () => {
+  it('returns initial values', () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths(
+      '/a/b',
+      '/c/d'
+    );
+    const generator = directoryGenerator(initialDirectories);
+    expect(generator.next()).toEqual({done: false, value: '/a/b'});
+    expect(generator.next()).toEqual({done: false, value: '/c/d'});
+    expect(generator.next()).toEqual({done: true, value: undefined});
+  });
+
+  it('returns initial values and additonally provided values', () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths(
+      '/a/b',
+      '/c/d'
+    );
+    const generator = directoryGenerator(initialDirectories);
+    expect(generator.next()).toEqual({done: false, value: '/a/b'});
+    const newValues = [aPath('/e/f'), aPath('/g/h')];
+    expect(generator.next(newValues)).toEqual({
+      done: false,
+      value: '/a/b',
+    });
+    expect(generator.next()).toEqual({
+      done: false,
+      value: '/c/d',
+    });
+    expect(generator.next()).toEqual({
+      done: false,
+      value: '/e/f',
+    });
+    expect(generator.next()).toEqual({
+      done: false,
+      value: '/g/h',
+    });
+    expect(generator.next()).toEqual({done: true, value: undefined});
+  });
+
+  it('returns initial values and additonally provided values when next(newValues) is called repeatedly', () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths(
+      '/a/b',
+      '/c/d'
+    );
+    const generator = directoryGenerator(initialDirectories);
+    expect(generator.next()).toEqual({done: false, value: '/a/b'});
+    const newValues = [aPath('/e/f'), aPath('/g/h')];
+    expect(generator.next(newValues)).toEqual({
+      done: false,
+      value: '/a/b',
+    });
+    const newValues2 = [aPath('/i/j')];
+    expect(generator.next(newValues2)).toEqual({
+      done: false,
+      value: '/a/b',
+    });
+    const newValues3 = [aPath('/k/l')];
+    expect(generator.next(newValues3)).toEqual({
+      done: false,
+      value: '/a/b',
+    });
+    const expected = ['/c/d', '/e/f', '/g/h', '/i/j', '/k/l'];
+    expect([...generator]).toEqual(expected);
+  });
+
+  it('additionally provided values are lost if they are provided with first next() call', () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths(
+      '/a/b',
+      '/c/d'
+    );
+    const generator = directoryGenerator(initialDirectories);
+    const newValues = [aPath('/e/f'), aPath('/g/h')];
+    expect(generator.next(newValues)).toEqual({done: false, value: '/a/b'});
+    expect(generator.next()).toEqual({
+      done: false,
+      value: '/c/d',
+    });
+    expect(generator.next()).toEqual({done: true, value: undefined});
+  });
+});
+
+describe('filePathGenerator()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123456',
+        },
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        bat: '12',
+        bim: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
+  it('returns the expected file names and sizes', async () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths('tmp');
+    const excludedNames: string[] = [];
+    const followSymlinks = false;
+    const includeDotFiles = false;
+    const generator = filePathGenerator(
+      initialDirectories,
+      excludedNames,
+      followSymlinks,
+      includeDotFiles
+    );
+    const got: [Path, number][] = await asyncGeneratorToArray(generator);
+    expect(got).toEqual([
+      ['tmp/bat', 2],
+      ['tmp/bim', 3],
+      ['tmp/project/bar2', 9],
+      ['tmp/project/foo2', 19],
+    ]);
+  });
+});
+
+describe('readDirectory()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123456',
+        },
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        '.yetanotherproject': {
+          foo22: 'ya project content',
+          bar22: '123456789',
+        },
+        '.ahiddenfile': '123',
+        bat: '12',
+        bim: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
+  it('returns the expected file names and sizes and adds new directories to generatedDirs', async () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths('tmp');
+    const excludedNames: string[] = [];
+    const followSymlinks = false;
+    const includeDotFiles = false;
+    const entriesRead = new Set<number>();
+    const dirGenerator = directoryGenerator(initialDirectories);
+    // the dirGenerator must have next called on it at least once,
+    // because if the first call to next() includes a parameter, that
+    // parameter will be lost
+    const {value: dir} = dirGenerator.next();
+    if (!dir) throw new Error('dir unexpectedly falsy');
+    const got = await readDirectory(
+      dir,
+      entriesRead,
+      dirGenerator,
+      excludedNames,
+      followSymlinks,
+      includeDotFiles
+    );
+    expect(got).toEqual([
+      ['tmp/bat', 2],
+      ['tmp/bim', 3],
+    ]);
+    const generatedDirs = [...dirGenerator];
+    expect(generatedDirs).toEqual([
+      'tmp/anotherproject',
+      'tmp/git',
+      'tmp/project',
+    ]);
+  });
+
+  it('excludes excluded names', async () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths('tmp');
+    const excludedNames: string[] = ['bat', 'git'];
+    const followSymlinks = false;
+    const includeDotFiles = false;
+    const entriesRead = new Set<number>();
+    const dirGenerator = directoryGenerator(initialDirectories);
+    // the dirGenerator must have next called on it at least once,
+    // because if the first call to next() includes a parameter, that
+    // parameter will be lost
+    const {value: dir} = dirGenerator.next();
+    if (!dir) throw new Error('dir unexpectedly falsy');
+    const got = await readDirectory(
+      dir,
+      entriesRead,
+      dirGenerator,
+      excludedNames,
+      followSymlinks,
+      includeDotFiles
+    );
+    expect(got).toEqual([['tmp/bim', 3]]);
+    const generatedDirs = [...dirGenerator];
+    expect(generatedDirs).toEqual(['tmp/anotherproject', 'tmp/project']);
+  });
+
+  it('includes dot files when configured to do so', async () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths('tmp');
+    const excludedNames: string[] = [];
+    const followSymlinks = false;
+    const includeDotFiles = true;
+    const entriesRead = new Set<number>();
+    const dirGenerator = directoryGenerator(initialDirectories);
+    // the dirGenerator must have next called on it at least once,
+    // because if the first call to next() includes a parameter, that
+    // parameter will be lost
+    const {value: dir} = dirGenerator.next();
+    if (!dir) throw new Error('dir unexpectedly falsy');
+    const got = await readDirectory(
+      dir,
+      entriesRead,
+      dirGenerator,
+      excludedNames,
+      followSymlinks,
+      includeDotFiles
+    );
+    expect(got).toEqual([
+      ['tmp/.ahiddenfile', 3],
+      ['tmp/bat', 2],
+      ['tmp/bim', 3],
+    ]);
+    const generatedDirs = [...dirGenerator];
+    expect(generatedDirs).toEqual([
+      'tmp/.yetanotherproject',
+      'tmp/anotherproject',
+      'tmp/git',
+      'tmp/project',
+    ]);
+  });
+});
+
+describe('createDirectoryReadingStream()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123456',
+        },
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        '.yetanotherproject': {
+          foo22: 'ya project content',
+          bar22: '123456789',
+        },
+        '.ahiddenfile': '123',
+        bat: '12',
+        bim: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
+  it('creates a readable stream that produces the expected output', async () => {
+    const initialDirectories = forceVerificationOfDirectoryPaths('tmp');
+    const excludedNames: string[] = [];
+    const followSymlinks = false;
+    const includeDotFiles = false;
+    const readableStream = createDirectoryReadingStream(
+      initialDirectories,
+      excludedNames,
+      followSymlinks,
+      includeDotFiles
+    );
+    const got = await outputOfReadableStream(readableStream);
+    const expected = [
+      ['tmp/bat', 2],
+      ['tmp/bim', 3],
+      ['tmp/project/bar2', 9],
+      ['tmp/project/foo2', 19],
+    ];
+    expect(got).toEqual(expected);
   });
 });
