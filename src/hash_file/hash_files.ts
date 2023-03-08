@@ -14,7 +14,7 @@ import {
   makeWorkQueue,
   Job,
   WorkQueue,
-  WorkQueue2,
+  WorkQueuer,
   startWorkQueue,
 } from '../work_queue/work_queue';
 import {hashFilesInWorkerThreads} from '../worker_threads/worker_threads';
@@ -65,7 +65,7 @@ export function hashAllCandidateFilesWithShasumCommand(
   // using parallel processing
   const workQueue: WorkQueue = makeWorkQueue([], hashOneFile);
   let noMoreJobsToComplete = false;
-  const workQueueEmitter: WorkQueue2 = startWorkQueue(workQueue, 100).on(
+  const workQueueEmitter: WorkQueuer = startWorkQueue(workQueue, 100).on(
     'all_work_done',
     () => {
       noMoreJobsToComplete = true;
