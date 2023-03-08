@@ -47,14 +47,11 @@ export async function hashAllCandidateFiles(
 }
 
 export function hashAllCandidateFilesWithShasumCommand(
-  // candidateFiles: Path[],
   shasumCommand: Path
 ): Duplex {
   const hashData: HashData = [];
   const hashOneFile: Job2<Path> = async file => {
     hashData.push(await hashFile(file, shasumCommand));
-    // return true;
-    // callback();
   };
 
   const workQueue = queue(hashOneFile, 100);
@@ -64,6 +61,7 @@ export function hashAllCandidateFilesWithShasumCommand(
   });
 
   let noMoreNewJobs = false;
+  let timeout: NodeJS.Timeout | undefined | null;
   const hashStream: Duplex = new Duplex({
     objectMode: true,
 
@@ -82,13 +80,18 @@ export function hashAllCandidateFilesWithShasumCommand(
     read() {
       const pushDataOrExit = () => {
         if (hashData.length > 0) {
-          const hashDatum = hashData.shift();
-          this.push(hashDatum);
+          while (hashData.length > 0) {
+            this.push(hashData.shift());
+          }
         } else if (noMoreNewJobs && noMoreJobsToComplete) {
           // we're done
           this.push(null);
         } else {
-          setTimeout(pushDataOrExit, 100);
+          if (timeout) {
+            // never set a timeout if another one might still be active
+            clearTimeout(timeout);
+          }
+          timeout = setTimeout(pushDataOrExit, 10);
         }
       };
       pushDataOrExit();
@@ -96,10 +99,6 @@ export function hashAllCandidateFilesWithShasumCommand(
   }).on('finish', () => {
     noMoreNewJobs = true;
   });
-
-  // workQueue.on('work_item_complete', () => {
-  //   // console.log('work item complete. reading');
-  // });
 
   return hashStream;
 }
