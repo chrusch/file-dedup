@@ -10,7 +10,6 @@ export type WorkItem = () => Promise<void>;
 export type WorkQueue = WorkItem[];
 export type OnAllWorkCompleteCallBack = () => void;
 export type Job<T> = (dataItem: T) => Promise<void>;
-// type ResolveType = () => void;
 
 export const makeWorkQueue = <DataItemType>(
   dataItems: readonly DataItemType[],
@@ -23,9 +22,7 @@ export function startWorkQueue(
 ): WorkQueuer {
   return new WorkQueuer(processLimit)
     .addJobs(workQueue)
-    .on('all_work_done', () => {
-      // resolvePromise();
-    })
+    .on('all_work_done', () => {})
     .doWork();
 }
 
@@ -49,7 +46,6 @@ export class WorkQueuer extends EventEmitter {
   }
 
   addJobs(jobs: WorkItem[]) {
-    // console.log('in add Jobs');
     this.workItems.push(...jobs);
     this.allWorkDone = false;
     this.scheduleWork(0);
