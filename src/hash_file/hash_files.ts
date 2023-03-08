@@ -9,14 +9,6 @@ import {hashExtractor} from './hash_extractor';
 import {aPath, Path} from '../common/path';
 import {Duplex} from 'stream';
 import which from 'which';
-// import {
-//   // doAllWorkInQueue,
-//   makeWorkQueue,
-//   Job,
-//   WorkQueue,
-//   WorkQueuer,
-//   startWorkQueue,
-// } from '../work_queue/work_queue';
 import {hashFilesInWorkerThreads} from '../worker_threads/worker_threads';
 import {queue} from 'async';
 
@@ -54,62 +46,6 @@ export async function hashAllCandidateFiles(
   }
 }
 
-// export function hashAllCandidateFilesWithShasumCommandOld(
-//   // candidateFiles: Path[],
-//   shasumCommand: Path
-// ): Duplex {
-//   const hashData: HashData = [];
-//   const hashOneFile: Job<Path> = async file => {
-//     hashData.push(await hashFile(file, shasumCommand));
-//   };
-
-//   // create a job queue to hash all candidate files
-//   // using parallel processing
-//   const workQueue: WorkQueue = makeWorkQueue([], hashOneFile);
-//   let noMoreJobsToComplete = false;
-//   const workQueueEmitter: WorkQueuer = startWorkQueue(workQueue, 100).on(
-//     'all_work_done',
-//     () => {
-//       noMoreJobsToComplete = true;
-//     }
-//   );
-
-//   let noMoreNewJobs = false;
-//   const hashStream: Duplex = new Duplex({
-//     objectMode: true,
-
-//     write(chunk, _endcoding, callback) {
-//       const workQueue: WorkQueue = makeWorkQueue([chunk], hashOneFile);
-//       noMoreJobsToComplete = false;
-//       workQueueEmitter.addJobs(workQueue);
-//       callback();
-//     },
-//     read() {
-//       const pushDataOrExit = () => {
-//         if (hashData.length > 0) {
-//           const hashDatum = hashData.shift();
-//           this.push(hashDatum);
-//         } else if (noMoreNewJobs && noMoreJobsToComplete) {
-//           // we're done
-//           this.push(null);
-//         } else {
-//           setTimeout(pushDataOrExit, 100);
-//         }
-//       };
-//       pushDataOrExit();
-//     },
-//   }).on('finish', () => {
-//     noMoreNewJobs = true;
-//   });
-
-//   workQueueEmitter.on('work_item_complete', () => {
-//     // console.log('work item complete. reading');
-//     hashStream._read(1);
-//   });
-
-//   return hashStream;
-// }
-
 export function hashAllCandidateFilesWithShasumCommand(
   // candidateFiles: Path[],
   shasumCommand: Path
@@ -133,7 +69,7 @@ export function hashAllCandidateFilesWithShasumCommand(
 
     write(chunk, _endcoding, callback) {
       noMoreJobsToComplete = false;
-      workQueue.push(chunk, function (err) {
+      workQueue.push(chunk, err => {
         if (err) {
           console.log(err);
           return;
