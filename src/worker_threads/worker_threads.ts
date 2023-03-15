@@ -5,7 +5,9 @@
 // LICENSE file in the root directory of this source tree.
 
 import {isMainThread, parentPort, workerData} from 'node:worker_threads';
-import {makeWorkerThreads, beAWorkerThread} from './worker_thread_utilities';
+import {beAWorkerThreadNoAutoExit} from './worker_thread_utilities';
+// import {getWorkerPool} from './worker_pool';
+import {PoolQueue} from './pool_queue';
 import {Path} from '../common/path';
 import path from 'path';
 import {HashData, HashDatum} from '../hash_file/hash_files';
@@ -34,8 +36,6 @@ try {
 const myFilename = testEnv
   ? path.join(__dirname, '../../../build/src/worker_threads/worker_threads.js')
   : __filename;
-// '/Users/clayton/work/src/ts/file-dedup/build/src/worker_threads/worker_threads.js';
-// '/Users/clayton/work/src/ts/file-dedup/src/worker_threads/worker_threads.ts';
 // called from another file and only run in main thread
 export async function hashFilesInWorkerThreads<WorkerInput>(
   inputData: WorkerInput[]
@@ -46,10 +46,9 @@ export async function hashFilesInWorkerThreads<WorkerInput>(
   };
 
   const numThreads = Math.min(os.cpus().length, inputData.length);
-  await makeWorkerThreads(myFilename, inputData, numThreads, processOneResult);
+  const poolQueue = new PoolQueue(myFilename, processOneResult, numThreads);
   return results;
 }
-
 const workerLogic = async (filepath: WorkerInput): Promise<WorkerResult> => {
   const progressHandler = () => {
     // TODO
@@ -60,4 +59,5 @@ const workerLogic = async (filepath: WorkerInput): Promise<WorkerResult> => {
   return [filepath, hashDigest];
 };
 
-if (!isMainThread) beAWorkerThread(parentPort, workerData, workerLogic);
+if (!isMainThread)
+  beAWorkerThreadNoAutoExit(parentPort, workerData, workerLogic);

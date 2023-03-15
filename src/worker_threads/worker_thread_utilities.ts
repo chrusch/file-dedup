@@ -5,69 +5,114 @@
 // LICENSE file in the root directory of this source tree.
 
 import {Worker, MessagePort} from 'node:worker_threads';
-import _ from 'lodash';
 
-export function makeOneWorkerThread<WorkerInput, WorkerResult>(
+// export function makeOneWorkerThread<WorkerInput, WorkerResult>(
+//   filename: string,
+//   inputData: WorkerInput[],
+//   processOneResult: (result: WorkerResult) => void
+// ): Worker {
+//   const worker = new Worker(filename, {
+//     workerData: inputData.shift(),
+//   });
+//   worker.on('message', (message: WorkerResult) => {
+//     processOneResult(message);
+//     if (inputData.length > 0) {
+//       worker.postMessage(inputData.shift());
+//     } else {
+//       worker.postMessage(null);
+//     }
+//   });
+//   worker.on('error', error => {
+//     console.error(error);
+//   });
+//   worker.on('exit', code => {
+//     if (code !== 0) console.error(`Worker stopped with exit code ${code}`);
+//     else 1;
+//   });
+//   return worker;
+// }
+
+let workerId = 0;
+export function makeOneWorkerThreadNoAutoExit<WorkerResult>(
   filename: string,
-  inputData: WorkerInput[],
   processOneResult: (result: WorkerResult) => void
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (inputData.length === 0) return resolve();
-    const worker = new Worker(filename, {
-      workerData: inputData.shift(),
-    });
-    worker.on('message', (message: WorkerResult) => {
-      processOneResult(message);
-      if (inputData.length > 0) {
-        worker.postMessage(inputData.shift());
-      } else {
-        worker.postMessage(null);
-        // worker.terminate();
-      }
-    });
-    worker.on('error', error => {
-      reject(error);
-    });
-    worker.on('exit', code => {
-      if (code !== 0)
-        reject(new Error(`Worker stopped with exit code ${code}`));
-      else resolve();
-    });
+): Worker {
+  workerId += 1;
+  const workerInput = undefined;
+  const worker = new Worker(filename, {
+    workerData: {workerId, workerInput},
   });
+  worker.on('message', (message: WorkerResult) => {
+    processOneResult(message);
+  });
+  worker.on('shutdown', () => {
+    worker.postMessage(null);
+  });
+  worker.on('error', error => {
+    console.error(error);
+  });
+  worker.on('exit', code => {
+    if (code !== 0) console.error(`Worker stopped with exit code ${code}`);
+    else null;
+  });
+  return worker;
 }
 
-export async function makeWorkerThreads<WorkerInput, WorkerResult>(
-  filename: string,
-  inputData: readonly WorkerInput[],
-  numThreads: number,
-  processOneResult: (result: WorkerResult) => void
-): Promise<void> {
-  const data = [...inputData];
-  const allWorkerPromises = _.times(numThreads, () =>
-    makeOneWorkerThread(filename, data, processOneResult)
-  );
-  return Promise.all(allWorkerPromises).then(() => undefined);
-}
+// export async function beAWorkerThread<WorkerInput, WorkerResult>(
+//   parentPort: MessagePort | null,
+//   workerData: WorkerInput,
+//   workerLogic: (message: WorkerInput) => Promise<WorkerResult>
+// ): Promise<void> {
+//   if (parentPort === null) throw 'parentPort unexpectedly null';
 
-export async function beAWorkerThread<WorkerInput, WorkerResult>(
+//   const getAndPostResult = async (data: WorkerInput) => {
+//     parentPort.postMessage(await workerLogic(data));
+//   };
+
+//   parentPort.on('message', async (message: WorkerInput) => {
+//     if (message === null) {
+//       // we are done
+//       parentPort.close();
+//     } else {
+//       await getAndPostResult(message);
+//     }
+//   });
+//   await getAndPostResult(workerData);
+// }
+
+export async function beAWorkerThreadNoAutoExit<WorkerInput, WorkerResult>(
   parentPort: MessagePort | null,
-  workerData: WorkerInput,
+  workerData: {workerId: number; workerInput: WorkerInput},
   workerLogic: (message: WorkerInput) => Promise<WorkerResult>
 ): Promise<void> {
+  interface JobMessage {
+    jobId: number;
+    workerInput: WorkerInput;
+  }
+
+  interface JobResultMessage {
+    jobId: number;
+    result: WorkerResult;
+  }
+
+  const {workerId: _workerId, workerInput: _workerInputNotUsed} = workerData;
   if (parentPort === null) throw 'parentPort unexpectedly null';
 
-  const getAndPostResult = async (data: WorkerInput) => {
-    parentPort.postMessage(await workerLogic(data));
+  const getAndPostResult = async (jobMessage: JobMessage) => {
+    const {jobId, workerInput} = jobMessage;
+    const jobResultMessage: JobResultMessage = {
+      jobId,
+      result: await workerLogic(workerInput),
+    };
+    parentPort.postMessage(jobResultMessage);
   };
 
-  parentPort.on('message', async (message: WorkerInput) => {
+  parentPort.on('message', async (message: null | JobMessage) => {
     if (message === null) {
-      // we are done
+      // we are done, shut down
       parentPort.close();
     } else {
       await getAndPostResult(message);
     }
   });
-  await getAndPostResult(workerData);
 }
