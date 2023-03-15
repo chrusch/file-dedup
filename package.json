@@ -27,6 +27,7 @@
   "dependencies": {
     "async": "^3.2.4",
     "commander": "^9.4.1",
+    "generic-pool": "^3.9.0",
     "lodash": "^4.17.21",
     "output-files": "^2.0.10",
     "prompt-sync": "^4.2.0",
