@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {isMainThread, parentPort, workerData} from 'node:worker_threads';
-import {beAWorkerThreadNoAutoExit} from './worker_threads/worker_thread_utilities';
+import {beAWorkerThreadNoAutoExit} from './worker_threads_old/worker_thread_utilities';
 // import {getWorkerPool} from './worker_pool';
 // import path from 'path';
 // import os from 'os';

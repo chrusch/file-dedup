@@ -5,7 +5,7 @@
 // LICENSE file in the root directory of this source tree.
 
 import {queue} from 'async';
-import {WorkerPool} from '../worker_threads/worker_pool';
+import {WorkerPool} from './worker_pool';
 
 export class PoolQueue<Input, Result> {
   public myPool;
