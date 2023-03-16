@@ -4,6 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+// TODO: Make node hashing the default since it is faster
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
 import {aPath, Path} from '../common/path';
@@ -116,19 +117,11 @@ export function hashAllCandidateFilesWithShasumCommand(
 export function hashAllCandidateFilesWithNode(): Duplex {
   // TODO: think carefully about the number of concurrent
   // jobs. Perhaps make it dependent on the number of processors
-  const maxWorkers = 6;
+  const maxWorkers = 8;
   const pool = workerpool.pool(__dirname + '/../worker_threads/worker.js', {
     minWorkers: 0,
     maxWorkers,
   });
-
-  // run registered functions on the worker via exec
-  // .catch(function (err) {
-  //   console.error(err);
-  // })
-  // .then(function () {
-  //   pool.terminate(); // terminate all workers when done
-  // });
 
   let jobsBegun = 0;
   let jobsEnded = 0;
@@ -143,12 +136,6 @@ export function hashAllCandidateFilesWithNode(): Duplex {
     }
   };
 
-  // const workQueue = queue(hashOneFile, 100);
-  // let noMoreJobsToComplete = false;
-  // workQueue.drain(() => {
-  //   noMoreJobsToComplete = true;
-  // });
-
   let noMoreNewJobs = false;
   let timeout: NodeJS.Timeout | undefined | null;
   const hashStream: Duplex = new Duplex({
@@ -156,7 +143,6 @@ export function hashAllCandidateFilesWithNode(): Duplex {
 
     write(chunk, _endcoding, callback) {
       jobsBegun++;
-      // noMoreJobsToComplete = false;
       hashOneFile(chunk).then(
         () => {
           jobsEnded++;
@@ -168,7 +154,6 @@ export function hashAllCandidateFilesWithNode(): Duplex {
       });
     },
     read() {
-      // TODO: Make this a while loop
       const pushDataOrExit = () => {
         if (hashData.length > 0) {
           while (hashData.length > 0) {
