@@ -15,7 +15,7 @@ interface PromiseObject<T> {
 
 export class WorkerPool<Input, Result> {
   private readonly genericPool: genericPool.Pool<Worker>;
-  private currentJobId: number = 0;
+  private currentJobId = 0;
   private workerMap: Map<number, Worker>;
   private promiseMap: Map<number, PromiseObject<Result>>;
   private createdWorkerCount = 0;
@@ -83,7 +83,7 @@ export class WorkerPool<Input, Result> {
     const promiseObject = this.promiseMap.get(jobId);
     this.promiseMap.delete(jobId);
     if (promiseObject) {
-      const {resolve, reject: _reject} = promiseObject;
+      const {resolve} = promiseObject;
       resolve(result);
     } else {
       throw new Error(
@@ -106,6 +106,7 @@ export class WorkerPool<Input, Result> {
       res = await this.genericPool.acquire();
     } catch (error) {
       // There may be an error drain() has been called on the pool
+      console.log('found an error');
       throw error;
     }
     this.acquiredWorkerCount += 1;

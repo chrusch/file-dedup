@@ -11,14 +11,14 @@ import {createHash} from 'node:crypto';
 import {readFileInChunks} from './read_file_in_chunks';
 
 export function getSHA256HashDigest(
-  filename: string,
+  filename: string
   // progressHandler: (prog: number) => void
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     // const sha256 = CryptoJS.algo.SHA256.create();
     const sha256 = createHash('sha256');
 
-    const onChunk = (chunk: Buffer, _offs: number, _total: number) => {
+    const onChunk = (chunk: Buffer) => {
       // sha256.update(CryptoJS.enc.Latin1.parse(chunk.toString('latin1')));
       sha256.update(chunk);
       // if (progressHandler) {

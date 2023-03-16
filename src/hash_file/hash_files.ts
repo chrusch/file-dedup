@@ -20,6 +20,11 @@ export type HashDatum = [Path, string];
 export type HashData = HashDatum[];
 export type Job2<T> = (dataItem: T, callback?: () => void) => Promise<void>;
 
+/**
+ * Welcome to my function!!
+ *
+ * Yay!
+ */
 export async function hashFile(
   file: Path,
   shasumCommand: Path
@@ -126,12 +131,13 @@ export function hashAllCandidateFilesWithNode(): Duplex {
   let jobsBegun = 0;
   let jobsEnded = 0;
   const hashData: HashData = [];
-  const hashOneFile= async (file: Path) => {
+  const hashOneFile = async (file: Path) => {
     try {
       const result = await pool.exec('nodeHashDigest', [file]);
       hashData.push(result);
       return result;
     } catch (e) {
+      console.log('found eror in hashOneFile');
       throw e;
     }
   };
@@ -143,15 +149,15 @@ export function hashAllCandidateFilesWithNode(): Duplex {
 
     write(chunk, _endcoding, callback) {
       jobsBegun++;
-      hashOneFile(chunk).then(
-        () => {
+      hashOneFile(chunk)
+        .then(() => {
           jobsEnded++;
           hashStream._read(1);
           callback();
-        }
-      ).catch((e) => {
-        console.error(e);
-      });
+        })
+        .catch(e => {
+          console.error(e);
+        });
     },
     read() {
       const pushDataOrExit = () => {
@@ -159,7 +165,7 @@ export function hashAllCandidateFilesWithNode(): Duplex {
           while (hashData.length > 0) {
             this.push(hashData.shift());
           }
-        } else if (noMoreNewJobs && (jobsBegun === jobsEnded)) {
+        } else if (noMoreNewJobs && jobsBegun === jobsEnded) {
           // we're done
           pool.terminate();
           this.push(null);
