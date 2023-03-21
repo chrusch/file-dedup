@@ -20,6 +20,10 @@ type ExecFileType = (
   execHandler: ExecHandlerFunction
 ) => void;
 
+function fail(reason = 'fail was called in a test.'): never {
+  throw new Error(reason);
+}
+
 describe('runCommand()', () => {
   it('when called, runs execFile with the expected arguments', async () => {
     const command = '/bin/echo';
@@ -46,6 +50,35 @@ describe('runCommand()', () => {
     const got = await runCommand(command, args, stdoutHandler);
     expect(got).toEqual('something returned');
   });
+
+  it('can be run 925 times without error', async () => {
+    const command = '/usr/bin/shasum';
+    const args = ['-a', '256', '/tmp/foo'];
+    const stdoutHandler = (stdout: string) => {
+      expect(stdout.length).toEqual(8);
+      expect(stdout).toEqual('foo baz\n');
+      return 'something returned';
+    };
+
+    // const myExecFile: ExecFileType = (cmd, args2, options, execHandler) => {
+    //   expect(cmd).toEqual(command);
+    //   expect(args2).toEqual(args);
+    //   expect(options).toEqual({});
+    //   expect(execHandler(null, 'foo baz\n', '')).toBeUndefined();
+    // };
+
+    // (
+    //   child_process.execFile as unknown as {
+    //     mockImplementation: (execFile: ExecFileType) => void;
+    //   }
+    // ).mockImplementation(myExecFile);
+
+    for (let i = 0; i < 2000; i++) {
+      console.log(i);
+      const got = await runCommand(command, args, stdoutHandler);
+      expect(got).toEqual('something returned');
+    }
+  });
 });
 
 describe('execHandler()', () => {
@@ -54,14 +87,27 @@ describe('execHandler()', () => {
       fail('should not be in stdoutHandler');
     };
     const resolve = (value: string) => value;
-    const got: ExecHandlerFunction = execHandler(stdoutHandler, resolve);
+    const reject = (error: Error) => {
+      const expected = new Error(
+        'unexpected stderr running command: this is stderr args: foo,bar'
+      );
+      expect(error).toEqual(expected);
+    };
+    const args = ['foo', 'bar'];
+    const got: ExecHandlerFunction = execHandler(
+      stdoutHandler,
+      args,
+      resolve,
+      reject
+    );
     expect(typeof got).toEqual('function');
     const error = null;
     const stdout = 'this is stdout';
     const stderr = 'this is stderr';
-    expect(() => got(error, stdout, stderr)).toThrowError(
-      'unexpected stderr running command: this is stderr'
-    );
+    got(error, stdout, stderr);
+    // expect(() => got(error, stdout, stderr)).toThrowError(
+    //   'unexpected stderr running command: this is stderr'
+    // );
   });
 
   it('when given an error, throws the expected error', () => {
@@ -69,13 +115,26 @@ describe('execHandler()', () => {
       fail('should not be in stdoutHandler');
     };
     const resolve = (value: string) => value;
-    const got: ExecHandlerFunction = execHandler(stdoutHandler, resolve);
+    const reject = (error: Error) => {
+      const expected = new Error(
+        'unexpected error running command: exec error stderr<this is stderr> stdout<this is stdout> args: foo,bar'
+      );
+      expect(error).toEqual(expected);
+    };
+    const args = ['foo', 'bar'];
+    const got: ExecHandlerFunction = execHandler(
+      stdoutHandler,
+      args,
+      resolve,
+      reject
+    );
     expect(typeof got).toEqual('function');
     const error = new Error('exec error');
     const stdout = 'this is stdout';
     const stderr = 'this is stderr';
-    expect(() => got(error, stdout, stderr)).toThrowError(
-      'unexpected error running command: exec error'
-    );
+    got(error, stdout, stderr);
+    // expect(() => got(error, stdout, stderr)).toThrowError(
+    //   'unexpected error running command: exec error'
+    // );
   });
 });
