@@ -8,7 +8,7 @@
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
 import {aPath, Path} from '../common/path';
-import {Duplex} from 'stream';
+import {Duplex, Transform} from 'stream';
 import which from 'which';
 // import {hashFilesInWorkerThreads} from '../worker_threads/worker_threads';
 import {queue} from 'async';
@@ -18,13 +18,8 @@ import workerpool from 'workerpool';
   the SHA sum of the file content */
 export type HashDatum = [Path, string];
 export type HashData = HashDatum[];
-export type Job2<T> = (dataItem: T, callback?: () => void) => Promise<void>;
+type Job4<T> = (dataItem: T, shasumCommand: Path) => Promise<void | HashDatum>;
 
-/**
- * Welcome to my function!!
- *
- * Yay!
- */
 export async function hashFile(
   file: Path,
   shasumCommand: Path
@@ -32,7 +27,7 @@ export async function hashFile(
   return await runCommand<HashDatum>(
     shasumCommand,
     ['-a', '256', file],
-    stdout => [file, hashExtractor(stdout)]
+    (stdout, args) => [file, hashExtractor(stdout, args)]
   );
 }
 
@@ -53,71 +48,61 @@ export async function hashAllCandidateFiles(
   }
 }
 
+// FIXME: Job4? Do we need that? Can we get rid of it
+// or give it a more desriptive name?
+// TODO: async/await syntax instead of promise syntax
+const hashOneFile: Job4<Path> = async (file: Path, shasumCommand: Path) => {
+  return hashFile(file, shasumCommand).catch(error => {
+    // FIXME: this catch is fine for EAGAIN errors where it makes
+    // sense to try again, but consider the possibility of other errors
+    // Also try rety or retryable
+    // Eventually errors should just throw an error to be dealt with elsewhere
+    // in the coode
+    // Deal properly with permission denied error
+    console.log('in catch', error.message);
+    setTimeout(() => hashOneFile(file, shasumCommand), 50);
+  });
+};
+
 export function hashAllCandidateFilesWithShasumCommand(
   shasumCommand: Path
-): Duplex {
-  const hashData: HashData = [];
-  const hashOneFile: Job2<Path> = async file => {
-    hashData.push(await hashFile(file, shasumCommand));
-  };
+): Transform {
+  const hashAFile = async (file: Path) => hashOneFile(file, shasumCommand);
+  // TODO: Make number of concurrent jobs dependent on the number of processors
+  const workQueue = queue(hashAFile, 8);
 
-  // TODO: think carefully about the number of concurrent
-  // jobs. Perhaps make it dependent on the number of processors
-  const workQueue = queue(hashOneFile, 8);
-  let noMoreJobsToComplete = false;
-  workQueue.drain(() => {
-    noMoreJobsToComplete = true;
-  });
-
-  let noMoreNewJobs = false;
-  let timeout: NodeJS.Timeout | undefined | null;
-  const hashStream: Duplex = new Duplex({
+  const hashStream: Transform = new Transform({
     objectMode: true,
 
-    write(chunk, _endcoding, callback) {
-      noMoreJobsToComplete = false;
-      workQueue.push(chunk, err => {
-        if (err) {
-          console.log(err);
-          return;
-        }
-        hashStream._read(1);
-        // this._read(1);
-      });
+    transform(chunk, _endcoding, callback) {
+      workQueue
+        .push(chunk)
+        .then(result => {
+          this.push(result);
+        })
+        .catch(err => {
+          console.error(err);
+        });
+      // the callback must run immediately after the job enters
+      // the queue to benefit from queue parallism
       callback();
     },
-    read() {
-      const pushDataOrExit = () => {
-        if (hashData.length > 0) {
-          while (hashData.length > 0) {
-            this.push(hashData.shift());
-          }
-        } else if (noMoreNewJobs && noMoreJobsToComplete) {
-          // we're done
-          this.push(null);
+    flush(callback) {
+      const checkWhetherWeAreDone = () => {
+        if (workQueue.idle()) {
+          // we are done processing all data
+          callback();
         } else {
-          if (timeout) {
-            // never set a timeout if another one might still be active
-            clearTimeout(timeout);
-          }
-          timeout = setTimeout(pushDataOrExit, 10);
+          // not quite done. try again later
+          setTimeout(checkWhetherWeAreDone, 80);
         }
       };
-      pushDataOrExit();
+      checkWhetherWeAreDone();
     },
-  }).on('finish', () => {
-    noMoreNewJobs = true;
   });
 
   return hashStream;
 }
-
-// export async function hashAllCandidateFilesWithNodeOld(
-//   candidateFiles: Path[]
-// ): Promise<HashData> {
-//   const hashData: HashData = await hashFilesInWorkerThreads(candidateFiles);
-//   return hashData;
-// }
 
 export function hashAllCandidateFilesWithNode(): Duplex {
   // TODO: think carefully about the number of concurrent
@@ -128,8 +113,6 @@ export function hashAllCandidateFilesWithNode(): Duplex {
     maxWorkers,
   });
 
-  let jobsBegun = 0;
-  let jobsEnded = 0;
   const hashData: HashData = [];
   const hashOneFile = async (file: Path) => {
     try {
@@ -144,8 +127,11 @@ export function hashAllCandidateFilesWithNode(): Duplex {
 
   let noMoreNewJobs = false;
   let timeout: NodeJS.Timeout | undefined | null;
+  let jobsBegun = 0;
+  let jobsEnded = 0;
   const hashStream: Duplex = new Duplex({
     objectMode: true,
+    writableHighWaterMark: 1,
 
     write(chunk, _endcoding, callback) {
       jobsBegun++;
@@ -153,11 +139,11 @@ export function hashAllCandidateFilesWithNode(): Duplex {
         .then(() => {
           jobsEnded++;
           hashStream._read(1);
-          callback();
         })
         .catch(e => {
           console.error(e);
         });
+      callback();
     },
     read() {
       const pushDataOrExit = () => {

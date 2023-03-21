@@ -6,7 +6,10 @@
 
 import {execFile, ExecException} from 'child_process';
 
-export type StdoutHandlerFunction<T> = (stdout: string) => T;
+export type StdoutHandlerFunction<T> = (
+  stdout: string,
+  args: readonly string[]
+) => T;
 export type ExecHandlerFunction = (
   error: ExecException | null,
   stdout: string,
@@ -14,20 +17,33 @@ export type ExecHandlerFunction = (
 ) => void;
 
 export type ResolveType<T> = (value: T) => void;
+export type RejectType = (error: Error) => void;
 
 export const execHandler =
   <T>(
     stdoutHandler: StdoutHandlerFunction<T>,
-    resolve: ResolveType<T>
+    args: readonly string[],
+    resolve: ResolveType<T>,
+    reject: RejectType
   ): ExecHandlerFunction =>
   (error, stdout, stderr) => {
     if (error) {
-      throw new Error(`unexpected error running command: ${error.message}`);
+      reject(
+        new Error(
+          `unexpected error running command: ${error.message} stderr<${stderr}> stdout<${stdout}> args: <${args}>\n`
+        )
+      );
+      return;
     }
     if (stderr) {
-      throw new Error(`unexpected stderr running command: ${stderr}`);
+      reject(
+        new Error(
+          `unexpected stderr running command: <${stderr}> args: <${args}>\n`
+        )
+      );
+      return;
     }
-    resolve(stdoutHandler(stdout));
+    resolve(stdoutHandler(stdout, args));
   };
 
 export function runCommand<T>(
@@ -35,7 +51,13 @@ export function runCommand<T>(
   args: readonly string[],
   stdoutHandler: StdoutHandlerFunction<T>
 ): Promise<T> {
-  return new Promise(resolve => {
-    execFile(command, args, {}, execHandler(stdoutHandler, resolve));
+  // console.log('running command', command, args);
+  return new Promise((resolve, reject) => {
+    execFile(
+      command,
+      args,
+      {},
+      execHandler(stdoutHandler, args, resolve, reject)
+    );
   });
 }
