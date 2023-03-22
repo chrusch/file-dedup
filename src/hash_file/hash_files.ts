@@ -10,7 +10,6 @@ import {hashExtractor} from './hash_extractor';
 import {aPath, Path} from '../common/path';
 import {Duplex, Transform} from 'stream';
 import which from 'which';
-// import {hashFilesInWorkerThreads} from '../worker_threads/worker_threads';
 import {queue} from 'async';
 import retry from 'async-retry';
 import workerpool from 'workerpool';
@@ -32,9 +31,9 @@ export async function hashFile(
     );
   } catch (error) {
     if ((error as {message: string}).message.match(/Permission denied/)) {
-      return null; // return null result. no need to retry.
+      return null; // return null. don't retry.
     } else {
-      throw error; // throw error. may need to retry.
+      throw error; // throw error. try again.
     }
   }
 }
@@ -48,6 +47,7 @@ export async function hashAllCandidateFiles(
 ): Promise<Duplex> {
   const cmd = await commandExists('shasum');
   // TODO make concurrency dependent on number of processors
+  // TODO test unreadable directory
   const concurrency = 8;
   if (cmd && !nodeHashing) {
     return hashAllCandidateFilesWithShasumCommand(aPath(cmd), concurrency);
