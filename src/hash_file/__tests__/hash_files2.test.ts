@@ -5,7 +5,7 @@ jest.setTimeout(40000);
 describe('hashAllCandidateFilesWithShasumCommand()', () => {
   it('does what is expected', async () => {
     const cmd = '/usr/bin/shasum';
-    const stream = hashAllCandidateFilesWithShasumCommand(aPath(cmd));
+    const stream = hashAllCandidateFilesWithShasumCommand(aPath(cmd), 8);
     let count = 0;
     stream.on('data', got => {
       count += 1;
