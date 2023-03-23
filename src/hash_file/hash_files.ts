@@ -106,9 +106,7 @@ export function hashAllCandidateFilesWithShasumCommand(
   });
 }
 
-export function hashAllCandidateFilesWithNode(
-  concurrency: number
-): Transform {
+export function hashAllCandidateFilesWithNode(concurrency: number): Transform {
   const pool = workerpool.pool(__dirname + '/../worker_threads/worker.js', {
     minWorkers: 0,
     maxWorkers: concurrency,
@@ -148,11 +146,13 @@ export function hashAllCandidateFilesWithNode(
 
     flush(callback) {
       const checkWhetherWeAreDone = () => {
-        const stats= pool.stats();
-        if (stats.busyWorkers === 0 &&
-            stats.pendingTasks === 0 &&
-              stats.activeTasks === 0) {
-          pool.terminate()
+        const stats = pool.stats();
+        if (
+          stats.busyWorkers === 0 &&
+          stats.pendingTasks === 0 &&
+          stats.activeTasks === 0
+        ) {
+          pool.terminate();
           callback(); // done!
         } else {
           setTimeout(checkWhetherWeAreDone, 80); // try again later

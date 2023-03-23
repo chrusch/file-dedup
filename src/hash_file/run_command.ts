@@ -30,7 +30,7 @@ export const execHandler =
     if (error) {
       reject(
         new Error(
-          `unexpected error running command: ${error.message} stderr<${stderr}> stdout<${stdout}> args: <${args}>\n`
+          `unexpected error running command: ${error.message} stderr<${stderr}> stdout<${stdout}> args: <${args}>`
         )
       );
       return;
@@ -38,7 +38,7 @@ export const execHandler =
     if (stderr) {
       reject(
         new Error(
-          `unexpected stderr running command: <${stderr}> args: <${args}>\n`
+          `unexpected stderr running command: <${stderr}> args: <${args}>`
         )
       );
       return;

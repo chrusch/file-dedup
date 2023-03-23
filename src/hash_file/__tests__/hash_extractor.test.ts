@@ -18,7 +18,7 @@ describe('hashExtractor(stdout)', () => {
     const stdout = 'Qabcdef1234567890 And then . some other, stuff!';
     const fn = () => hashExtractor(stdout, ['a', 'b']);
     const errorMsg =
-      'expected to find a hash at the beginning of the STDOUT of the shasum command, but instead found: Qabcdef1234567890 And then . some other, stuff!';
+      'expected to find a hash at the beginning of the STDOUT of the shasum command, but instead found: stdout<Qabcdef1234567890 And then . some other, stuff!>';
     expect(fn).toThrowError(errorMsg);
   });
 });

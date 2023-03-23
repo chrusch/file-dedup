@@ -50,35 +50,6 @@ describe('runCommand()', () => {
     const got = await runCommand(command, args, stdoutHandler);
     expect(got).toEqual('something returned');
   });
-
-  it('can be run 925 times without error', async () => {
-    const command = '/usr/bin/shasum';
-    const args = ['-a', '256', '/tmp/foo'];
-    const stdoutHandler = (stdout: string) => {
-      expect(stdout.length).toEqual(8);
-      expect(stdout).toEqual('foo baz\n');
-      return 'something returned';
-    };
-
-    // const myExecFile: ExecFileType = (cmd, args2, options, execHandler) => {
-    //   expect(cmd).toEqual(command);
-    //   expect(args2).toEqual(args);
-    //   expect(options).toEqual({});
-    //   expect(execHandler(null, 'foo baz\n', '')).toBeUndefined();
-    // };
-
-    // (
-    //   child_process.execFile as unknown as {
-    //     mockImplementation: (execFile: ExecFileType) => void;
-    //   }
-    // ).mockImplementation(myExecFile);
-
-    for (let i = 0; i < 2000; i++) {
-      console.log(i);
-      const got = await runCommand(command, args, stdoutHandler);
-      expect(got).toEqual('something returned');
-    }
-  });
 });
 
 describe('execHandler()', () => {
@@ -89,7 +60,7 @@ describe('execHandler()', () => {
     const resolve = (value: string) => value;
     const reject = (error: Error) => {
       const expected = new Error(
-        'unexpected stderr running command: this is stderr args: foo,bar'
+        'unexpected stderr running command: <this is stderr> args: <foo,bar>'
       );
       expect(error).toEqual(expected);
     };
@@ -117,7 +88,7 @@ describe('execHandler()', () => {
     const resolve = (value: string) => value;
     const reject = (error: Error) => {
       const expected = new Error(
-        'unexpected error running command: exec error stderr<this is stderr> stdout<this is stdout> args: foo,bar'
+        'unexpected error running command: exec error stderr<this is stderr> stdout<this is stdout> args: <foo,bar>'
       );
       expect(error).toEqual(expected);
     };

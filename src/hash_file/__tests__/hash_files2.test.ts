@@ -1,7 +1,7 @@
 import {hashAllCandidateFilesWithShasumCommand} from '../hash_files';
 import {aPath} from '../../common/path';
 
-jest.setTimeout(40000);
+jest.setTimeout(10000);
 describe('hashAllCandidateFilesWithShasumCommand()', () => {
   it('does what is expected', async () => {
     const cmd = '/usr/bin/shasum';
