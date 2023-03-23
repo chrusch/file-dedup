@@ -8,7 +8,7 @@
 import {runCommand} from './run_command';
 import {hashExtractor} from './hash_extractor';
 import {aPath, Path} from '../common/path';
-import {Duplex, Transform} from 'stream';
+import {Transform} from 'stream';
 import which from 'which';
 import {queue} from 'async';
 import retry from 'async-retry';
@@ -44,7 +44,7 @@ export async function commandExists(cmd: string) {
 
 export async function hashAllCandidateFiles(
   nodeHashing: boolean
-): Promise<Duplex> {
+): Promise<Transform> {
   const cmd = await commandExists('shasum');
   // TODO make concurrency dependent on number of processors
   // TODO test unreadable directory
