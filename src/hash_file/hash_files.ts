@@ -19,6 +19,13 @@ import workerpool from 'workerpool';
 export type HashDatum = [Path, string];
 export type HashData = HashDatum[];
 
+/**
+ * Returns the hash digest of a file using the shasum command line tool
+ *
+ * @param file - The path to the file to be hashed
+ * @param shasumCommand - The path to the shasum executable
+ * @returns A promise resolving to a tuple that contains the filename and hash digest, or else null if the file is unreadable.
+ */
 export async function hashFile(
   file: Path,
   shasumCommand: Path
@@ -38,10 +45,22 @@ export async function hashFile(
   }
 }
 
-export async function commandExists(cmd: string) {
+/**
+ * Determine the location of the given command in the current PATH.
+ *
+ * @param cmd - The name of the command
+ * @returns A promise resolving to path of the command if it can be found in the current path
+ */
+export async function commandExists(cmd: string): Promise<string> {
   return await which(cmd, {nothrow: true});
 }
 
+/**
+ * Returns a transform stream that can be used to get the hash digest of files
+ *
+ * @param nodeHashing - Calculate the hash digest using node libraries as opposed to using the shasum command line tool?
+ * @returns A stream that can be used to calculate the hash digest of input files.
+ */
 export async function hashAllCandidateFiles(
   nodeHashing: boolean
 ): Promise<Transform> {
@@ -56,7 +75,18 @@ export async function hashAllCandidateFiles(
   }
 }
 
-const hashFileWithRetry = async (file: Path, shasumCommand: Path) => {
+/**
+ * Wrapper function that retries calculating the hash digest of a file if the first attempt fails.
+ *
+ * @param file - The path to a file to be hashed
+ * @param shasumCommand - The path to the system's shasum command line tool
+ * @returns A promise resolving to a HashDatum or else to null if hashing ultimately fails after retries
+ */
+// TODO test/document whether an error is thrown if all retries fail?
+const hashFileWithRetry = async (
+  file: Path,
+  shasumCommand: Path
+): Promise<HashDatum | null> => {
   const retryFunction = () => hashFile(file, shasumCommand);
   // retries if retryFunction throws an error
   return await retry(retryFunction, {
@@ -66,6 +96,12 @@ const hashFileWithRetry = async (file: Path, shasumCommand: Path) => {
   });
 };
 
+/**
+ * Returns a stream that can be used to hash input files with the local system's shasum command.
+ * @param shasumCommand - The path to the system's shasum command line tool
+ * @param concurrency - The number of files to hash in parallel. It is recommended that this number should be no larger than the number of processors on the system
+ * @returns A Transform stream that can be used to hash input files
+ */
 export function hashAllCandidateFilesWithShasumCommand(
   shasumCommand: Path,
   concurrency: number
@@ -106,6 +142,12 @@ export function hashAllCandidateFilesWithShasumCommand(
   });
 }
 
+/**
+ * Returns a stream that can be used to hash input files using popular node hashing libraries.
+ * @param concurrency - The number of files to hash in parallel. It is recommended that this number should be no larger than the number of processors on the system
+ * @returns A Transform stream that can be used to hash input files
+ */
+//TODO implement retrying
 export function hashAllCandidateFilesWithNode(concurrency: number): Transform {
   const pool = workerpool.pool(__dirname + '/../worker_threads/worker.js', {
     minWorkers: 0,
