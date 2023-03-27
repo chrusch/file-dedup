@@ -5,35 +5,70 @@
 // LICENSE file in the root directory of this source tree.
 
 import {Path} from '../common/path';
+
 // All console output depends on this file, this makes
 // it easier to write tests that don't generated unwanted
 // text.
+
 const productionLog = console.log;
 const productionWarn = console.warn;
 const testOutput = () => {};
 let standardOutput = productionLog;
 let warnOutput = productionWarn;
 
+/**
+ * Has this module's usual output been silenced?
+ *
+ * @remarks
+ * Usually we use this module to log output to STDOUT, but for tests, we generally want to silence the output.
+ *
+ * @returns True if and only if the usual output has been silenced
+ */
 export const silentOutput = (): boolean => standardOutput === testOutput;
 
+/**
+ * Silence the usual output of this module.
+ *
+ * @remarks
+ * Usually we use this module to log output to STDOUT, but for tests, we generally want to silence the output. After calling this function, this module will no longer log to STDOUT.
+ *
+ * @returns Void;
+ */
 export function silenceOutput(): void {
   standardOutput = testOutput;
   warnOutput = testOutput;
 }
 
+/**
+ * Undo the silencing of the usual output of this module.
+ *
+ * @remarks
+ * Usually we use this module to log output to STDOUT, but for tests, we generally want to silence the output. After calling this function, this module will log to STDOUT.
+ *
+ * @returns Void;
+ */
 export function unSilenceOutput(): void {
   standardOutput = productionLog;
   warnOutput = productionWarn;
 }
 
-// export function showListLengths(filesWithSizes: number, files: number): void {
-//   log('file list lengths:', filesWithSizes, files);
-// }
-
+/**
+ * Log information about duplicates.
+ *
+ * @param duplicatesList - A list of file paths that represent duplicate files (files with the exact same content)
+ * @returns Void;
+ */
 export function showDuplicates(duplicatesList: Path[]): void {
   log('Duplicates', duplicatesList);
 }
 
+/**
+ * Log information about files that have been deleted (or whose deletion was simulated in a dry run)
+ *
+ * @param totalDeleted - The number of files deleted (or that would have been deleted if this was a dry run)
+ * @param reallyDeleted - True if files were really deleted. False if this was a dry run
+ * @returns Void;
+ */
 export function showTotalDeleted(
   totalDeleted: number,
   reallyDelete: boolean
@@ -47,10 +82,22 @@ export function showTotalDeleted(
   }
 }
 
+/**
+ * Log arbitrary values using console.log.
+ *
+ * @param values - Values to be logged
+ * @returns Void;
+ */
 export function log(...values: unknown[]) {
   standardOutput(...values);
 }
 
+/**
+ * Log arbitrary values using console.warn.
+ *
+ * @param values - Values to be logged
+ * @returns Void;
+ */
 export function warn(...values: unknown[]) {
   warnOutput(...values);
 }
