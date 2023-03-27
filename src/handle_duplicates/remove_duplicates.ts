@@ -96,7 +96,7 @@ export function getHandleDuplicatesStream(
     totalDeleted++;
   };
   const autoDeletion = dirsToAutomaticallyDeleteFrom.length > 0;
-  const handleDuplicatesStream = new Writable({
+  return new Writable({
     objectMode: true,
     write(duplicatesList, _encoding, done) {
       handleDuplicatesList({
@@ -112,5 +112,4 @@ export function getHandleDuplicatesStream(
   }).on('finish', () => {
     showTotalDeleted(totalDeleted, reallyDelete);
   });
-  return handleDuplicatesStream;
 }
