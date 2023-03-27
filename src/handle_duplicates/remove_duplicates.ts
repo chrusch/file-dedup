@@ -20,60 +20,94 @@ export const fileIsInADeleteDirectory = (
     fileIsInDirectoryOrSubdirectory(file, aPath(dir))
   );
 
+interface HandleDuplicatesListOptions {
+  duplicatesList: Path[];
+  trackTotalDeleted: () => void;
+  reallyDelete: boolean;
+  interactiveDeletion: boolean;
+  autoDeletion: boolean;
+  dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[];
+}
+
+/**
+ * Given a list of duplicates and other options, determine which files to
+ * delete.
+ */
+function handleDuplicatesList(options: HandleDuplicatesListOptions) {
+  const {
+    duplicatesList,
+    trackTotalDeleted,
+    reallyDelete,
+    interactiveDeletion,
+    autoDeletion,
+    dirsToAutomaticallyDeleteFrom,
+  } = options;
+  if (duplicatesList.length === 0) {
+    return;
+  }
+  showDuplicates(duplicatesList);
+  let numberOfDuplicatesInThisSetDeleted = 0;
+  const doRecordKeeping = () => {
+    trackTotalDeleted();
+    numberOfDuplicatesInThisSetDeleted++;
+  };
+  const numDuplicatesInThisSet = duplicatesList.length;
+  const remainingUndeletedFiles: Path[] = [];
+
+  // Be aware of when there is only one copy of a file left.
+  const thereIsOnlyOneInstanceOfThisFileContent = (): boolean =>
+    numDuplicatesInThisSet - numberOfDuplicatesInThisSetDeleted <= 1;
+
+  // Automatic deletion
+  if (autoDeletion) {
+    duplicatesList.forEach((file: Path) => {
+      // Don't ever delete a unique file or the last copy of a file.
+      if (thereIsOnlyOneInstanceOfThisFileContent()) return;
+      if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
+        doRecordKeeping();
+        deleteFile(reallyDelete, file);
+        return;
+      }
+      remainingUndeletedFiles.push(file);
+    });
+  } else {
+    remainingUndeletedFiles.push(...duplicatesList);
+  }
+
+  // Interactive deletion
+  if (interactiveDeletion) {
+    remainingUndeletedFiles.forEach((file: Path) => {
+      if (thereIsOnlyOneInstanceOfThisFileContent()) return;
+      if (confirmDelete(file)) {
+        doRecordKeeping();
+        deleteFile(reallyDelete, file);
+      }
+    });
+  }
+}
+
 export function getHandleDuplicatesStream(
   dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[],
   reallyDelete: boolean,
   interactiveDeletion: boolean
 ): Writable {
-  let [totalDeleted, numberOfDuplicatesInThisSetDeleted] = [0, 0];
-  const deletionRecordKeeping = () => {
-    numberOfDuplicatesInThisSetDeleted += 1;
-    totalDeleted += 1;
+  let totalDeleted = 0;
+  const trackTotalDeleted = () => {
+    totalDeleted++;
   };
   const autoDeletion = dirsToAutomaticallyDeleteFrom.length > 0;
   const handleDuplicatesStream = new Writable({
     objectMode: true,
-    write(duplicatesList, _encoding, callback) {
-      if (duplicatesList.length === 0) {
-        return;
-      }
-      showDuplicates(duplicatesList);
-      numberOfDuplicatesInThisSetDeleted = 0;
-      const numDuplicatesInThisSet = duplicatesList.length;
-      const remainingUndeletedFiles: Path[] = [];
-
-      // Be aware of when there is only one copy of a file left.
-      const thereIsOnlyOneInstanceOfThisFileContent = (): boolean =>
-        numDuplicatesInThisSet - numberOfDuplicatesInThisSetDeleted <= 1;
-
-      // Automatic deletion
-      if (autoDeletion) {
-        duplicatesList.forEach((file: Path) => {
-          // Don't ever delete a unique file or the last copy of a file.
-          if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-          if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
-            deletionRecordKeeping();
-            deleteFile(reallyDelete, file);
-            return;
-          }
-          remainingUndeletedFiles.push(file);
-        });
-      } else {
-        remainingUndeletedFiles.push(...duplicatesList);
-      }
-
-      // Interactive deletion
-      if (interactiveDeletion) {
-        remainingUndeletedFiles.forEach((file: Path) => {
-          if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-          if (confirmDelete(file)) {
-            deletionRecordKeeping();
-            deleteFile(reallyDelete, file);
-          }
-        });
-      }
-
-      callback();
+    write(duplicatesList, _encoding, done) {
+      handleDuplicatesList({
+        duplicatesList,
+        trackTotalDeleted,
+        reallyDelete,
+        interactiveDeletion,
+        autoDeletion,
+        dirsToAutomaticallyDeleteFrom,
+      });
+      done();
     },
   }).on('finish', () => {
     showTotalDeleted(totalDeleted, reallyDelete);
