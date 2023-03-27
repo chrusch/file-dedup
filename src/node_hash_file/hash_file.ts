@@ -10,10 +10,13 @@
 import {createHash} from 'node:crypto';
 import {readFileInChunks} from './read_file_in_chunks';
 
-export function getSHA256HashDigest(
-  filename: string
-  // progressHandler: (prog: number) => void
-): Promise<string> {
+/**
+ * Returns the hash digest of a file using the node:crypto library.
+ *
+ * @param filename - The path to the file to be hashed
+ * @returns A promise resolving to the hex hash digest of the file
+ */
+export function getSHA256HashDigest(filename: string): Promise<string> {
   return new Promise((resolve, reject) => {
     // const sha256 = CryptoJS.algo.SHA256.create();
     const sha256 = createHash('sha256');
@@ -21,9 +24,6 @@ export function getSHA256HashDigest(
     const onChunk = (chunk: Buffer) => {
       // sha256.update(CryptoJS.enc.Latin1.parse(chunk.toString('latin1')));
       sha256.update(chunk);
-      // if (progressHandler) {
-      //   progressHandler(offs / total);
-      // }
     };
 
     const onDone = () => {

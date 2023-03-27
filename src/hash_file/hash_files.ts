@@ -17,6 +17,7 @@ import workerpool from 'workerpool';
 /** A pair consisting of the path of the file hashed and
   the SHA sum of the file content */
 export type HashDatum = [Path, string];
+/** An array of HashDatum tuples */
 export type HashData = HashDatum[];
 
 /**
@@ -98,6 +99,7 @@ const hashFileWithRetry = async (
 
 /**
  * Returns a stream that can be used to hash input files with the local system's shasum command.
+ *
  * @param shasumCommand - The path to the system's shasum command line tool
  * @param concurrency - The number of files to hash in parallel. It is recommended that this number should be no larger than the number of processors on the system
  * @returns A Transform stream that can be used to hash input files
@@ -144,6 +146,7 @@ export function hashAllCandidateFilesWithShasumCommand(
 
 /**
  * Returns a stream that can be used to hash input files using popular node hashing libraries.
+ *
  * @param concurrency - The number of files to hash in parallel. It is recommended that this number should be no larger than the number of processors on the system
  * @returns A Transform stream that can be used to hash input files
  */
