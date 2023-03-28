@@ -12,6 +12,13 @@ import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 import {Writable} from 'node:stream';
 
+/**
+ * Is the given file in a directory subject to autoDeletion?
+ *
+ * @param file - Path to file
+ * @param dirsToAutomaticallyDeleteFrom - A list of directories subject to autoDeletion
+ * @returns Whether the file is subject to autoDeletion
+ */
 export const fileIsInADeleteDirectory = (
   file: Path,
   dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[]
@@ -30,22 +37,27 @@ interface HandleDuplicatesListOptions {
 }
 
 /**
- * Given a list of duplicates and other options, determine which files to
- * delete.
+ * Finally we have a list of duplicates! Now display them and optionally delete
+ * them depending on the options provided and user input.
+ *
+ * @param duplicatesList - A list of files with identical contents
+ * @param trackTotalDeleted - A function that counts the deleted files
+ * @param reallyDelete - Really delete files or is this just a dry run?
+ * @param interactiveDeletion - Let user decide which files are deleted?
+ * @param autoDeletion - Should some files be automatically deleted?
+ * @param dirsToAutomaticallyDeleteFrom - Directories subject to autoDeletion
+ * @returns Void
  */
-function handleDuplicatesList(options: HandleDuplicatesListOptions) {
-  const {
-    duplicatesList,
-    trackTotalDeleted,
-    reallyDelete,
-    interactiveDeletion,
-    autoDeletion,
-    dirsToAutomaticallyDeleteFrom,
-  } = options;
-  if (duplicatesList.length === 0) {
-    return;
-  }
-  showDuplicates(duplicatesList);
+function handleDuplicatesList({
+  duplicatesList,
+  trackTotalDeleted,
+  reallyDelete,
+  interactiveDeletion,
+  autoDeletion,
+  dirsToAutomaticallyDeleteFrom,
+}: HandleDuplicatesListOptions): void {
+  if (duplicatesList.length === 0) return;
+
   let numberOfDuplicatesInThisSetDeleted = 0;
   const doRecordKeeping = () => {
     trackTotalDeleted();
@@ -57,6 +69,8 @@ function handleDuplicatesList(options: HandleDuplicatesListOptions) {
   // Be aware of when there is only one copy of a file left.
   const thereIsOnlyOneInstanceOfThisFileContent = (): boolean =>
     numDuplicatesInThisSet - numberOfDuplicatesInThisSetDeleted <= 1;
+
+  showDuplicates(duplicatesList);
 
   // Automatic deletion
   if (autoDeletion) {
@@ -86,6 +100,14 @@ function handleDuplicatesList(options: HandleDuplicatesListOptions) {
   }
 }
 
+/**
+ * Returns a Writable stream that finally deals with the duplicates we found
+ *
+ * @param dirsToAutomaticallyDeleteFrom - Directories subject to autoDeletion
+ * @param reallyDelete - Really delete files or is this just a dry run?
+ * @param interactiveDeletion - Let user decide which files are deleted?
+ * @returns Void
+ */
 export function getHandleDuplicatesStream(
   dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[],
   reallyDelete: boolean,
