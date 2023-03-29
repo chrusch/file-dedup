@@ -24,36 +24,6 @@ export async function getFileStatus(
   return followSymlinks ? await stat(path) : await lstat(path);
 }
 
-// export async function getInode(path: VerifiedDirectoryPath): Promise<number> {
-//   return (await getFileStatus(aPath(path), true)).ino;
-// }
-
-// export async function readDirectoryOld(
-//   dir: Path,
-//   dirCallback: (dir: Path, inode: number) => Promise<void>,
-//   fileCallback: (file: Path, size: number, ino: number) => void,
-//   excludedNames: readonly string[],
-//   followSymlinks: boolean,
-//   includeDotfiles: boolean
-// ): Promise<void> {
-//   const files = await readdir(dir);
-//   // const dirPromises: Promise<void>[] = [];
-//   const filePromises = files.map(async file => {
-//     if (excludedNames.includes(file)) return;
-//     if (!includeDotfiles && file.match('^\\.')) return;
-
-//     const pth = aPath(pathModule.join(dir, file));
-//     const fileStatus = await getFileStatus(pth, followSymlinks);
-
-//     if (fileStatus.isDirectory()) {
-//       await dirCallback(pth, fileStatus.ino);
-//     } else if (fileStatus.isFile()) {
-//       fileCallback(pth, fileStatus.size, fileStatus.ino);
-//     } // silently ignore symlinks and other file system objects
-//   });
-//   await Promise.all(filePromises);
-// }
-
 type DirGenerator = Generator<Path, void, Path[] | undefined | null>;
 
 export function* directoryGenerator(

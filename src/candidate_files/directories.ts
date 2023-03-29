@@ -8,41 +8,69 @@ import {FileWithSize} from './get_candidate_files';
 import {Path} from '../common/path';
 import {Transform} from 'node:stream';
 
+/**
+ * A stream that takes as input files with their sizes
+ * and outputs only those files that have non-unique (i.e. duplicate) sizes.
+ *
+ * @extends Transform
+ */
 export class filesWithNonUniqueSizesStream extends Transform {
   private fileSizeCount: {
     [size: number]: {firstFile: Path; count: number};
   } = {};
+
+  /**
+   * Create a filesWithNonUniqueSizesStream
+   *
+   * @param options - Options for the parent Transform class
+   */
   constructor(options: {} = {}) {
     super({...options, objectMode: true});
   }
 
+  /**
+   * Do the work of pushing through only those files with non-unique sizes.
+   *
+   * @param fileWithSize - A file with its size
+   * @param _encoding - Unused because this stream is in objectMode
+   * @param done - Indicates that we are done processing the fileWithSize
+   */
   _transform(
     fileWithSize: FileWithSize,
     _encoding: string,
-    callback: () => void
+    done: () => void
   ) {
-    const [filePath, size] = fileWithSize;
+    const [currentFile, size] = fileWithSize;
     if (!this.fileSizeCount[size]) {
-      this.fileSizeCount[size] = {firstFile: filePath, count: 1};
+      this.fileSizeCount[size] = {firstFile: currentFile, count: 1};
     } else {
       this.fileSizeCount[size].count += 1;
     }
     const count = this.fileSizeCount[size].count;
     if (count === 2) {
-      this.push(this.fileSizeCount[size].firstFile);
-      this.push(filePath);
+      const firstFile = this.fileSizeCount[size].firstFile;
+      this.push(firstFile);
+      this.push(currentFile);
     } else if (count > 2) {
-      this.push(filePath);
+      this.push(currentFile);
     }
-    callback();
+    done();
   }
 
-  _flush(callback: () => void) {
+  /**
+   * Let the next stream in the pipeline know that no more data is coming.
+   *
+   * @param done - Callback used to indicate we are done.
+   */
+  _flush(done: () => void) {
     this.push(null);
-    callback();
+    done();
   }
 
-  _final(callback: () => void) {
-    callback();
+  /**
+   * Placeholder function. Doesn't do anything.
+   */
+  _final(done: () => void) {
+    done();
   }
 }
