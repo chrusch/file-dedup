@@ -35,14 +35,20 @@ export interface CandidateFilesOptions {
   includeDotfiles: boolean;
 }
 
-// Given one or more directories, traverse them, optionally excluding certain
-// specified files and directories, and optionally including hidden dot files.
-// Filter out all files with unique sizes (they can't be duplicates), and
-// return an array of the paths of the all files with non-unique sizes.
-//
-  // Every file with a unique file size necessarily has unique content. Consequently, files
-  // with a unique size do not need to be hashed, because they can't possibly be
-  // duplicates.
+/**
+ * Returns a Readable stream of candidate files.
+ *
+ * @remarks
+ *
+ *
+ * A candidate file is a regular file that can be found in pathsToTraverse or
+ * dirsToPossiblyDeleteFrom or their subdirectories and that has a non-unique
+ * size. Candidate files just might possibly have duplicate contents. That's why
+ * we are interested in them.
+ *
+ * @param options - {@see {@link CandidateFileOptions}} @returns - A Readable
+ * stream--really a Transform stream that can be used as a Readable stream.
+ */
 export function getCandidateFilesStream(
   options: Readonly<CandidateFilesOptions>
 ): Readable {

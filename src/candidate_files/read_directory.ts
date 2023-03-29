@@ -36,10 +36,12 @@ type DirGenerator = Generator<Path, void, Path[] | undefined | null>;
 /**
  * Returns a Generator object that generates the paths of directories
  *
- * @remarks This is used in conjunction with filePathGenerator. The directories
- *          generated are (1) the initialDirectories and (2) the directories
- *          provided by the consumer, filePathGenerator. The generator
- *          effectively acts as a queue of directories to read.
+ * @remarks
+ *
+ * This is used in conjunction with filePathGenerator(). The directories
+ * generated are (1) the initialDirectories and (2) the directories provided by
+ * the consumer, filePathGenerator(). The directoryGenerator() function
+ * acts as an iterable queue of directories to read.
  *
  * @param initialDirectories - Verified directories to begin generating
  * @returns A Generator object that generates directory paths
