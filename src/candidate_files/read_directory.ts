@@ -38,9 +38,10 @@ type DirGenerator = Generator<Path, void, Path[] | undefined | null>;
  *
  * @remarks This is used in conjunction with filePathGenerator. The directories
  *          generated are (1) the initialDirectories and (2) the directories
- *          provided by the consumer, filePathGenerator.
+ *          provided by the consumer, filePathGenerator. The generator
+ *          effectively acts as a queue of directories to read.
  *
- * @param initialDirectories: Verified directories to begin generating
+ * @param initialDirectories - Verified directories to begin generating
  * @returns A Generator object that generates directory paths
  */
 export function* directoryGenerator(
@@ -66,6 +67,28 @@ export function* directoryGenerator(
   }
 }
 
+/**
+ * Read a directory and return the files in that directory.
+ *
+ * @remarks
+ *
+ * Has a side effect that newly discovered subdirectories are reported to
+ * dirGenerator which functions as a queue of directories to read.
+ *
+ * Has another side effect of maintaining a set of inodes that have been stat'd
+ * to avoid duplication of effort.
+ *
+ * @param dir - The directory to read
+ * @param entriesRead - The set of inodes that have already been processed
+ * @param dirGenerator - A generator that functions as a queue of directories to
+ *        read
+ * @param excludedNames - A list of file and directory names to ignore such as
+ *        'node_modules'
+ * @param followSymlinks - Policy on whether to follow or ignore symlinks.
+ * @param includeDotfiles - Policy on whether to process or ignore files that
+ *        begin with dot ('.')
+ * @returns The paths and sizes of the files read.
+ */
 export async function readDirectory(
   dir: Path,
   entriesRead: Set<number>,
@@ -96,6 +119,19 @@ export async function readDirectory(
   return files;
 }
 
+/**
+ * Returns an AsyncGenerator that produces file paths obtained by traversing
+ * initialDirectories.
+ *
+ * @param initialDirectories - The directories to traverse
+ * @param excludedNames - The names of files and directories to ignore, e.g.
+ *        node_modules
+ * @param followSymlinks - Policy on whether to follow symlinks or ignore them
+ * @param includeDotfiles - Policy on whether to process files and directories
+ *        beginning with a dot or to ignore them
+ * @returns An AsyncGenerator that produces file paths obtained by traversing
+ * initialDirectories
+ */
 export async function* filePathGenerator(
   initialDirectories: VerifiedDirectoryPath[],
   excludedNames: readonly string[],
@@ -120,6 +156,24 @@ export async function* filePathGenerator(
   }
 }
 
+/**
+ * Returns a Readable stream that produces file paths obtained by traversing
+ * initialDirectories.
+ *
+ * @remarks
+ *
+ * The returned stream is trivially created from an AsyncGenerator that does all
+ * the work.
+ *
+ * @param initialDirectories - The directories to traverse
+ * @param excludedNames - The names of files and directories to ignore, e.g.
+ *        node_modules
+ * @param followSymlinks - Policy on whether to follow symlinks or ignore them
+ * @param includeDotfiles - Policy on whether to process files and directories
+ *        beginning with a dot or to ignore them
+ * @returns A Transform stream that can be used as a Readable stream produces
+ *          file paths obtained by traversing initialDirectories
+ */
 export function createDirectoryReadingStream(
   initialDirectories: VerifiedDirectoryPath[],
   excludedNames: readonly string[],
