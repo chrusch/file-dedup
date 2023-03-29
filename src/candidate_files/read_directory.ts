@@ -8,15 +8,19 @@ import pathModule from 'path';
 import {Stats} from 'fs';
 import {lstat, readdir, stat} from 'node:fs/promises';
 import {aPath, Path} from '../common/path';
-import {
-  // forceVerificationOfDirectoryPath,
-  VerifiedDirectoryPath,
-} from '../common/verified_directory_path';
+import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 import {Readable} from 'stream';
 
-// when path is a symlink and followSymlinks is true, returns the Stats of the
-// linked file, otherwise returns the Stats of the literal file system indicated
-// by path, whether file, symlink, directory, or whatever.
+/**
+ * Get the Stats object of a filesystem entity
+ *
+ * @param path - The path to the file
+ * @param followSymlinks - Policy on following symlinks
+ * @returns When the path is a symlink and followSymlinks is true, returns the
+ *          Stats object of the linked file, otherwise returns the Stats of the
+ *          literal file system entity indicated by path, whether file, symlink,
+ *          directory, or whatever.
+ */
 export async function getFileStatus(
   path: Path,
   followSymlinks: boolean
@@ -24,14 +28,26 @@ export async function getFileStatus(
   return followSymlinks ? await stat(path) : await lstat(path);
 }
 
+/**
+ * A Generator object that generates filepath.
+ */
 type DirGenerator = Generator<Path, void, Path[] | undefined | null>;
 
+/**
+ * Returns a Generator object that generates the paths of directories
+ *
+ * @remarks This is used in conjunction with filePathGenerator. The directories
+ *          generated are (1) the initialDirectories and (2) the directories
+ *          provided by the consumer, filePathGenerator.
+ *
+ * @param initialDirectories: Verified directories to begin generating
+ * @returns A Generator object that generates directory paths
+ */
 export function* directoryGenerator(
   initialDirectories: VerifiedDirectoryPath[]
 ): DirGenerator {
   const directories: Path[] = [...initialDirectories.map(aPath)];
-  // let done = directories.length === 0;
-  // while (directories.length > ) {
+
   while (directories.length > 0) {
     const nextDir = directories[0];
     if (!nextDir) break;
@@ -40,15 +56,10 @@ export function* directoryGenerator(
     // convention we can assume it is ignoring nextDir, and so we will yield the
     // same nextDir in the next loop.
     const newDirs = yield nextDir;
-    // if (newDirs === null) {
-    //   // Consumer is telling us to shut down.
-    //   done = true;
-    // } else
     if (newDirs) {
       // Consumer is providing us with new directories.
       directories.push(...newDirs);
     } else {
-      // newDirs === undefined
       // Consumer has consumed nextDir.
       directories.shift();
     }

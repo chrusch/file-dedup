@@ -7,7 +7,7 @@
 import {getFindDuplicatesStream} from './find_duplicates/duplicates';
 import {getHandleDuplicatesStream} from './handle_duplicates/remove_duplicates';
 import {hashAllCandidateFiles} from './hash_file/hash_files';
-import {getCandidateFiles} from './candidate_files/get_candidate_files';
+import {getCandidateFilesStream} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './common/verified_directory_path';
 
 export type DedupOptions = {
@@ -27,7 +27,7 @@ export type DedupOptions = {
 // files. Print out these duplicates or optionally delete them depending on the
 // exact options provided.
 export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
-  const candidateFilesStream = getCandidateFiles(options);
+  const candidateFilesStream = getCandidateFilesStream(options);
 
   const hashDataStream = await hashAllCandidateFiles(options.nodeHashing);
 

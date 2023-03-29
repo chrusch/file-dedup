@@ -4,12 +4,12 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {CandidateFilesOptions, getCandidateFiles} from '../get_candidate_files';
+import {CandidateFilesOptions, getCandidateFilesStream} from '../get_candidate_files';
 import {aPath, Path} from '../../common/path';
 import {forceVerificationOfDirectoryPaths} from '../../common/verified_directory_path';
 import withLocalTmpDir from 'with-local-tmp-dir';
 import outputFiles from 'output-files';
-import {Transform} from 'node:stream';
+import {Readable} from 'node:stream';
 import {outputOfReadableStream} from '../../__tests__/test_utilities';
 
 describe('getCandidateFiles()', () => {
@@ -52,7 +52,7 @@ describe('getCandidateFiles()', () => {
       followSymlinks: false,
       includeDotfiles: false,
     };
-    const stream: Transform = getCandidateFiles(options);
+    const stream: Readable = getCandidateFilesStream(options);
     const got = await outputOfReadableStream(stream);
     got.sort();
     const expected: Path[] = [
