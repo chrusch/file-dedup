@@ -4,85 +4,85 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {HashData, HashDatum} from '../hash_file/hash_files';
-import _ from 'lodash';
+import {HashDatum} from '../hash_file/hash_files';
 import {Path} from '../common/path';
 import {Duplex} from 'node:stream';
 
-type FileList = Path[];
-// We are given a list like this:
-//
-// [['/etc/hosts', 'aaed732d32dbc...'], ...]
-//
-// i.e.
-//
-// [[<file path>, <SHA sum>], ...]
-//
-// And we return
-//
-// [[<file path, <other file path>, ...], ...]
-//
-// where file path are grouped by SHA sum, so that each array of file path
-// consists of files with identical SHA sums, and therefore identical
-// contents.
-//
-// All unique files are filtered out.
-export const getDuplicates = (allData: Readonly<HashData>): FileList[] => {
-  const transformHashDatumListToFileList = (
-    hashDatumList: HashData
-  ): FileList => hashDatumList.map(hashDatum => hashDatum[0]);
+interface FileListObject {
+  /** An array of paths of files with duplicate contents */
+  paths: Path[];
+  /** Have we read this list of duplicates in its current state? */
+  duplicatesRead: boolean;
+  /** Is there more than one path in the paths array? */
+  duplicatesExist: boolean;
+}
 
-  const fileLists = _(allData)
-    .groupBy(1)
-    .values()
-    .map(transformHashDatumListToFileList)
-    .filter(fileList => fileList.length > 1)
-    .value();
-
-  return fileLists;
-};
+/**
+ * Loop over an array in a circular fashion
+ *
+ * @param array - The array to loop over
+ * @param startingIndex - The index of the given array to start at
+ * @returns A generator that loops once over the given array.
+ */
+export function* circularArrayGenerator<T>(array: T[], startingIndex: number) {
+  const numEntries = array.length;
+  for (let i = 0; i < numEntries; i++) {
+    const index = (startingIndex + i) % numEntries;
+    yield [array[index], index] as [T, number];
+  }
+  return null;
+}
 
 export function getFindDuplicatesStream(): Duplex {
   const indexByHash = new Map<string, number>();
   let currentReadIndex = 0;
-  let currentWriteIndex = 0;
-  const fileLists: Path[][] = [];
-  const hashes: string[] = [];
-  const duplicatesRead: boolean[] = [];
-  const unreadDuplicates = new Set<number>();
+  let currentWriteIndex = -1; // to allow for prefix increment operator
+  const fileLists: FileListObject[] = [];
 
   const nextUnreadDuplicates = (): Path[] | null => {
-    const numEntries = duplicatesRead.length;
-    for (let i = 0; i < numEntries; i++) {
-      const index = (currentReadIndex + i) % numEntries;
-      if (duplicatesRead !== undefined && duplicatesRead[index] === false) {
-        duplicatesRead[index] = true;
-        currentReadIndex = (index + 1) % numEntries;
-        return fileLists[index];
+    const circularArray = circularArrayGenerator(fileLists, currentReadIndex);
+    for (const [fileListObject, index] of circularArray) {
+      if (
+        fileListObject.duplicatesExist &&
+        fileListObject.duplicatesRead === false
+      ) {
+        fileListObject.duplicatesRead = true;
+        currentReadIndex = index + 1;
+        return fileListObject.paths;
       }
     }
     return null;
   };
+
+  function recordHashDatum(
+    hashDatum: HashDatum,
+    indexByHash: Map<string, number>,
+    fileLists: FileListObject[]
+  ) {
+    const [filename, hash] = hashDatum;
+    const fileListIndex = indexByHash.get(hash);
+    if (fileListIndex === undefined) {
+      fileLists[++currentWriteIndex] = {
+        paths: [filename],
+        duplicatesRead: false,
+        duplicatesExist: false,
+      };
+      indexByHash.set(hash, currentWriteIndex);
+    } else {
+      const fileListObject = fileLists[fileListIndex];
+      fileListObject.paths.push(filename);
+      fileListObject.duplicatesRead = false;
+      fileListObject.duplicatesExist = true;
+    }
+  }
+
   let noMoreData = false;
   let timeout: NodeJS.Timeout;
   const findDuplicatesStream = new Duplex({
     objectMode: true,
-    write(chunk: HashDatum, _encoding, callback) {
-      const [filename, hash] = chunk;
-      const fileListIndex = indexByHash.get(hash);
-      if (fileListIndex !== undefined) {
-        const filesWithThisHash = fileLists[fileListIndex];
-        const duplicates = [...filesWithThisHash, filename];
-        fileLists[fileListIndex] = duplicates;
-        duplicatesRead[fileListIndex] = false;
-        unreadDuplicates.add(fileListIndex);
-      } else {
-        fileLists[currentWriteIndex] = [filename];
-        hashes[currentWriteIndex] = hash;
-        indexByHash.set(hash, currentWriteIndex);
-        currentWriteIndex += 1;
-      }
-      callback();
+    write(hashDatum: HashDatum, _encoding, done) {
+      recordHashDatum(hashDatum, indexByHash, fileLists);
+      done();
     },
 
     // unused parameter _size

@@ -34,14 +34,15 @@ export async function getFileStatus(
 type DirGenerator = Generator<Path, void, Path[] | undefined | null>;
 
 /**
- * Returns a Generator object that generates the paths of directories
+ * Returns a Generator object that generates the paths of directories,
+ * starting with initialDirectories
  *
  * @remarks
  *
- * This is used in conjunction with filePathGenerator(). The directories
- * generated are (1) the initialDirectories and (2) the directories provided by
- * the consumer, filePathGenerator(). The directoryGenerator() function
- * acts as an iterable queue of directories to read.
+ * This generator function is used in conjunction with filePathGenerator(). The
+ * directories generated are (1) the initialDirectories and (2) the directories
+ * provided by the consumer, filePathGenerator(). The directoryGenerator()
+ * function acts as an iterable queue of directories to read.
  *
  * @param initialDirectories - Verified directories to begin generating
  * @returns A Generator object that generates directory paths
@@ -173,8 +174,8 @@ export async function* filePathGenerator(
  * @param followSymlinks - Policy on whether to follow symlinks or ignore them
  * @param includeDotfiles - Policy on whether to process files and directories
  *        beginning with a dot or to ignore them
- * @returns A Transform stream that can be used as a Readable stream produces
- *          file paths obtained by traversing initialDirectories
+ * @returns A Readable stream that produces file paths obtained by traversing
+ *          initialDirectories
  */
 export function createDirectoryReadingStream(
   initialDirectories: VerifiedDirectoryPath[],
