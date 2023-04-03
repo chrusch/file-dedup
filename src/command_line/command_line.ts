@@ -23,6 +23,12 @@ export interface Options {
   reallyDelete: boolean;
 }
 
+/**
+ * Returns command line options and arguments in a convenient Options object.
+ *
+ * @param argv - An array retrieved from process.argv
+ * @returns Command line options and arguments in a convenient Options object
+ */
 // there might be an option for exlcuding empty files or files up to a
 // certain size OR possibly for including them.
 // option to remove empty directories
