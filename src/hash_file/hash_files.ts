@@ -13,6 +13,7 @@ import which from 'which';
 import {queue} from 'async';
 import retry from 'async-retry';
 import workerpool from 'workerpool';
+import os from 'node:os';
 
 /** A pair consisting of the path of the file hashed and
   the SHA sum of the file content */
@@ -50,7 +51,8 @@ export async function hashFile(
  * Determine the location of the given command in the current PATH.
  *
  * @param cmd - The name of the command
- * @returns A promise resolving to path of the command if it can be found in the current path
+ * @returns A promise resolving to path of the command if it can be found in
+ *          the current path
  */
 export async function commandExists(cmd: string): Promise<string> {
   return await which(cmd, {nothrow: true});
@@ -66,9 +68,10 @@ export async function hashAllCandidateFiles(
   nodeHashing: boolean
 ): Promise<Transform> {
   const cmd = await commandExists('shasum');
-  // TODO make concurrency dependent on number of processors
   // TODO test unreadable directory
-  const concurrency = 8;
+  // TODO with future versions of node, use os.availableParallelism()
+  // instead of os.cpus().length
+  const concurrency = os.cpus().length;
   if (cmd && !nodeHashing) {
     return hashAllCandidateFilesWithShasumCommand(aPath(cmd), concurrency);
   } else {
