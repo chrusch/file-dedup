@@ -33,6 +33,24 @@ export function* circularArrayGenerator<T>(array: T[], startingIndex: number) {
   return null;
 }
 
+
+/**
+ * Returns a Duplex stream that takes filenames and corresponding hash digests
+ * and outputs lists of duplicate files.
+ *
+ * @remarks
+ *
+ * Two files are considered duplicates if the contents are the same, which is to
+ * say, if the hash digests of the files are identical.
+ *
+ * This stream attempts to be lazy, in the sense of buffering as many filenames
+ * and hashes as possible before outputing any lists of duplicate files so that
+ * that the lists can be as complete as possible when they are output.
+ *
+ * @returns A Duplex stream that takes filenames and corresponding hash digests
+ * and outputs lists of duplicate files
+ *
+ */
 export function getFindDuplicatesStream(): Duplex {
   const indexByHash = new Map<string, number>();
   let currentReadIndex = 0;
@@ -54,6 +72,15 @@ export function getFindDuplicatesStream(): Duplex {
     return null;
   };
 
+  /**
+   * Record information about a file and its hash digest so that we can easily
+   * look it up along with other identical copies of the file later.
+   *
+   * @param hashDatum - A filename and its corresponding hash digest
+   * @param indexByHash - A Map that allows us to look up an array index by a hash digest value
+   * @param fileLists -  A structure that accumulates information about duplicate files
+   * @returns Void
+   */
   function recordHashDatum(
     hashDatum: HashDatum,
     indexByHash: Map<string, number>,
@@ -85,7 +112,6 @@ export function getFindDuplicatesStream(): Duplex {
       done();
     },
 
-    // unused parameter _size
     read() {
       const pushData = () => {
         let duplicates = nextUnreadDuplicates();
