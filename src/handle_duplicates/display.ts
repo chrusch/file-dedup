@@ -12,9 +12,36 @@ import {Path} from '../common/path';
 
 const productionLog = console.log;
 const productionWarn = console.warn;
-const testOutput = () => {};
+export const testLogMessages: string[] = [];
+export const testWarnMessages: string[] = [];
+const testLog = (message: string) => {
+  testLogMessages.push(message);
+};
+const testWarn = (message: string) => {
+  testWarnMessages.push(message);
+};
 let standardOutput = productionLog;
 let warnOutput = productionWarn;
+
+/**
+ * Returns the last *count* log messages.
+ *
+ * @param count - The number of log messages to return
+ * @returns The last *count* log messages
+ */
+export function lastLogMessages(count: number) {
+  return testLogMessages.splice(-count);
+}
+
+/**
+ * Returns the last *count* warn messages.
+ *
+ * @param count - The number of warn messages to return
+ * @returns The last *count* warn messages
+ */
+export function lastWarnMessages(count: number) {
+  return testWarnMessages.splice(-count);
+}
 
 /**
  * Has this module's usual output been silenced?
@@ -24,7 +51,7 @@ let warnOutput = productionWarn;
  *
  * @returns True if and only if the usual output has been silenced
  */
-export const silentOutput = (): boolean => standardOutput === testOutput;
+export const silentOutput = (): boolean => standardOutput === testLog;
 
 /**
  * Silence the usual output of this module.
@@ -35,8 +62,8 @@ export const silentOutput = (): boolean => standardOutput === testOutput;
  * @returns Void;
  */
 export function silenceOutput(): void {
-  standardOutput = testOutput;
-  warnOutput = testOutput;
+  standardOutput = testLog;
+  warnOutput = testWarn;
 }
 
 /**

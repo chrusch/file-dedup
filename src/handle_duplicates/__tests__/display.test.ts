@@ -5,15 +5,16 @@
 // LICENSE file in the root directory of this source tree.
 
 import {
-  silentOutput,
-  unSilenceOutput,
+  lastLogMessages,
+  lastWarnMessages,
   showDuplicates,
-  // showListLengths,
   showTotalDeleted,
   silenceOutput,
+  silentOutput,
+  unSilenceOutput,
+  warn,
 } from '../display';
 import {aPath} from '../../common/path';
-jest.mock('fs');
 
 describe('silentOutput()', () => {
   it('has expected default behavior', () => {
@@ -45,15 +46,6 @@ describe('unSilenceOutput()', () => {
   });
 });
 
-// describe('showListLengths()', () => {
-//   it('does not output anything when output is silenced', () => {
-//     silenceOutput();
-//     const got = showListLengths(22, 45);
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//   });
-// });
-
 describe('showDuplicates()', () => {
   it('does not output anything when output is silenced', () => {
     silenceOutput();
@@ -64,10 +56,32 @@ describe('showDuplicates()', () => {
 });
 
 describe('showTotalDeleted()', () => {
-  it('does not output anything when output is silenced', () => {
+  it('does not output anything when output is silenced and reallyDelete is true', () => {
     silenceOutput();
     const got = showTotalDeleted(7, true);
     const expected = undefined;
+    expect(got).toEqual(expected);
+    expect(lastLogMessages(1)).toEqual(['Number of files deleted: 7\n\n']);
+  });
+
+  it('does not output anything when output is silenced and reallyDelete is false', () => {
+    silenceOutput();
+    const got = showTotalDeleted(7, false);
+    const expected = undefined;
+    expect(got).toEqual(expected);
+    expect(lastLogMessages(1)).toEqual([
+      'Number of files that would have been deleted with --reallyDelete: 7\n\n',
+    ]);
+  });
+});
+
+describe('lastWarnMessages', () => {
+  it('retrieves recent warn messages', () => {
+    warn('a');
+    warn('b');
+    warn('c');
+    const got = lastWarnMessages(2);
+    const expected = ['b', 'c'];
     expect(got).toEqual(expected);
   });
 });

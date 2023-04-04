@@ -17,7 +17,9 @@ export function outputOfReadableStream(stream: Readable) {
         resolve(output);
       })
       .on('error', err => {
-        reject(err);
+        reject(
+          'error caught in stream in outputOfReadableStream: ' + err.message
+        );
       });
   });
 }

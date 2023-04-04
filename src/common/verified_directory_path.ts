@@ -30,7 +30,7 @@ export type VerifiedDirectoryPath = string & {
  *          returns undefined
  *
  */
-function createOneVerifiedDirectoryPath(
+export function createOneVerifiedDirectoryPath(
   givenPath: string
 ): VerifiedDirectoryPath | undefined {
   try {
@@ -41,10 +41,9 @@ function createOneVerifiedDirectoryPath(
     if (err && typeof err === 'object') {
       if ('message' in err && typeof err.message === 'string') {
         outputError(err.message, givenPath);
-        return undefined;
       }
     }
-    throw err;
+    return undefined;
   }
 }
 
@@ -53,7 +52,7 @@ function createOneVerifiedDirectoryPath(
  * discarding paths that cannot be verified as existing accessible directories.
  *
  * @param paths - Strings reprenting file or directory paths
- * @returns VerifiedDirectoryPaths
+ * @returns An array of VerifiedDirectoryPaths
  */
 export function verifyDirectoryPaths(
   ...paths: readonly string[]
@@ -115,23 +114,23 @@ function outputError(message: string, givenPath: string) {
  * @param path - the path of the file or directory, or else undefined
  * @throws An error if the path is not an existing accessible directory
  */
-function verifyDirectoryPath(
+export function verifyDirectoryPath(
   path: string | undefined
 ): asserts path is VerifiedDirectoryPath {
-  if (!path) {
+  if (!_.isString(path)) {
     throw new Error('please provide a path that is a valid string');
   }
   if (!exists(path)) {
     throw new Error('please provide a path for an existing directory');
   }
-  if (!accessible(path)) {
-    throw new Error(
-      'please provide a path to a directory you have permission to read'
-    );
-  }
   if (!isDirectory(path)) {
     throw new Error(
       'please provide a path to a directory (not a regular file or symlink)'
+    );
+  }
+  if (!accessible(path)) {
+    throw new Error(
+      'please provide a path to a directory you have permission to read'
     );
   }
 }
@@ -142,7 +141,7 @@ function verifyDirectoryPath(
  * @param path - the path of the file or directory
  * @returns A normalized path if possible, otherwise undefined
  */
-function normalize(path: string): string | undefined {
+export function normalize(path: string): string | undefined {
   try {
     return pathModule.normalize(path);
   } catch (err) {
@@ -181,7 +180,7 @@ function accessible(path: string): boolean {
  * @param path - A file path
  * @returns A boolean value indicating whether the path is a directory
  */
-function isDirectory(path: string): boolean {
+export function isDirectory(path: string): boolean {
   try {
     const stat = lstatSync(path);
     return stat.isDirectory();
