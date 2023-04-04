@@ -54,7 +54,6 @@ export function* directoryGenerator(
 
   while (directories.length > 0) {
     const nextDir = directories[0];
-    if (!nextDir) break;
     // The following line communicates with the consumer. If newDirs is an array
     // of directories, the consumer is feeding us new information and by
     // convention we can assume it is ignoring nextDir, and so we will yield the
