@@ -5,10 +5,10 @@
 // LICENSE file in the root directory of this source tree.
 
 import {Readable} from 'node:stream';
-import {outputOfReadableStream} from './index';
+import {outputOfReadableStream} from './test_utilities/index';
 
 describe('outputOfReadableStream()', () => {
-  it('returns a promise that is rejected when the stream has an error', () => {
+  it('returns a promise that is rejected when the stream has an error', async () => {
     const stream = new Readable({
       read() {
         throw new Error('there was an error in the stream');
@@ -17,6 +17,6 @@ describe('outputOfReadableStream()', () => {
     const got = outputOfReadableStream(stream);
     const expectedError =
       'error caught in stream in outputOfReadableStream: there was an error in the stream';
-    expect(got).rejects.toMatch(expectedError);
+    return expect(got).rejects.toMatch(expectedError);
   });
 });
