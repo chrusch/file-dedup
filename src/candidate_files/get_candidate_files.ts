@@ -46,7 +46,7 @@ export interface CandidateFilesOptions {
  * size. Candidate files just might possibly have duplicate contents. That's why
  * we are interested in them.
  *
- * @param options - {@see {@link CandidateFileOptions}} @returns - A Readable
+ * @param options - {@link CandidateFileOptions} @returns - A Readable
  * stream--really a Transform stream that can be used as a Readable stream.
  */
 export function getCandidateFilesStream(

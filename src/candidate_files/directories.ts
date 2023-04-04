@@ -9,10 +9,8 @@ import {Path} from '../common/path';
 import {Transform} from 'node:stream';
 
 /**
- * A stream that takes as input files with their sizes
- * and outputs only those files that have non-unique (i.e. duplicate) sizes.
- *
- * @extends Transform
+ * A Transform stream that takes as input files with their sizes and outputs
+ * only those files that have non-unique (i.e. duplicate) sizes.
  */
 export class filesWithNonUniqueSizesStream extends Transform {
   private fileSizeCount: {
@@ -35,11 +33,7 @@ export class filesWithNonUniqueSizesStream extends Transform {
    * @param _encoding - Unused because this stream is in objectMode
    * @param done - Indicates that we are done processing the fileWithSize
    */
-  _transform(
-    fileWithSize: FileWithSize,
-    _encoding: string,
-    done: () => void
-  ) {
+  _transform(fileWithSize: FileWithSize, _encoding: string, done: () => void) {
     const [currentFile, size] = fileWithSize;
     if (!this.fileSizeCount[size]) {
       this.fileSizeCount[size] = {firstFile: currentFile, count: 1};

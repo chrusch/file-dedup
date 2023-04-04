@@ -33,7 +33,6 @@ export function* circularArrayGenerator<T>(array: T[], startingIndex: number) {
   return null;
 }
 
-
 /**
  * Returns a Duplex stream that takes filenames and corresponding hash digests
  * and outputs lists of duplicate files.
