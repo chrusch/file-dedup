@@ -21,7 +21,7 @@ interface FileListObject {
  * Loop over an array in a circular fashion
  *
  * @param array - The array to loop over
- * @param startingIndex - The index of the given array to start at
+ * @param startingIndex - The array index to begin looping from
  * @returns A generator that loops once over the given array.
  */
 export function* circularArrayGenerator<T>(array: T[], startingIndex: number) {

@@ -6,7 +6,7 @@
 
 import {Duplex, Readable, Writable} from 'node:stream';
 
-export function outputOfReadableStream(stream: Readable) {
+export function outputOfReadableStream(stream: Readable): Promise<unknown[]> {
   return new Promise((resolve: (output: unknown[]) => void, reject) => {
     const output: unknown[] = [];
     stream
@@ -24,7 +24,10 @@ export function outputOfReadableStream(stream: Readable) {
   });
 }
 
-export function inputToWritableStream(stream: Writable, input: unknown[]) {
+export function inputToWritableStream(
+  stream: Writable,
+  input: unknown[]
+): void {
   input.forEach((item: unknown) => {
     stream.write(item);
   });
@@ -34,7 +37,7 @@ export function inputToWritableStream(stream: Writable, input: unknown[]) {
 export async function outputOfDuplexStreamWithInput(
   stream: Duplex,
   input: unknown[]
-) {
+): Promise<unknown[]> {
   inputToWritableStream(stream, input);
   return await outputOfReadableStream(stream);
 }
