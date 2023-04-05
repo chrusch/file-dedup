@@ -1,4 +1,4 @@
-import {hashAllCandidateFilesWithShasumCommand} from '../hash_files';
+import {hashAllCandidateFilesWithShasumCommand} from '../shasum_hash_stream';
 import {aPath} from '../../common/path';
 
 jest.setTimeout(10000);

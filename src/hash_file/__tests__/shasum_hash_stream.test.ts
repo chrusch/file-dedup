@@ -4,7 +4,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {hashFile} from '../hash_files';
+import {hashFile} from '../shasum_hash_stream';
 import * as runCommand from '../run_command';
 /* eslint-disable-next-line node/no-unpublished-import */
 import {jest} from '@jest/globals'; // needed for jest.Mocked to work
