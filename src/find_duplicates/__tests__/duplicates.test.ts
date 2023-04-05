@@ -8,23 +8,24 @@ import {getFindDuplicatesStream} from '../duplicates';
 import {outputOfDuplexStreamWithInput} from '../../__tests__/test_utilities';
 
 describe('getFindDuplicatesStream()', () => {
+  const streamInput = [
+    ['a', '100'],
+    ['b', '100'],
+    ['c', '101'],
+    ['d', '100'],
+    ['e', '101'],
+    ['f', '100'],
+    ['g', '101'],
+    ['h', '102'],
+    ['i', '103'],
+    ['j', '104'],
+    ['k', '101'],
+    ['l', '100'],
+    ['m', '100'],
+  ];
+
   it('turns input into expected output', async () => {
     const findDuplicatesStream = getFindDuplicatesStream();
-    const streamInput = [
-      ['a', '100'],
-      ['b', '100'],
-      ['c', '101'],
-      ['d', '100'],
-      ['e', '101'],
-      ['f', '100'],
-      ['g', '101'],
-      ['h', '102'],
-      ['i', '103'],
-      ['j', '104'],
-      ['k', '101'],
-      ['l', '100'],
-      ['m', '100'],
-    ];
 
     const streamOutput = await outputOfDuplexStreamWithInput(
       findDuplicatesStream,
@@ -40,22 +41,6 @@ describe('getFindDuplicatesStream()', () => {
   // For the sake of complete code coverage, I provide this test
   it('deals properly with double timeouts', async () => {
     const findDuplicatesStream = getFindDuplicatesStream();
-    const streamInput = [
-      ['a', '100'],
-      ['b', '100'],
-      ['c', '101'],
-      ['d', '100'],
-      ['e', '101'],
-      ['f', '100'],
-      ['g', '101'],
-      ['h', '102'],
-      ['i', '103'],
-      ['j', '104'],
-      ['k', '101'],
-      ['l', '100'],
-      ['m', '100'],
-    ];
-
     streamInput.forEach(datum => {
       findDuplicatesStream.write(datum);
     });
@@ -75,7 +60,7 @@ describe('getFindDuplicatesStream()', () => {
       setTimeout(() => {
         // A final read() to trigger the emitting of the "end" event
         results.push(findDuplicatesStream.read());
-      }, 10);
+      }, 50);
     }, 300);
     await promise;
 
