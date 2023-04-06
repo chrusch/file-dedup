@@ -79,7 +79,7 @@ describe('hashAllCandidateFilesWithNode()', () => {
     expect(gotSorted).toEqual(expected);
   });
 
-  it('returns a stream that can be used to hash files', async () => {
+  it('deals smoothly with unreadable files', async () => {
     const concurrency = 2;
     const stream = hashAllCandidateFilesWithNode(concurrency);
     const input = [
@@ -88,7 +88,7 @@ describe('hashAllCandidateFilesWithNode()', () => {
       'tmp/project/bar2',
       'tmp/.yetanotherproject/bar22',
     ];
-    await chmod('tmp/anotherproject/.config', 0o333);
+    await chmod('tmp/anotherproject/.config', 0o000);
     const got = await outputOfDuplexStreamWithInput(stream, input);
     const expected = [
       [

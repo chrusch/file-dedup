@@ -14,19 +14,18 @@ declare global {
 /**
  * Returns true if we are running tests in jest, false otherwise.
  */
-export function isTestEnv(): boolean {
-  let testEnv = true;
+export function runningJestTests(): boolean {
   try {
-    testEnv = __TEST__;
+    return __TEST__ ? true : false;
   } catch (e) {
-    // __TEST__ only exists at runtime when running jest tests
+    // trying to access __TEST__ when it is not defined in the global
+    // scope will throw a ReferenceError. That tells us we are
+    // not running jest tests.
     if (e instanceof ReferenceError) {
-      testEnv = false;
-    } else {
-      throw e;
+      return false;
     }
+    throw e;
   }
-  return testEnv;
 }
 
 /**
@@ -48,7 +47,7 @@ export function isTestEnv(): boolean {
  * @returns The absolute path of the file
  */
 export function getRealPath(pathRelativeToSrc: string): string {
-  return isTestEnv()
+  return runningJestTests()
     ? path.join(__dirname, '../../build/src/', pathRelativeToSrc)
     : path.join(__dirname, '../', pathRelativeToSrc);
 }

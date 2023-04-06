@@ -82,16 +82,11 @@ export function hashAllCandidateFilesWithShasumCommand(
     objectMode: true,
 
     transform(filePath, _enc, callback) {
-      workQueue
-        .push(filePath)
-        .then(result => {
-          if (result) {
-            this.push(result);
-          }
-        })
-        .catch(err => {
-          console.log('found an unexpected error', err);
-        });
+      workQueue.push(filePath).then(result => {
+        if (result) {
+          this.push(result);
+        }
+      });
       // the callback must run right after the job enters
       // the queue to benefit from work queue parallelism
       callback();

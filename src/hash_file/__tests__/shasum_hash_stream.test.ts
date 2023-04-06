@@ -110,7 +110,7 @@ describe('hashAllCandidateFilesWithShasumCommand()', () => {
     expect(gotSorted).toEqual(expected);
   });
 
-  it('returns a stream that can be used to hash files', async () => {
+  it('deals smoothly with unreadable files', async () => {
     const command = await commandExists('shasum');
     const concurrency = 2;
     const stream = hashAllCandidateFilesWithShasumCommand(
@@ -123,7 +123,7 @@ describe('hashAllCandidateFilesWithShasumCommand()', () => {
       'tmp/project/bar2',
       'tmp/.yetanotherproject/bar22',
     ];
-    await chmod('tmp/anotherproject/.config', 0o333);
+    await chmod('tmp/anotherproject/.config', 0o000);
     const got = await outputOfDuplexStreamWithInput(stream, input);
     const expected = [
       [
@@ -133,6 +133,37 @@ describe('hashAllCandidateFilesWithShasumCommand()', () => {
       [
         'tmp/git/.git/bar',
         'e0f112837b00ca52bcc7c31c8e6fd718d50449b090b7fe50a0d3772473b6e5d8',
+      ],
+      [
+        'tmp/project/bar2',
+        '15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225',
+      ],
+    ];
+    const gotSorted = got.sort((a, b) =>
+      (a as [string])[0].localeCompare((b as [string])[0] as string)
+    );
+    expect(gotSorted).toEqual(expected);
+  });
+
+  it('deals smoothly with non-existent files', async () => {
+    const command = await commandExists('shasum');
+    const concurrency = 2;
+    const stream = hashAllCandidateFilesWithShasumCommand(
+      aPath(command),
+      concurrency
+    );
+    const input = [
+      'tmp/anotherproject/.config',
+      'tmp/git/.git/non-existent',
+      'tmp/project/bar2',
+      'tmp/.yetanotherproject/bar22',
+    ];
+    await chmod('tmp/anotherproject/.config', 0o000);
+    const got = await outputOfDuplexStreamWithInput(stream, input);
+    const expected = [
+      [
+        'tmp/.yetanotherproject/bar22',
+        '15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225',
       ],
       [
         'tmp/project/bar2',

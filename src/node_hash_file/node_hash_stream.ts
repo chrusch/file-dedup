@@ -31,7 +31,8 @@ export function hashAllCandidateFilesWithNode(concurrency: number): Transform {
       return result;
     } catch (e) {
       // console.log('found eror in hashOneFile');
-      throw e;
+      const err = e as {message: string};
+      throw new Error(`found error in hasOneFile: ${err.message}`);
     }
   };
 
