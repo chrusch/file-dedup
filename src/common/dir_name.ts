@@ -13,10 +13,40 @@ declare global {
 
 /**
  * Returns true if we are running tests in jest, false otherwise.
+ *
+ * @remarks
+ *
+ * In essence, this is a simple function, but it is complicated to test in a way
+ * that achieves full test coverage because its purpose is to return true only
+ * when it is run in the context of a jest run. In production, it would be run
+ * without parameters.
+ *
+ *
+ * @param testReferenceError - True when testing what happens when a
+ *        ReferenceError is thrown
+ * @param testOtherError - True when testing what happens when any other Error
+ *        is thrown
+ * @param testOtherError - True when testing what happens in a non-test
+ *        environment
+ *
+ * @returns True if we are running tests in jest, false otherwise
+ *
+ * @throws Any unexpected error caught within the function.
  */
-export function runningJestTests(): boolean {
+
+export function runningJestTests(
+  testReferenceError = false,
+  testOtherError = false,
+  testNotTEST = false
+): boolean {
   try {
-    return __TEST__ ? true : false;
+    if (testReferenceError) {
+      throw new ReferenceError();
+    }
+    if (testOtherError) {
+      throw new Error();
+    }
+    return __TEST__ && !testNotTEST ? true : false;
   } catch (e) {
     // trying to access __TEST__ when it is not defined in the global
     // scope will throw a ReferenceError. That tells us we are
@@ -46,8 +76,11 @@ export function runningJestTests(): boolean {
  *
  * @returns The absolute path of the file
  */
-export function getRealPath(pathRelativeToSrc: string): string {
-  return runningJestTests()
+export function getRealPath(
+  pathRelativeToSrc: string,
+  testProduction = false
+): string {
+  return runningJestTests() && !testProduction
     ? path.join(__dirname, '../../build/src/', pathRelativeToSrc)
     : path.join(__dirname, '../', pathRelativeToSrc);
 }
