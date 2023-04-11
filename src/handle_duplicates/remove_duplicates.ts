@@ -13,7 +13,7 @@ import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 import {Writable} from 'node:stream';
 
 /**
- * Is the given file in a directory subject to autoDeletion?
+ * Is the given file in a directory that is subject to autoDeletion?
  *
  * @param file - Path to file
  * @param dirsToAutomaticallyDeleteFrom - A list of directories subject to autoDeletion
@@ -27,7 +27,7 @@ export const fileIsInADeleteDirectory = (
     fileIsInDirectoryOrSubdirectory(file, aPath(dir))
   );
 
-interface HandleDuplicatesListOptions {
+export interface HandleDuplicatesListOptions {
   duplicatesList: Path[];
   trackTotalDeleted: () => void;
   reallyDelete: boolean;
@@ -48,7 +48,7 @@ interface HandleDuplicatesListOptions {
  * @param dirsToAutomaticallyDeleteFrom - Directories subject to autoDeletion
  * @returns Void
  */
-function handleDuplicatesList({
+export function handleDuplicatesList({
   duplicatesList,
   trackTotalDeleted,
   reallyDelete,

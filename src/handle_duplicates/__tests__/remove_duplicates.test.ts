@@ -5,278 +5,454 @@
 // LICENSE file in the root directory of this source tree.
 
 import {
-  // deleteOrListDuplicates,
   fileIsInADeleteDirectory,
+  getHandleDuplicatesStream,
+  handleDuplicatesList,
+  HandleDuplicatesListOptions,
 } from '../remove_duplicates';
-import fs from 'fs';
-// import * as delete_file from '../delete_file';
-// import * as interaction from '../interaction';
-// import {silenceOutput} from '../display';
-/* eslint-disable-next-line node/no-unpublished-import */
-import {jest} from '@jest/globals'; // needed for jest.Mocked
-import {aPath} from '../../common/path';
+import {lastLogMessages, silenceOutput} from '../display';
+import {setTestPrompt} from '../interaction';
+import {aPath, Path} from '../../common/path';
 import {
+  exists,
   forceVerificationOfDirectoryPaths,
   VerifiedDirectoryPath,
 } from '../../common/verified_directory_path';
-jest.mock('fs');
-jest.mock('../delete_file.ts');
-jest.mock('../interaction.ts');
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
+import {inputToWritableStream} from '../../__tests__/test_utilities';
 
+silenceOutput();
 describe('fileIsInADeleteDirectory()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123456',
+        },
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        '.yetanotherproject': {
+          foo22: 'ya project content',
+          bar22: '123456789',
+        },
+        '.ahiddenfile': '123',
+        bat: '12',
+        bim: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
   it('when file is in given directory, return true', () => {
-    const file = aPath('/tmp/foo');
+    const file = aPath('tmp/anotherproject/.config');
     const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
-      '/foo',
-      '/tmp'
+      'tmp/anotherproject',
+      'tmp/git'
     );
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = true;
     expect(got).toEqual(expected);
-    expect(fs.realpathSync).toHaveBeenCalledTimes(4);
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(1, '/tmp/foo');
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(2, '/foo');
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(3, '/tmp/foo');
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(4, '/tmp');
   });
 
   it('when file is not in given directory, return false', () => {
-    const file = aPath('/other/foo');
+    const file = aPath('tmp/project/foo2');
     const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
-      '/foo',
-      '/tmp'
+      'tmp/anotherproject',
+      'tmp/git'
     );
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
-    expect(fs.realpathSync).toHaveBeenCalledTimes(4);
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(1, '/other/foo');
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(2, '/foo');
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(3, '/other/foo');
-    expect(fs.realpathSync).toHaveBeenNthCalledWith(4, '/tmp');
   });
 
   it('when there is no dir specified, return false', () => {
-    const file = aPath('/other/foo');
+    const file = aPath('tmp/project/foo2');
     const dirs: VerifiedDirectoryPath[] = [];
     const got = fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
-    expect(fs.realpathSync).toHaveBeenCalledTimes(0);
   });
 });
 
-// describe('deleteOrListDuplicates()', () => {
-//   beforeAll(silenceOutput);
-//   it('automatically deletes files (but not really)', () => {
-//     const duplicateFiles: Path[][] = [
-//       [aPath('/del/a'), aPath('/other/b')],
-//       [aPath('/other/e'), aPath('/del/c'), aPath('/other/d')],
-//     ];
-//     const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] =
-//       forceVerificationOfDirectoryPaths('/del');
-//     const reallyDelete = false;
-//     const interactiveDeletion = false;
-//     const got = deleteOrListDuplicates(
-//       duplicateFiles,
-//       dirsToAutomaticallyDeleteFrom,
-//       reallyDelete,
-//       interactiveDeletion
-//     );
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//     expect(delete_file.deleteFile).toHaveBeenCalledTimes(2);
-//     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       1,
-//       false,
-//       aPath('/del/a')
-//     );
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       2,
-//       false,
-//       aPath('/del/c')
-//     );
-//   });
+describe('handleDuplicatesList()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
 
-//   it('automatically deletes files (yes, really deletes)', () => {
-//     const duplicateFiles: Path[][] = [
-//       [aPath('/del/a'), aPath('/other/b')],
-//       [aPath('/other/e'), aPath('/del/c'), aPath('/other/d')],
-//     ];
-//     const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] =
-//       forceVerificationOfDirectoryPaths('/del');
-//     const reallyDelete = true;
-//     const interactiveDeletion = false;
-//     const got = deleteOrListDuplicates(
-//       duplicateFiles,
-//       dirsToAutomaticallyDeleteFrom,
-//       reallyDelete,
-//       interactiveDeletion
-//     );
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//     expect(delete_file.deleteFile).toHaveBeenCalledTimes(2);
-//     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       1,
-//       true,
-//       '/del/a'
-//     );
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       2,
-//       true,
-//       '/del/c'
-//     );
-//   });
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123456',
+        },
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+            bar222: '123456789',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        '.yetanotherproject': {
+          foo22: 'ya project content',
+          bar22: '123456789',
+        },
+        '.ahiddenfile': '123',
+        bat: '12',
+        bim: '123',
+      },
+    });
+  });
 
-//   it('interactively deletes files', () => {
-//     (
-//       interaction.confirmDelete as unknown as jest.Mocked<
-//         typeof interaction.confirmDelete
-//       >
-//     ).mockReturnValue(true);
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
 
-//     const duplicateFiles: Path[][] = [
-//       [aPath('/del/a'), aPath('/other/b')],
-//       [aPath('/other/e'), aPath('/del/c'), aPath('/other/d')],
-//     ];
-//     const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
-//     const reallyDelete = true;
-//     const interactiveDeletion = true;
-//     const got = deleteOrListDuplicates(
-//       duplicateFiles,
-//       dirsToAutomaticallyDeleteFrom,
-//       reallyDelete,
-//       interactiveDeletion
-//     );
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//     expect(interaction.confirmDelete).toHaveBeenCalledTimes(3);
+  it('automatically deletes files in automatic deletion mode', () => {
+    const duplicatesList = [
+      aPath('tmp/project/bar2'),
+      aPath('tmp/git/.git/bar222'),
+      aPath('tmp/.yetanotherproject/bar22'),
+    ];
+    let numDeleted = 0;
+    const trackTotalDeleted = () => {
+      numDeleted++;
+    };
+    const reallyDelete = true;
+    const autoDeletion = true;
+    const dirsToAutomaticallyDeleteFrom =
+      forceVerificationOfDirectoryPaths('tmp/project');
+    const interactiveDeletion = false;
+    const options: HandleDuplicatesListOptions = {
+      duplicatesList,
+      trackTotalDeleted,
+      reallyDelete,
+      autoDeletion,
+      interactiveDeletion,
+      dirsToAutomaticallyDeleteFrom,
+    };
+    handleDuplicatesList(options);
+    expect(numDeleted).toEqual(1);
+    expect(exists('tmp/project/bar2')).toEqual(false);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(true);
+    const expectedMessages = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+      ['deleting tmp/project/bar2;'],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
 
-//     expect(delete_file.deleteFile).toHaveBeenCalledTimes(3);
-//     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       1,
-//       true,
-//       '/del/a'
-//     );
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       2,
-//       true,
-//       '/other/e'
-//     );
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       3,
-//       true,
-//       '/del/c'
-//     );
-//   });
+  it('interactively deletes files in interactive deletion mode', () => {
+    const duplicatesList = [
+      aPath('tmp/project/bar2'),
+      aPath('tmp/git/.git/bar222'),
+      aPath('tmp/.yetanotherproject/bar22'),
+    ];
+    let numDeleted = 0;
+    const trackTotalDeleted = () => {
+      numDeleted++;
+    };
+    const reallyDelete = true;
+    const autoDeletion = false;
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
+    const interactiveDeletion = true;
+    const options: HandleDuplicatesListOptions = {
+      duplicatesList,
+      trackTotalDeleted,
+      reallyDelete,
+      autoDeletion,
+      interactiveDeletion,
+      dirsToAutomaticallyDeleteFrom,
+    };
+    const myConfirmDelete = (file: string) => {
+      if (file.match('git')) {
+        return 'y';
+      }
+      return 'n';
+    };
 
-//   it('interactively choose not to delete files', () => {
-//     (
-//       interaction.confirmDelete as unknown as jest.Mocked<
-//         typeof interaction.confirmDelete
-//       >
-//     ).mockReturnValue(false);
+    setTestPrompt(myConfirmDelete);
 
-//     const duplicateFiles: Path[][] = [
-//       [aPath('/del/a'), aPath('/other/b')],
-//       [aPath('/other/e'), aPath('/del/c'), aPath('/other/d')],
-//     ];
-//     const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
-//     const reallyDelete = true;
-//     const interactiveDeletion = true;
-//     const got = deleteOrListDuplicates(
-//       duplicateFiles,
-//       dirsToAutomaticallyDeleteFrom,
-//       reallyDelete,
-//       interactiveDeletion
-//     );
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//     expect(interaction.confirmDelete).toHaveBeenCalledTimes(5);
+    handleDuplicatesList(options);
+    expect(numDeleted).toEqual(1);
+    expect(exists('tmp/project/bar2')).toEqual(true);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(false);
+    const expectedMessages = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+      ['deleting tmp/git/.git/bar222;'],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
 
-//     expect(delete_file.deleteFile).toHaveBeenCalledTimes(0);
-//     type ARD = jest.Mocked<typeof interaction.confirmDelete>;
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       1,
-//       '/del/a'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       2,
-//       '/other/b'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       3,
-//       '/other/e'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       4,
-//       '/del/c'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       5,
-//       '/other/d'
-//     );
-//   });
+  it('both automatically deletes and interactively deletes files in mixed deletion mode', () => {
+    const duplicatesList = [
+      aPath('tmp/project/bar2'),
+      aPath('tmp/git/.git/bar222'),
+      aPath('tmp/.yetanotherproject/bar22'),
+      aPath('tmp/bat'),
+      aPath('tmp/bim'),
+    ];
+    let numDeleted = 0;
+    const trackTotalDeleted = () => {
+      numDeleted++;
+    };
+    const reallyDelete = true;
+    const autoDeletion = true;
+    const dirsToAutomaticallyDeleteFrom =
+      forceVerificationOfDirectoryPaths('tmp/project');
+    const interactiveDeletion = true;
+    const options: HandleDuplicatesListOptions = {
+      duplicatesList,
+      trackTotalDeleted,
+      reallyDelete,
+      autoDeletion,
+      interactiveDeletion,
+      dirsToAutomaticallyDeleteFrom,
+    };
+    const myConfirmDelete = (file: string) => {
+      if (file.match('git')) {
+        return 'y';
+      }
+      return 'n';
+    };
 
-//   it('interactively choose to delete some files but not others', () => {
-//     (
-//       interaction.confirmDelete as unknown as jest.Mocked<
-//         typeof interaction.confirmDelete
-//       >
-//     )
-//       .mockReturnValue(false)
-//       .mockReturnValueOnce(true)
-//       .mockReturnValueOnce(true);
+    setTestPrompt(myConfirmDelete);
+    handleDuplicatesList(options);
+    expect(numDeleted).toEqual(2);
+    expect(exists('tmp/project/bar2')).toEqual(false);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(false);
+    expect(exists('tmp/bat')).toEqual(true);
+    expect(exists('tmp/bim')).toEqual(true);
+    const expectedMessages = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+          'tmp/bat',
+          'tmp/bim',
+        ],
+      ],
+      ['deleting tmp/project/bar2;'],
+      ['deleting tmp/git/.git/bar222;'],
+    ];
+    expect(lastLogMessages(3)).toEqual(expectedMessages);
+  });
 
-//     const duplicateFiles: Path[][] = [
-//       [aPath('/del/a'), aPath('/other/b')],
-//       [aPath('/other/e'), aPath('/del/c'), aPath('/other/d')],
-//     ];
-//     const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
-//     const reallyDelete = true;
-//     const interactiveDeletion = true;
-//     const got = deleteOrListDuplicates(
-//       duplicateFiles,
-//       dirsToAutomaticallyDeleteFrom,
-//       reallyDelete,
-//       interactiveDeletion
-//     );
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//     expect(interaction.confirmDelete).toHaveBeenCalledTimes(4);
+  it('handles empty duplicates lists ', () => {
+    const duplicatesList: Path[] = [];
+    let numDeleted = 0;
+    const trackTotalDeleted = () => {
+      numDeleted++;
+    };
+    const reallyDelete = true;
+    const autoDeletion = true;
+    const dirsToAutomaticallyDeleteFrom =
+      forceVerificationOfDirectoryPaths('tmp/project');
+    const interactiveDeletion = false;
+    const options: HandleDuplicatesListOptions = {
+      duplicatesList,
+      trackTotalDeleted,
+      reallyDelete,
+      autoDeletion,
+      interactiveDeletion,
+      dirsToAutomaticallyDeleteFrom,
+    };
+    handleDuplicatesList(options);
+    expect(numDeleted).toEqual(0);
+    expect(exists('tmp/project/bar2')).toEqual(true);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(true);
+    const expectedMessages: unknown[] = [];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
 
-//     expect(delete_file.deleteFile).toHaveBeenCalledTimes(2);
-//     type ARD = jest.Mocked<typeof interaction.confirmDelete>;
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       1,
-//       '/del/a'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       2,
-//       '/other/e'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       3,
-//       '/del/c'
-//     );
-//     expect(interaction.confirmDelete as ARD).toHaveBeenNthCalledWith(
-//       4,
-//       '/other/d'
-//     );
+  it('stops automatically deleting files when there is only one left', () => {
+    const duplicatesList = [
+      aPath('tmp/project/bar2'),
+      aPath('tmp/git/.git/bar222'),
+      aPath('tmp/.yetanotherproject/bar22'),
+    ];
+    let numDeleted = 0;
+    const trackTotalDeleted = () => {
+      numDeleted++;
+    };
+    const reallyDelete = true;
+    const autoDeletion = true;
+    const dirsToAutomaticallyDeleteFrom =
+      forceVerificationOfDirectoryPaths('tmp');
+    const interactiveDeletion = false;
+    const options: HandleDuplicatesListOptions = {
+      duplicatesList,
+      trackTotalDeleted,
+      reallyDelete,
+      autoDeletion,
+      interactiveDeletion,
+      dirsToAutomaticallyDeleteFrom,
+    };
+    handleDuplicatesList(options);
+    expect(numDeleted).toEqual(2);
+    expect(exists('tmp/project/bar2')).toEqual(false);
+    expect(exists('tmp/git/.git/bar222')).toEqual(false);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    const expectedMessages = [
+      ['deleting tmp/project/bar2;'],
+      ['deleting tmp/git/.git/bar222;'],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
 
-//     type DF = jest.Mocked<typeof delete_file.deleteFile>;
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       1,
-//       true,
-//       '/del/a'
-//     );
-//     expect(delete_file.deleteFile as DF).toHaveBeenNthCalledWith(
-//       2,
-//       true,
-//       '/other/e'
-//     );
-//   });
-// });
+  it('interactively deletes files but not all duplicates', () => {
+    const duplicatesList = [
+      aPath('tmp/project/bar2'),
+      aPath('tmp/git/.git/bar222'),
+      aPath('tmp/.yetanotherproject/bar22'),
+    ];
+    let numDeleted = 0;
+    const trackTotalDeleted = () => {
+      numDeleted++;
+    };
+    const reallyDelete = true;
+    const autoDeletion = false;
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
+    const interactiveDeletion = true;
+    const options: HandleDuplicatesListOptions = {
+      duplicatesList,
+      trackTotalDeleted,
+      reallyDelete,
+      autoDeletion,
+      interactiveDeletion,
+      dirsToAutomaticallyDeleteFrom,
+    };
+    const myConfirmDelete = () => 'y';
+
+    setTestPrompt(myConfirmDelete);
+
+    handleDuplicatesList(options);
+    expect(numDeleted).toEqual(2);
+    expect(exists('tmp/project/bar2')).toEqual(false);
+    expect(exists('tmp/git/.git/bar222')).toEqual(false);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    const expectedMessages = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+      ['deleting tmp/project/bar2;'],
+      ['deleting tmp/git/.git/bar222;'],
+    ];
+    expect(lastLogMessages(3)).toEqual(expectedMessages);
+  });
+});
+
+describe('getHandleDuplicatesStream()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        anotherproject: {
+          '.config': '123456',
+        },
+        git: {
+          '.git': {
+            foo: 'foo content',
+            bar: 'bar content',
+            bar222: '123456789',
+          },
+        },
+        project: {
+          foo2: 'foo project content',
+          bar2: '123456789',
+        },
+        '.yetanotherproject': {
+          foo22: 'ya project content',
+          bar22: '123456789',
+        },
+        '.ahiddenfile': '123',
+        bat: '12',
+        bim: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
+  it('automatically deletes files in automatic deletion mode', async () => {
+    const duplicatesLists = [
+      [
+        aPath('tmp/project/bar2'),
+        aPath('tmp/git/.git/bar222'),
+        aPath('tmp/.yetanotherproject/bar22'),
+      ],
+    ];
+    const reallyDelete = true;
+    const interactiveDeletion = false;
+    const dirsToAutomaticallyDeleteFrom =
+      forceVerificationOfDirectoryPaths('tmp/project');
+    const stream = getHandleDuplicatesStream(
+      dirsToAutomaticallyDeleteFrom,
+      reallyDelete,
+      interactiveDeletion
+    );
+
+    inputToWritableStream(stream, duplicatesLists);
+    expect(exists('tmp/project/bar2')).toEqual(false);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(true);
+    const expectedMessages = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+      ['deleting tmp/project/bar2;'],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
+});

@@ -9,7 +9,8 @@
 // code that depends on it thoroughly testable without human interaction.
 
 import PS from 'prompt-sync';
-let prompt: PS.Prompt = PS({sigint: true});
+type SimplePrompt = (msg: string) => string;
+let prompt: SimplePrompt = PS({sigint: true});
 
 /**
  * Ask user to confirm whether to delete a file.
@@ -26,6 +27,6 @@ export function confirmDelete(file: string): boolean {
  * @param newPrompt - A function that simulates use input
  * @returns Void
  */
-export function setTestPrompt(newPrompt: PS.Prompt) {
+export function setTestPrompt(newPrompt: SimplePrompt) {
   prompt = newPrompt;
 }

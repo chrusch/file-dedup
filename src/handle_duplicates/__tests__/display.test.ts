@@ -61,7 +61,7 @@ describe('showTotalDeleted()', () => {
     const got = showTotalDeleted(7, true);
     const expected = undefined;
     expect(got).toEqual(expected);
-    expect(lastLogMessages(1)).toEqual(['Number of files deleted: 7\n\n']);
+    expect(lastLogMessages(1)).toEqual([['Number of files deleted: 7\n\n']]);
   });
 
   it('does not output anything when output is silenced and reallyDelete is false', () => {
@@ -70,7 +70,9 @@ describe('showTotalDeleted()', () => {
     const expected = undefined;
     expect(got).toEqual(expected);
     expect(lastLogMessages(1)).toEqual([
-      'Number of files that would have been deleted with --reallyDelete: 7\n\n',
+      [
+        'Number of files that would have been deleted with --reallyDelete: 7\n\n',
+      ],
     ]);
   });
 });
@@ -81,7 +83,7 @@ describe('lastWarnMessages', () => {
     warn('b');
     warn('c');
     const got = lastWarnMessages(2);
-    const expected = ['b', 'c'];
+    const expected = [['b'], ['c']];
     expect(got).toEqual(expected);
   });
 });

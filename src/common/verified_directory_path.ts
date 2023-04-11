@@ -155,7 +155,7 @@ export function normalize(path: string): string | undefined {
  * @param path - the path of the file or directory
  * @returns True if the file or directory exists
  */
-function exists(path: string): boolean {
+export function exists(path: string): boolean {
   return existsSync(path);
 }
 

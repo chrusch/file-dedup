@@ -12,12 +12,12 @@ import {Path} from '../common/path';
 
 const productionLog = console.log;
 const productionWarn = console.warn;
-export const testLogMessages: string[] = [];
-export const testWarnMessages: string[] = [];
-const testLog = (message: string) => {
+export const testLogMessages: unknown[][] = [];
+export const testWarnMessages: unknown[][] = [];
+const testLog = (...message: unknown[]) => {
   testLogMessages.push(message);
 };
-const testWarn = (message: string) => {
+const testWarn = (...message: unknown[]) => {
   testWarnMessages.push(message);
 };
 let standardOutput = productionLog;

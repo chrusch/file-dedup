@@ -60,7 +60,9 @@ describe('createOneVerifiedDirectoryPath()', () => {
     const got = createOneVerifiedDirectoryPath(givenPath);
     expect(got).toEqual(expected);
     expect(testWarnMessages).toEqual([
-      'please provide a path to a directory (not a regular file or symlink): ignoring ./dir1/dir2/file1.txt',
+      [
+        'please provide a path to a directory (not a regular file or symlink): ignoring ./dir1/dir2/file1.txt',
+      ],
     ]);
   });
 });
@@ -97,10 +99,16 @@ describe('verifyDirectoryPaths()', () => {
     const expected = ['dir1', 'dir1/dir2'];
     expect(got).toEqual(expected);
     expect(testWarnMessages.splice(-4)).toEqual([
-      'please provide a path to a directory (not a regular file or symlink): ignoring dir1/dir2/file1.txt',
-      'please provide a path to a directory (not a regular file or symlink): ignoring dir1/dir2/file2.txt',
-      'please provide a path for an existing directory: ignoring dir1/dir2/file3.txt',
-      'please provide a path for an existing directory: ignoring dir2',
+      [
+        'please provide a path to a directory (not a regular file or symlink): ignoring dir1/dir2/file1.txt',
+      ],
+      [
+        'please provide a path to a directory (not a regular file or symlink): ignoring dir1/dir2/file2.txt',
+      ],
+      [
+        'please provide a path for an existing directory: ignoring dir1/dir2/file3.txt',
+      ],
+      ['please provide a path for an existing directory: ignoring dir2'],
     ]);
   });
 });
