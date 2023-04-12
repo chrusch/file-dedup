@@ -5,27 +5,38 @@
 // LICENSE file in the root directory of this source tree.
 
 import {getDedupOptionsFromCommandLine} from '../command_line_dedup';
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
 
-jest.mock('fs');
 describe('commandLineDedup()', () => {
-  const MOCK_FILE_INFO = {
-    '/tmp': [1001, 256],
-    '/tmp/a': [1012, 32],
-    '/tmp/b': [1013, 32],
-    '/tmp/c': [1014, 32],
-    '/tmp/d': [1015, 32],
-    '/tmp/a/x': [1016, 32],
-    '/tmp/b/x': [1017, 32],
-    '/tmp/c/x': [1018, 32],
-    '/tmp/d/x': [1019, 32],
-  };
+  let resetWithLocalTmpDir: () => Promise<void>;
 
-  beforeEach(() => {
-    require('fs').__setMockFiles(MOCK_FILE_INFO);
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        a: {
+          x: '123456',
+        },
+        b: {
+          x: 'foo content',
+        },
+        c: {
+          x: '123456789',
+        },
+        d: {
+          x: '123456789',
+        },
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
   });
 
   it('when called in the simplest way, calls dedup with the expected arguments', async () => {
-    const argv: string[] = ['node', 'index.js', '/tmp'];
+    const argv: string[] = ['node', 'index.js', 'tmp'];
     const got = getDedupOptionsFromCommandLine(argv);
 
     const expected = {
@@ -35,7 +46,7 @@ describe('commandLineDedup()', () => {
       includeDotfiles: false,
       interactiveDeletion: false,
       nodeHashing: false,
-      pathsToTraverse: ['/tmp'],
+      pathsToTraverse: ['tmp'],
       reallyDelete: false,
     };
     expect(got).toEqual(expected);
@@ -49,22 +60,22 @@ describe('commandLineDedup()', () => {
       '--interactive',
       '--dotFiles',
       '-p',
-      '/tmp/a',
-      '/tmp/b',
+      'tmp/a',
+      'tmp/b',
       '--',
-      '/tmp/c',
-      '/tmp/d',
+      'tmp/c',
+      'tmp/d',
     ];
     const got = getDedupOptionsFromCommandLine(argv);
 
     const expected = {
-      dirsToPossiblyDeleteFrom: ['/tmp/a', '/tmp/b'],
+      dirsToPossiblyDeleteFrom: ['tmp/a', 'tmp/b'],
       exclude: ['node_modules', '.git'],
       followSymlinks: false,
       includeDotfiles: true,
       interactiveDeletion: true,
       nodeHashing: false,
-      pathsToTraverse: ['/tmp/c', '/tmp/d'],
+      pathsToTraverse: ['tmp/c', 'tmp/d'],
       reallyDelete: true,
     };
     expect(got).toEqual(expected);
