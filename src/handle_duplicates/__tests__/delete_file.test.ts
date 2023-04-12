@@ -7,35 +7,50 @@
 import {deleteFile} from '../delete_file';
 import {silenceOutput} from '../display';
 import {aPath} from '../../common/path';
-jest.mock('fs');
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
+import {
+  exists,
+  // forceVerificationOfDirectoryPaths,
+  // VerifiedDirectoryPath,
+} from '../../common/verified_directory_path';
 
 describe('deleteFile()', () => {
-  let deletedFile: string;
-
   beforeAll(() => {
-    const fs = require('fs');
-    const unlinkCallback = (path: string) => {
-      deletedFile = path;
-    };
-    fs.setUnlinkCallback(unlinkCallback);
     silenceOutput();
   });
 
-  beforeEach(() => {
-    deletedFile = 'none';
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      tmp: {
+        bar: '123',
+        baz: '123',
+        foo: '123',
+        tmp: {
+          zoo: '1234',
+        },
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
   });
 
   it('when reallyDelete is true, file is deleted', () => {
     const reallyDelete = true;
-    const file = aPath('/tmp/foo2');
+    const file = aPath('tmp/foo');
     deleteFile(reallyDelete, file);
-    expect(deletedFile).toEqual(file);
+    expect(exists(file)).toBe(false);
   });
 
   it('when reallyDelete is false, file is not deleted', () => {
     const reallyDelete = false;
-    const file = aPath('/tmp/foo3');
+    const file = aPath('tmp/baz');
     deleteFile(reallyDelete, file);
-    expect(deletedFile).toEqual('none');
+    expect(exists(file)).toBe(true);
   });
 });
