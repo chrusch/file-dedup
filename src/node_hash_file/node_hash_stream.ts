@@ -9,7 +9,7 @@ import {Transform} from 'stream';
 import workerpool from 'workerpool';
 import {getRealPath} from '../common/dir_name';
 
-// Can't simply use __dirname here because of unexpect behavior in jest
+// Can't simply use __dirname here because of its unexpected value in jest
 const pathOfWorker = getRealPath('worker_threads/worker.js');
 
 /**
@@ -43,7 +43,7 @@ export function hashAllCandidateFilesWithNode(concurrency: number): Transform {
   return new Transform({
     objectMode: true,
 
-    transform(filePath, _enc, callback) {
+    transform(filePath: Path, _enc, callback) {
       hashOneFile(filePath)
         .then(result => {
           if (result) {

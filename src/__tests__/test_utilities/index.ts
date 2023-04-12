@@ -10,7 +10,7 @@ export function outputOfReadableStream(stream: Readable): Promise<unknown[]> {
   return new Promise((resolve: (output: unknown[]) => void, reject) => {
     const output: unknown[] = [];
     stream
-      .on('data', chunk => {
+      .on('data', (chunk: unknown) => {
         output.push(chunk);
       })
       .on('end', () => {

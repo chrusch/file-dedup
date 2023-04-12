@@ -81,7 +81,7 @@ export function hashAllCandidateFilesWithShasumCommand(
   return new Transform({
     objectMode: true,
 
-    transform(filePath, _enc, callback) {
+    transform(filePath: Path, _enc, callback) {
       workQueue.push(filePath).then(result => {
         if (result) {
           this.push(result);

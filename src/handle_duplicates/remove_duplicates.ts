@@ -120,7 +120,7 @@ export function getHandleDuplicatesStream(
   const autoDeletion = dirsToAutomaticallyDeleteFrom.length > 0;
   return new Writable({
     objectMode: true,
-    write(duplicatesList, _encoding, done) {
+    write(duplicatesList: Path[], _encoding, done) {
       handleDuplicatesList({
         duplicatesList,
         trackTotalDeleted,
