@@ -16,7 +16,6 @@ import {Readable} from 'node:stream';
 import {outputOfReadableStream} from '../../__tests__/test_utilities';
 
 describe('getCandidateFiles()', () => {
-  // const fs = require('fs');
   let resetWithLocalTmpDir: () => Promise<void>;
 
   beforeEach(async () => {
