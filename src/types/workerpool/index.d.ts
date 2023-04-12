@@ -5,6 +5,7 @@
 //                 Emily M Klassen <https://github.com/forivall>
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 // TypeScript Version: 3.1
+// Modified by Clayton Chrusch for file-dedup
 
 // <reference types="node" />
 
