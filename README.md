@@ -126,9 +126,9 @@ are the same size and the SHA-256 sums of both files are identical.
 
 ## Build Status
 
-I believe this code works as intended, but it is a very early release. It has
-good but not complete test coverage. More test coverage and features are on the
-way.
+I believe this code works as intended, but it is an early release. As of April
+12, 2023, it has complete test coverage. Some known error conditions have not
+been dealt with yet.
 
 I cannot guarantee the absence of bugs. Always back up your files before
 deduplicating. File-dedup has only been tested on a Mac.
