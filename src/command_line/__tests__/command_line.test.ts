@@ -17,7 +17,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: false,
       followSymlinks: false,
       interactive: false,
-      nodeHashing: false,
+      commandLineHashing: false,
       paths: [],
       reallyDelete: false,
     };
@@ -45,7 +45,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: true,
       followSymlinks: true,
       interactive: true,
-      nodeHashing: false,
+      commandLineHashing: false,
       paths: ['/baz/bar'],
       reallyDelete: true,
     };
@@ -69,7 +69,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: false,
       followSymlinks: false,
       interactive: false,
-      nodeHashing: false,
+      commandLineHashing: false,
       paths: ['/baza/bara', '/bazb/barb'],
       reallyDelete: true,
     };
@@ -97,7 +97,7 @@ describe('commandLineOptions(argv)', () => {
       dotFiles: true,
       followSymlinks: true,
       interactive: true,
-      nodeHashing: false,
+      commandLineHashing: false,
       paths: ['/baza/bara'],
       reallyDelete: true,
     };

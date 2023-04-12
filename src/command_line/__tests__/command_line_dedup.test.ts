@@ -45,7 +45,7 @@ describe('commandLineDedup()', () => {
       followSymlinks: false,
       includeDotfiles: false,
       interactiveDeletion: false,
-      nodeHashing: false,
+      commandLineHashing: false,
       pathsToTraverse: ['tmp'],
       reallyDelete: false,
     };
@@ -74,7 +74,7 @@ describe('commandLineDedup()', () => {
       followSymlinks: false,
       includeDotfiles: true,
       interactiveDeletion: true,
-      nodeHashing: false,
+      commandLineHashing: false,
       pathsToTraverse: ['tmp/c', 'tmp/d'],
       reallyDelete: true,
     };

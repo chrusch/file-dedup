@@ -35,6 +35,7 @@ describe('dedup()', () => {
     await resetWithLocalTmpDir();
   });
 
+  // FIXME: This test doesn't seem to do anything meaningful
   it('calls certain functions with expected args and returns a void promise', async () => {
     const options: DedupOptions = {
       dirsToPossiblyDeleteFrom: forceVerificationOfDirectoryPaths('tmp/tmp'),
@@ -42,7 +43,7 @@ describe('dedup()', () => {
       followSymlinks: false,
       includeDotfiles: false,
       interactiveDeletion: false,
-      nodeHashing: false,
+      commandLineHashing: true,
       pathsToTraverse: forceVerificationOfDirectoryPaths('tmp'),
       reallyDelete: true,
     };

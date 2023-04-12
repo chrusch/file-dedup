@@ -4,7 +4,6 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-// TODO: Make node hashing the default since it is faster
 import {aPath, Path} from '../common/path';
 import {hashAllCandidateFilesWithNode} from '../node_hash_file/node_hash_stream';
 import {hashAllCandidateFilesWithShasumCommand} from './shasum_hash_stream';
@@ -32,18 +31,18 @@ export async function commandExists(cmd: string): Promise<string> {
 /**
  * Returns a transform stream that can be used to get the hash digest of files
  *
- * @param nodeHashing - Calculate the hash digest using node libraries as opposed to using the shasum command line tool?
+ * @param commandLineHashing - Calculate the hash digest using node libraries as opposed to using the shasum command line tool?
  * @returns A stream that can be used to calculate the hash digest of input files.
  */
 export async function hashAllCandidateFiles(
-  nodeHashing: boolean
+  commandLineHashing: boolean
 ): Promise<Transform> {
   const cmd = await commandExists('shasum');
   // TODO test unreadable directory
   // TODO with future versions of node, use os.availableParallelism()
   // instead of os.cpus().length
   const concurrency = os.cpus().length;
-  if (cmd && !nodeHashing) {
+  if (cmd && commandLineHashing) {
     return hashAllCandidateFilesWithShasumCommand(aPath(cmd), concurrency);
   } else {
     return hashAllCandidateFilesWithNode(concurrency);
