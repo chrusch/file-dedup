@@ -50,7 +50,7 @@ node build/src/index.js [-h] [-i] [-d] [-l] [-c] [-p <paths...> --] [--reallyDel
 
   -c, --commandLineHashing  To find duplicate files, this program calculates the
                           SHA256 hash digest of each file. If you specify
-                          --commandLineHashing, this program use will the shasum
+                          --commandLineHashing, this program will use the shasum
                           command found on your system instead of calculating the
                           hash using node's built-in crypto library. If the
                           shasum command cannot be found, node's crypto library
