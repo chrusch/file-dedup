@@ -9,7 +9,7 @@
 // code that depends on it thoroughly testable without human interaction.
 
 import PS from 'prompt-sync';
-type SimplePrompt = (msg: string) => string;
+export type SimplePrompt = (msg: string) => string;
 let prompt: SimplePrompt = PS({sigint: true});
 
 /**

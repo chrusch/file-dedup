@@ -4,40 +4,48 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-import {confirmDelete, setTestPrompt} from '../interaction';
-import PS from 'prompt-sync';
+import {confirmDelete, setTestPrompt, SimplePrompt} from '../interaction';
 
 describe('confirmDelete(file)', () => {
   it('calls prompt and returns true when prompt returns "y"', () => {
-    const mockFn = jest.fn(() => 'y');
-    setTestPrompt(mockFn as unknown as PS.Prompt);
+    const mockFn: SimplePrompt = jest.fn(() => 'y');
+    setTestPrompt(mockFn);
 
     const file = '/tmp/foo.txt';
     const got = confirmDelete(file);
     const expected = true;
     expect(got).toEqual(expected);
     expect(mockFn).toHaveBeenCalledTimes(1);
+    expect(mockFn).toHaveBeenCalledWith(
+      "Delete /tmp/foo.txt? ('y' deletes it) > "
+    );
   });
 
   it('calls prompt and returns false when prompt returns "n"', () => {
-    const mockFn = jest.fn(() => 'n');
-    setTestPrompt(mockFn as unknown as PS.Prompt);
+    const mockFn: SimplePrompt = jest.fn(() => 'n');
+    setTestPrompt(mockFn);
 
     const file = '/tmp/foo.txt';
     const got = confirmDelete(file);
     const expected = false;
     expect(got).toEqual(expected);
     expect(mockFn).toHaveBeenCalledTimes(1);
+    expect(mockFn).toHaveBeenCalledWith(
+      "Delete /tmp/foo.txt? ('y' deletes it) > "
+    );
   });
 
   it('calls prompt and returns false when prompt returns empty string', () => {
-    const mockFn = jest.fn(() => 'n');
-    setTestPrompt(mockFn as unknown as PS.Prompt);
+    const mockFn: SimplePrompt = jest.fn(() => 'n');
+    setTestPrompt(mockFn);
 
     const file = '/tmp/foo.txt';
     const got = confirmDelete(file);
     const expected = false;
     expect(got).toEqual(expected);
     expect(mockFn).toHaveBeenCalledTimes(1);
+    expect(mockFn).toHaveBeenCalledWith(
+      "Delete /tmp/foo.txt? ('y' deletes it) > "
+    );
   });
 });
