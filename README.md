@@ -57,7 +57,8 @@ node build/src/index.js [-h] [-i] [-d] [-l] [-c] [-p <paths...> --] [--reallyDel
                           will always be used. In most circumstances, it is
                           recommended not to use this option since your system's
                           shasum command is likely the slower implementation of
-                          the two. ```
+                          the two.
+```
 
 ### Examples:
 
