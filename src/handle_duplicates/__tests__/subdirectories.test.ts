@@ -10,7 +10,8 @@ import {
   isSubdirectory,
 } from '../subdirectories';
 import {aPath} from '../../common/path';
-jest.mock('fs');
+import withLocalTmpDir from 'with-local-tmp-dir';
+import outputFiles from 'output-files';
 
 describe('isSubdirectory()', () => {
   it('returns true if the relative path is a subdirectory of the base path', () => {
@@ -50,25 +51,43 @@ describe('isSubdirectory()', () => {
 });
 
 describe('fileIsInDirectoryOrSubdirectory()', () => {
+  let resetWithLocalTmpDir: () => Promise<void>;
+
+  beforeEach(async () => {
+    resetWithLocalTmpDir = await withLocalTmpDir();
+    await outputFiles({
+      foo: {
+        bar: {
+          baz: '123',
+        },
+        baz: '123',
+      },
+    });
+  });
+
+  afterEach(async () => {
+    await resetWithLocalTmpDir();
+  });
+
   it('when given a file that is a a parent directory, returns false', () => {
-    const file = aPath('/foo/bar');
-    const dir = aPath('/foo/bar/baz');
+    const file = aPath('foo/bar');
+    const dir = aPath('foo/bar/baz');
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
   it('when given a file that is a sibling, returns false', () => {
-    const file = aPath('/foo/bar');
-    const dir = aPath('/foo/baz');
+    const file = aPath('foo/bar');
+    const dir = aPath('foo/baz');
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
   it('when given a file that is in the directory, returns true', () => {
-    const file = aPath('/foo/bar/baz');
-    const dir = aPath('/foo/bar');
+    const file = aPath('foo/bar/baz');
+    const dir = aPath('foo/bar');
     const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = true;
     expect(got).toEqual(expected);

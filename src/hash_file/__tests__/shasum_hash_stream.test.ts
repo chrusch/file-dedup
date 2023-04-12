@@ -7,31 +7,6 @@
 import {hashAllCandidateFilesWithShasumCommand} from '../shasum_hash_stream';
 import {commandExists} from '../hash_files';
 import {aPath} from '../../common/path';
-// import * as runCommand from '../run_command';
-// /* eslint-disable-next-line node/no-unpublished-import */
-// import {jest} from '@jest/globals'; // needed for jest.Mocked to work
-// import {aPath} from '../../common/path';
-
-// jest.mock('../run_command.ts');
-// jest.mock('fs');
-// describe('hashFile()', () => {
-//   it('when called, calls runCommand with expected arguments', async () => {
-//     const file = aPath('/tmp/foo');
-//     const cmd = aPath('shasum');
-//     const got = await hashFile(file, cmd);
-//     const expected = undefined;
-//     expect(got).toEqual(expected);
-//     expect(runCommand.runCommand).toHaveBeenCalledTimes(1);
-//     expect(runCommand.runCommand).toHaveReturnedTimes(1);
-//     type RC = jest.Mocked<typeof runCommand.runCommand>;
-//     const call = (runCommand.runCommand as unknown as RC).mock.calls[0];
-//     expect(call[0]).toEqual('shasum');
-//     expect(call[1]).toEqual(['-a', '256', file]);
-//     expect(typeof call[2]).toEqual('function');
-//     expect(call[2]('abcd /tmp/cc', [])).toEqual([file, 'abcd']);
-//   });
-// });
-//
 import {outputOfDuplexStreamWithInput} from '../../__tests__/test_utilities';
 import withLocalTmpDir from 'with-local-tmp-dir';
 import outputFiles from 'output-files';

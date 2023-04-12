@@ -4,7 +4,6 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
-// ./src/tests/directories.test.ts
 import {filesWithNonUniqueSizesStream} from '../directories';
 import {silenceOutput} from '../../handle_duplicates/display';
 import {aPath, Path} from '../../common/path';

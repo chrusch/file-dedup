@@ -6,16 +6,9 @@
 
 import {dedup, DedupOptions} from '../dedup';
 import {silenceOutput} from '../handle_duplicates/display';
-// import * as remove_duplicates from '../handle_duplicates/remove_duplicates';
-/* eslint-disable-next-line node/no-unpublished-import */
-// import {jest} from '@jest/globals'; // needed for jest.Mocked
 import {forceVerificationOfDirectoryPaths} from '../common/verified_directory_path';
-// import {aPath} from '../common/path';
 import withLocalTmpDir from 'with-local-tmp-dir';
 import outputFiles from 'output-files';
-// import {Path} from '../common/path';
-
-// jest.mock('../handle_duplicates/remove_duplicates.ts');
 
 describe('dedup()', () => {
   beforeAll(() => {
