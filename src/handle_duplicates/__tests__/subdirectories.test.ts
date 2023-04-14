@@ -69,26 +69,26 @@ describe('fileIsInDirectoryOrSubdirectory()', () => {
     await resetWithLocalTmpDir();
   });
 
-  it('when given a file that is a a parent directory, returns false', () => {
+  it('when given a file that is a a parent directory, returns false', async () => {
     const file = aPath('foo/bar');
     const dir = aPath('foo/bar/baz');
-    const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
+    const got: boolean = await fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
-  it('when given a file that is a sibling, returns false', () => {
+  it('when given a file that is a sibling, returns false', async () => {
     const file = aPath('foo/bar');
     const dir = aPath('foo/baz');
-    const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
+    const got: boolean = await fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
-  it('when given a file that is in the directory, returns true', () => {
+  it('when given a file that is in the directory, returns true', async () => {
     const file = aPath('foo/bar/baz');
     const dir = aPath('foo/bar');
-    const got: boolean = fileIsInDirectoryOrSubdirectory(file, dir);
+    const got: boolean = await fileIsInDirectoryOrSubdirectory(file, dir);
     const expected = true;
     expect(got).toEqual(expected);
   });

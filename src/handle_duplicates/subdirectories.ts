@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 import {Path} from '../common/path';
 
 /**
@@ -16,14 +16,14 @@ export const isSubdirectory = (relativePath: string): boolean =>
  *
  * @param file - A path to a file/directory/etc.
  * @param directory - A path to a directory.
- * @returns A boolean indicating whether the given file is in the given directory. Returns true if the given file is identical to the given directory
+ * @returns A promise resolving to a boolean indicating whether the given file is in the given directory. The promise resolves to true if the given file is identical to the given directory
  */
-export const fileIsInDirectoryOrSubdirectory = (
+export const fileIsInDirectoryOrSubdirectory = async (
   file: Path,
   directory: Path
-): boolean => {
-  const realFilePath: string = fs.realpathSync(file);
-  const realDirPath: string = fs.realpathSync(directory);
+): Promise<boolean> => {
+  const realFilePath: string = await fs.realpath(file);
+  const realDirPath: string = await fs.realpath(directory);
   const relativePath: string = path.relative(realDirPath, realFilePath);
   return isSubdirectory(relativePath);
 };

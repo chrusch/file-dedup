@@ -11,25 +11,26 @@ import {confirmDelete} from './interaction';
 import {aPath, Path} from '../common/path';
 import {VerifiedDirectoryPath} from '../common/verified_directory_path';
 import {Writable} from 'node:stream';
+import {some} from 'async';
 
 /**
  * Is the given file in a directory that is subject to autoDeletion?
  *
  * @param file - Path to file
  * @param dirsToAutomaticallyDeleteFrom - A list of directories subject to autoDeletion
- * @returns Whether the file is subject to autoDeletion
+ * @returns A promise resolving to a boolean indicating whether the file is subject to autoDeletion
  */
 export const fileIsInADeleteDirectory = (
   file: Path,
   dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[]
-): boolean =>
-  dirsToAutomaticallyDeleteFrom.some(dir =>
-    fileIsInDirectoryOrSubdirectory(file, aPath(dir))
-  );
+): Promise<boolean> =>
+  some(dirsToAutomaticallyDeleteFrom, async dir => {
+    return await fileIsInDirectoryOrSubdirectory(file, aPath(dir));
+  });
 
 export interface HandleDuplicatesListOptions {
   duplicatesList: Path[];
-  trackTotalDeleted: () => void;
+  trackTotalDeleted: (file: Path) => void;
   reallyDelete: boolean;
   interactiveDeletion: boolean;
   autoDeletion: boolean;
@@ -48,19 +49,19 @@ export interface HandleDuplicatesListOptions {
  * @param dirsToAutomaticallyDeleteFrom - Directories subject to autoDeletion
  * @returns Void
  */
-export function handleDuplicatesList({
+export async function handleDuplicatesList({
   duplicatesList,
   trackTotalDeleted,
   reallyDelete,
   interactiveDeletion,
   autoDeletion,
   dirsToAutomaticallyDeleteFrom,
-}: HandleDuplicatesListOptions): void {
+}: HandleDuplicatesListOptions): Promise<void> {
   if (duplicatesList.length === 0) return;
 
   let numberOfDuplicatesInThisSetDeleted = 0;
-  const doRecordKeeping = () => {
-    trackTotalDeleted();
+  const doRecordKeeping = (file: Path) => {
+    trackTotalDeleted(file);
     numberOfDuplicatesInThisSetDeleted++;
   };
   const numDuplicatesInThisSet = duplicatesList.length;
@@ -74,29 +75,29 @@ export function handleDuplicatesList({
 
   // Automatic deletion
   if (autoDeletion) {
-    duplicatesList.forEach((file: Path) => {
+    for (const file of duplicatesList) {
       // Don't ever delete a unique file or the last copy of a file.
       if (thereIsOnlyOneInstanceOfThisFileContent()) return;
-      if (fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
-        doRecordKeeping();
+      if (await fileIsInADeleteDirectory(file, dirsToAutomaticallyDeleteFrom)) {
+        doRecordKeeping(file);
         deleteFile(reallyDelete, file);
-        return;
+        continue;
       }
       remainingUndeletedFiles.push(file);
-    });
+    }
   } else {
     remainingUndeletedFiles.push(...duplicatesList);
   }
 
   // Interactive deletion
   if (interactiveDeletion) {
-    remainingUndeletedFiles.forEach((file: Path) => {
-      if (thereIsOnlyOneInstanceOfThisFileContent()) return;
+    for (const file of remainingUndeletedFiles) {
+      if (thereIsOnlyOneInstanceOfThisFileContent()) continue;
       if (confirmDelete(file)) {
-        doRecordKeeping();
+        doRecordKeeping(file);
         deleteFile(reallyDelete, file);
       }
-    });
+    }
   }
 }
 
@@ -128,8 +129,9 @@ export function getHandleDuplicatesStream(
         interactiveDeletion,
         autoDeletion,
         dirsToAutomaticallyDeleteFrom,
-      });
-      done();
+      })
+        .then(() => done())
+        .catch(() => done());
     },
   }).on('finish', () => {
     showTotalDeleted(totalDeleted, reallyDelete);

@@ -58,32 +58,32 @@ describe('fileIsInADeleteDirectory()', () => {
     await resetWithLocalTmpDir();
   });
 
-  it('when file is in given directory, return true', () => {
+  it('when file is in given directory, return true', async () => {
     const file = aPath('tmp/anotherproject/.config');
     const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
       'tmp/anotherproject',
       'tmp/git'
     );
-    const got = fileIsInADeleteDirectory(file, dirs);
+    const got = await fileIsInADeleteDirectory(file, dirs);
     const expected = true;
     expect(got).toEqual(expected);
   });
 
-  it('when file is not in given directory, return false', () => {
+  it('when file is not in given directory, return false', async () => {
     const file = aPath('tmp/project/foo2');
     const dirs: VerifiedDirectoryPath[] = forceVerificationOfDirectoryPaths(
       'tmp/anotherproject',
       'tmp/git'
     );
-    const got = fileIsInADeleteDirectory(file, dirs);
+    const got = await fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
   });
 
-  it('when there is no dir specified, return false', () => {
+  it('when there is no dir specified, return false', async () => {
     const file = aPath('tmp/project/foo2');
     const dirs: VerifiedDirectoryPath[] = [];
-    const got = fileIsInADeleteDirectory(file, dirs);
+    const got = await fileIsInADeleteDirectory(file, dirs);
     const expected = false;
     expect(got).toEqual(expected);
   });
@@ -125,7 +125,7 @@ describe('handleDuplicatesList()', () => {
     await resetWithLocalTmpDir();
   });
 
-  it('automatically deletes files in automatic deletion mode', () => {
+  it('automatically deletes files in automatic deletion mode', async () => {
     const duplicatesList = [
       aPath('tmp/project/bar2'),
       aPath('tmp/git/.git/bar222'),
@@ -148,7 +148,7 @@ describe('handleDuplicatesList()', () => {
       interactiveDeletion,
       dirsToAutomaticallyDeleteFrom,
     };
-    handleDuplicatesList(options);
+    await handleDuplicatesList(options);
     expect(numDeleted).toEqual(1);
     expect(exists('tmp/project/bar2')).toEqual(false);
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
@@ -167,7 +167,7 @@ describe('handleDuplicatesList()', () => {
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
 
-  it('interactively deletes files in interactive deletion mode', () => {
+  it('interactively deletes files in interactive deletion mode', async () => {
     const duplicatesList = [
       aPath('tmp/project/bar2'),
       aPath('tmp/git/.git/bar222'),
@@ -198,7 +198,7 @@ describe('handleDuplicatesList()', () => {
 
     setTestPrompt(myConfirmDelete);
 
-    handleDuplicatesList(options);
+    await handleDuplicatesList(options);
     expect(numDeleted).toEqual(1);
     expect(exists('tmp/project/bar2')).toEqual(true);
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
@@ -217,7 +217,7 @@ describe('handleDuplicatesList()', () => {
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
 
-  it('both automatically deletes and interactively deletes files in mixed deletion mode', () => {
+  it('both automatically deletes and interactively deletes files in mixed deletion mode', async () => {
     const duplicatesList = [
       aPath('tmp/project/bar2'),
       aPath('tmp/git/.git/bar222'),
@@ -250,7 +250,7 @@ describe('handleDuplicatesList()', () => {
     };
 
     setTestPrompt(myConfirmDelete);
-    handleDuplicatesList(options);
+    await handleDuplicatesList(options);
     expect(numDeleted).toEqual(2);
     expect(exists('tmp/project/bar2')).toEqual(false);
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
@@ -274,7 +274,7 @@ describe('handleDuplicatesList()', () => {
     expect(lastLogMessages(3)).toEqual(expectedMessages);
   });
 
-  it('handles empty duplicates lists ', () => {
+  it('handles empty duplicates lists ', async () => {
     const duplicatesList: Path[] = [];
     let numDeleted = 0;
     const trackTotalDeleted = () => {
@@ -293,7 +293,7 @@ describe('handleDuplicatesList()', () => {
       interactiveDeletion,
       dirsToAutomaticallyDeleteFrom,
     };
-    handleDuplicatesList(options);
+    await handleDuplicatesList(options);
     expect(numDeleted).toEqual(0);
     expect(exists('tmp/project/bar2')).toEqual(true);
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
@@ -302,7 +302,7 @@ describe('handleDuplicatesList()', () => {
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
 
-  it('stops automatically deleting files when there is only one left', () => {
+  it('stops automatically deleting files when there is only one left', async () => {
     const duplicatesList = [
       aPath('tmp/project/bar2'),
       aPath('tmp/git/.git/bar222'),
@@ -310,6 +310,7 @@ describe('handleDuplicatesList()', () => {
     ];
     let numDeleted = 0;
     const trackTotalDeleted = () => {
+      // console.log('deleting file', file);
       numDeleted++;
     };
     const reallyDelete = true;
@@ -325,7 +326,7 @@ describe('handleDuplicatesList()', () => {
       interactiveDeletion,
       dirsToAutomaticallyDeleteFrom,
     };
-    handleDuplicatesList(options);
+    await handleDuplicatesList(options);
     expect(numDeleted).toEqual(2);
     expect(exists('tmp/project/bar2')).toEqual(false);
     expect(exists('tmp/git/.git/bar222')).toEqual(false);
@@ -337,7 +338,7 @@ describe('handleDuplicatesList()', () => {
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
 
-  it('interactively deletes files but not all duplicates', () => {
+  it('interactively deletes files but not all duplicates', async () => {
     const duplicatesList = [
       aPath('tmp/project/bar2'),
       aPath('tmp/git/.git/bar222'),
@@ -363,7 +364,7 @@ describe('handleDuplicatesList()', () => {
 
     setTestPrompt(myConfirmDelete);
 
-    handleDuplicatesList(options);
+    await handleDuplicatesList(options);
     expect(numDeleted).toEqual(2);
     expect(exists('tmp/project/bar2')).toEqual(false);
     expect(exists('tmp/git/.git/bar222')).toEqual(false);
@@ -439,19 +440,17 @@ describe('getHandleDuplicatesStream()', () => {
     );
 
     inputToWritableStream(stream, duplicatesLists);
+    await new Promise(resolve => {
+      stream.on('finish', () => {
+        resolve(null);
+      });
+    });
     expect(exists('tmp/project/bar2')).toEqual(false);
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
     expect(exists('tmp/git/.git/bar222')).toEqual(true);
     const expectedMessages = [
-      [
-        'Duplicates',
-        [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
-          'tmp/.yetanotherproject/bar22',
-        ],
-      ],
       ['deleting tmp/project/bar2;'],
+      ['Number of files deleted: 1\n\n'],
     ];
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
