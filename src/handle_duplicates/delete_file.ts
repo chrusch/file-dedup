@@ -23,8 +23,11 @@ export const deleteFile = (
 ): void => {
   if (reallyDelete) {
     fs.unlinkSync(file);
-    if (reportDeletion) log(`deleting ${file};`);
+    if (reportDeletion) log(`Deleting ${file}`);
   } else {
-    if (reportDeletion) log(`not deleting ${file};`);
+    if (reportDeletion)
+      log(
+        `Not deleting ${file}\nUse the --reallyDelete command-line option to actually delete duplicate files.`
+      );
   }
 };

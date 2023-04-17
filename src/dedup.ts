@@ -9,6 +9,8 @@ import {getHandleDuplicatesStream} from './handle_duplicates/remove_duplicates';
 import {hashAllCandidateFiles} from './hash_file/hash_files';
 import {getCandidateFilesStream} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './common/verified_directory_path';
+import {pipeline} from 'node:stream';
+import {promisify} from 'util';
 
 export type DedupOptions = {
   /** Directories subject to automatic deletion */
@@ -51,11 +53,18 @@ export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
     options.interactiveDeletion
   );
 
-  await new Promise(resolve => {
-    candidateFilesStream
-      .pipe(hashDataStream)
-      .pipe(getFindDuplicatesStream())
-      .pipe(handleDuplicatesStream)
-      .on('finish', resolve);
-  });
+  const pipelineAsync = promisify(pipeline);
+  try {
+    await pipelineAsync(
+      candidateFilesStream,
+      hashDataStream,
+      getFindDuplicatesStream(),
+      handleDuplicatesStream
+    );
+    console.log('Done!');
+  } catch (err) {
+    if ((err as {message: string}).message === 'exit requested') {
+      console.log('Exiting');
+    }
+  }
 }

@@ -162,7 +162,7 @@ describe('handleDuplicatesList()', () => {
           'tmp/.yetanotherproject/bar22',
         ],
       ],
-      ['deleting tmp/project/bar2;'],
+      ['Deleting tmp/project/bar2'],
     ];
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
@@ -189,7 +189,7 @@ describe('handleDuplicatesList()', () => {
       interactiveDeletion,
       dirsToAutomaticallyDeleteFrom,
     };
-    const myConfirmDelete = (file: string) => {
+    const myConfirmDelete = async (file: string) => {
       if (file.match('git')) {
         return 'y';
       }
@@ -212,7 +212,7 @@ describe('handleDuplicatesList()', () => {
           'tmp/.yetanotherproject/bar22',
         ],
       ],
-      ['deleting tmp/git/.git/bar222;'],
+      ['Deleting tmp/git/.git/bar222'],
     ];
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
@@ -242,7 +242,7 @@ describe('handleDuplicatesList()', () => {
       interactiveDeletion,
       dirsToAutomaticallyDeleteFrom,
     };
-    const myConfirmDelete = (file: string) => {
+    const myConfirmDelete = async (file: string) => {
       if (file.match('git')) {
         return 'y';
       }
@@ -268,8 +268,8 @@ describe('handleDuplicatesList()', () => {
           'tmp/bim',
         ],
       ],
-      ['deleting tmp/project/bar2;'],
-      ['deleting tmp/git/.git/bar222;'],
+      ['Deleting tmp/project/bar2'],
+      ['Deleting tmp/git/.git/bar222'],
     ];
     expect(lastLogMessages(3)).toEqual(expectedMessages);
   });
@@ -332,8 +332,8 @@ describe('handleDuplicatesList()', () => {
     expect(exists('tmp/git/.git/bar222')).toEqual(false);
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
     const expectedMessages = [
-      ['deleting tmp/project/bar2;'],
-      ['deleting tmp/git/.git/bar222;'],
+      ['Deleting tmp/project/bar2'],
+      ['Deleting tmp/git/.git/bar222'],
     ];
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
@@ -360,7 +360,7 @@ describe('handleDuplicatesList()', () => {
       interactiveDeletion,
       dirsToAutomaticallyDeleteFrom,
     };
-    const myConfirmDelete = () => 'y';
+    const myConfirmDelete = async () => 'y';
 
     setTestPrompt(myConfirmDelete);
 
@@ -378,8 +378,8 @@ describe('handleDuplicatesList()', () => {
           'tmp/.yetanotherproject/bar22',
         ],
       ],
-      ['deleting tmp/project/bar2;'],
-      ['deleting tmp/git/.git/bar222;'],
+      ['Deleting tmp/project/bar2'],
+      ['Deleting tmp/git/.git/bar222'],
     ];
     expect(lastLogMessages(3)).toEqual(expectedMessages);
   });
@@ -449,7 +449,7 @@ describe('getHandleDuplicatesStream()', () => {
     expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
     expect(exists('tmp/git/.git/bar222')).toEqual(true);
     const expectedMessages = [
-      ['deleting tmp/project/bar2;'],
+      ['Deleting tmp/project/bar2'],
       ['Number of files deleted: 1\n\n'],
     ];
     expect(lastLogMessages(2)).toEqual(expectedMessages);

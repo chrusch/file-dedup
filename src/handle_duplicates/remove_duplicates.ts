@@ -93,7 +93,7 @@ export async function handleDuplicatesList({
   if (interactiveDeletion) {
     for (const file of remainingUndeletedFiles) {
       if (thereIsOnlyOneInstanceOfThisFileContent()) continue;
-      if (confirmDelete(file)) {
+      if (await confirmDelete(file)) {
         doRecordKeeping(file);
         deleteFile(reallyDelete, file);
       }
@@ -131,7 +131,19 @@ export function getHandleDuplicatesStream(
         dirsToAutomaticallyDeleteFrom,
       })
         .then(() => done())
-        .catch(() => done());
+        .catch(error => {
+          if (error.message === 'exit requested') {
+            this.emit('error', error);
+          } else {
+            // for now we emit an error regardless of what error is thrown
+            // in the future, we might handle different errors differently
+            // For example, there might be an error deleting a file if the
+            // permissions of the file have changed, or if it is not readable or
+            // if it has ceased to exist
+            this.emit('error', error);
+            // done();
+          }
+        });
     },
   }).on('finish', () => {
     showTotalDeleted(totalDeleted, reallyDelete);
