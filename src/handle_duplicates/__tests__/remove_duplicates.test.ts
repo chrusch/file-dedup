@@ -454,4 +454,110 @@ describe('getHandleDuplicatesStream()', () => {
     ];
     expect(lastLogMessages(2)).toEqual(expectedMessages);
   });
+
+  it('emits an error event when handleDuplicatesList rejects with an "exit requested" error', async () => {
+    const duplicatesLists = [
+      [
+        aPath('tmp/project/bar2'),
+        aPath('tmp/git/.git/bar222'),
+        aPath('tmp/.yetanotherproject/bar22'),
+      ],
+    ];
+    const reallyDelete = true;
+    const interactiveDeletion = true;
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
+
+    const myConfirmDelete = async () => 'x';
+
+    setTestPrompt(myConfirmDelete);
+    const stream = getHandleDuplicatesStream(
+      dirsToAutomaticallyDeleteFrom,
+      reallyDelete,
+      interactiveDeletion
+    );
+
+    inputToWritableStream(stream, duplicatesLists);
+    await new Promise(resolve => {
+      stream.on('error', err => {
+        expect(err).toEqual(new Error('exit requested'));
+        resolve(null);
+      });
+    });
+    expect(exists('tmp/project/bar2')).toEqual(true);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(true);
+    const expectedMessages: unknown[][] = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
+
+  it('emits an error event when handleDuplicatesList rejects with an error other than "exit requested"', async () => {
+    const duplicatesLists = [
+      [
+        aPath('tmp/project/bar2'),
+        aPath('tmp/git/.git/bar222'),
+        aPath('tmp/.yetanotherproject/bar22'),
+      ],
+    ];
+    const reallyDelete = true;
+    const interactiveDeletion = true;
+    const dirsToAutomaticallyDeleteFrom: VerifiedDirectoryPath[] = [];
+
+    const myConfirmDelete = async () => {
+      throw new Error('some other error');
+    };
+
+    setTestPrompt(myConfirmDelete);
+    const stream = getHandleDuplicatesStream(
+      dirsToAutomaticallyDeleteFrom,
+      reallyDelete,
+      interactiveDeletion
+    );
+
+    inputToWritableStream(stream, duplicatesLists);
+    await new Promise(resolve => {
+      stream.on('error', err => {
+        expect(err).toEqual(new Error('some other error'));
+        resolve(null);
+      });
+    });
+    expect(exists('tmp/project/bar2')).toEqual(true);
+    expect(exists('tmp/.yetanotherproject/bar22')).toEqual(true);
+    expect(exists('tmp/git/.git/bar222')).toEqual(true);
+    const expectedMessages: unknown[][] = [
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+      [
+        'Duplicates',
+        [
+          'tmp/project/bar2',
+          'tmp/git/.git/bar222',
+          'tmp/.yetanotherproject/bar22',
+        ],
+      ],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
+  });
 });
