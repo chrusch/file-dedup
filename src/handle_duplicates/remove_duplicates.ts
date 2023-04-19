@@ -131,7 +131,7 @@ export function getHandleDuplicatesStream(
         dirsToAutomaticallyDeleteFrom,
       })
         .then(() => done())
-        .catch(error => {
+        .catch((error: {message: string}) => {
           if (error.message === 'exit requested') {
             this.emit('error', error);
           } else {
