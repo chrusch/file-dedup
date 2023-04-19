@@ -6,6 +6,7 @@
 
 import {getFindDuplicatesStream} from './find_duplicates/duplicates';
 import {getHandleDuplicatesStream} from './handle_duplicates/remove_duplicates';
+import {log} from './handle_duplicates/display';
 import {hashAllCandidateFiles} from './hash_file/hash_files';
 import {getCandidateFilesStream} from './candidate_files/get_candidate_files';
 import {VerifiedDirectoryPath} from './common/verified_directory_path';
@@ -61,10 +62,10 @@ export async function dedup(options: Readonly<DedupOptions>): Promise<void> {
       getFindDuplicatesStream(),
       handleDuplicatesStream
     );
-    console.log('Done!');
+    log('Done!');
   } catch (err) {
     if ((err as {message: string}).message === 'exit requested') {
-      console.log('Exiting');
+      log('Exiting');
     }
   }
 }

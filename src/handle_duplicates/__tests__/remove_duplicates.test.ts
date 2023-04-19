@@ -157,9 +157,9 @@ describe('handleDuplicatesList()', () => {
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
       ['Deleting tmp/project/bar2'],
@@ -207,9 +207,9 @@ describe('handleDuplicatesList()', () => {
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
       ['Deleting tmp/git/.git/bar222'],
@@ -261,11 +261,11 @@ describe('handleDuplicatesList()', () => {
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
           'tmp/bat',
           'tmp/bim',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
       ['Deleting tmp/project/bar2'],
@@ -373,9 +373,9 @@ describe('handleDuplicatesList()', () => {
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
       ['Deleting tmp/project/bar2'],
@@ -490,17 +490,17 @@ describe('getHandleDuplicatesStream()', () => {
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
     ];
@@ -510,9 +510,9 @@ describe('getHandleDuplicatesStream()', () => {
   it('emits an error event when handleDuplicatesList rejects with an error other than "exit requested"', async () => {
     const duplicatesLists = [
       [
-        aPath('tmp/project/bar2'),
-        aPath('tmp/git/.git/bar222'),
         aPath('tmp/.yetanotherproject/bar22'),
+        aPath('tmp/git/.git/bar222'),
+        aPath('tmp/project/bar2'),
       ],
     ];
     const reallyDelete = true;
@@ -544,17 +544,17 @@ describe('getHandleDuplicatesStream()', () => {
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
       [
         'Duplicates',
         [
-          'tmp/project/bar2',
-          'tmp/git/.git/bar222',
           'tmp/.yetanotherproject/bar22',
+          'tmp/git/.git/bar222',
+          'tmp/project/bar2',
         ],
       ],
     ];

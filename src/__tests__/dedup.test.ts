@@ -5,7 +5,8 @@
 // LICENSE file in the root directory of this source tree.
 
 import {dedup, DedupOptions} from '../dedup';
-import {silenceOutput} from '../handle_duplicates/display';
+import {lastLogMessages, silenceOutput} from '../handle_duplicates/display';
+import {setTestPrompt} from '../handle_duplicates/interaction';
 import {forceVerificationOfDirectoryPaths} from '../common/verified_directory_path';
 import withLocalTmpDir from 'with-local-tmp-dir';
 import outputFiles from 'output-files';
@@ -52,6 +53,32 @@ describe('dedup()', () => {
     //   [aPath('tmp/bar'), aPath('tmp/baz'), aPath('tmp/foo')],
     // ];
     const got = await dedup(options);
+
+    const expected = undefined;
+    expect(got).toEqual(expected);
+  });
+
+  it('exits nicely when exit is requested by the user', async () => {
+    const options: DedupOptions = {
+      dirsToPossiblyDeleteFrom: forceVerificationOfDirectoryPaths('tmp/tmp'),
+      exclude: [],
+      followSymlinks: false,
+      includeDotfiles: false,
+      interactiveDeletion: true,
+      commandLineHashing: true,
+      pathsToTraverse: forceVerificationOfDirectoryPaths('tmp'),
+      reallyDelete: true,
+    };
+    const myConfirmDelete = async () => 'x';
+
+    setTestPrompt(myConfirmDelete);
+
+    const got = await dedup(options);
+    const expectedMessages = [
+      ['Duplicates', ['tmp/bar', 'tmp/baz', 'tmp/foo']],
+      ['Exiting'],
+    ];
+    expect(lastLogMessages(2)).toEqual(expectedMessages);
 
     const expected = undefined;
     expect(got).toEqual(expected);

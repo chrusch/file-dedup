@@ -86,7 +86,7 @@ export function unSilenceOutput(): void {
  * @returns Void;
  */
 export function showDuplicates(duplicatesList: Path[]): void {
-  log('Duplicates', duplicatesList);
+  log('Duplicates', [...duplicatesList].sort());
 }
 
 /**
