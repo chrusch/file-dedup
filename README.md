@@ -12,9 +12,10 @@ node build/src/index.js [-h] [-i] [-d] [-l] [-c] [-p <paths...> --] [--reallyDel
 
 ### Arguments
 ```
-  dir                     Directories to look for duplicates in. The command
-                          will also look in the directories specified using the
-                          --paths option.
+  dir                     Directories to look for duplicates files in. The
+                          command will also look in the directories specified
+                          using the --paths option. Zero-length files are
+                          always ignored.
 ```
 
 ### Options:
