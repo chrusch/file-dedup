@@ -36,7 +36,6 @@ describe('dedup()', () => {
     await resetWithLocalTmpDir();
   });
 
-  // FIXME: This test doesn't seem to do anything meaningful
   it('calls certain functions with expected args and returns a void promise', async () => {
     const options: DedupOptions = {
       dirsToPossiblyDeleteFrom: forceVerificationOfDirectoryPaths('tmp/tmp'),
@@ -49,10 +48,13 @@ describe('dedup()', () => {
       reallyDelete: true,
     };
 
-    // const getDuplicatesRet = [
-    //   [aPath('tmp/bar'), aPath('tmp/baz'), aPath('tmp/foo')],
-    // ];
     const got = await dedup(options);
+    const expectedMessages = [
+      ['Duplicates', ['tmp/bar', 'tmp/baz', 'tmp/foo']],
+      ['Number of files deleted: 0\n\n'],
+      ['Done!'],
+    ];
+    expect(lastLogMessages(4)).toEqual(expectedMessages);
 
     const expected = undefined;
     expect(got).toEqual(expected);
