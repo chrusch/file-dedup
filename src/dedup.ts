@@ -38,7 +38,8 @@ export type DedupOptions = {
  * exact options provided.
  *
  * @param options - Options that govern how the deduplication will proceed.
- *        @see DedupOptions
+ *
+ * @see DedupOptions
  */
 
 export async function dedup(options: Readonly<DedupOptions>): Promise<void> {

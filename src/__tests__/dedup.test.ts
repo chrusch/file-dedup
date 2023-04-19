@@ -80,7 +80,7 @@ describe('dedup()', () => {
       ['Duplicates', ['tmp/bar', 'tmp/baz', 'tmp/foo']],
       ['Exiting'],
     ];
-    expect(lastLogMessages(2)).toEqual(expectedMessages);
+    expect(lastLogMessages(4)).toEqual(expectedMessages);
 
     const expected = undefined;
     expect(got).toEqual(expected);

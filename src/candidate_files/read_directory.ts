@@ -114,7 +114,7 @@ export async function readDirectory(
       // on it at least once, otherwise a directory will be missed in the
       // next line of code
       dirGenerator.next([pth]);
-    } else if (fileStatus.isFile()) {
+    } else if (fileStatus.isFile() && fileStatus.size > 0) {
       files.push([pth, fileStatus.size]);
     }
   }

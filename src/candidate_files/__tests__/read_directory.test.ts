@@ -477,6 +477,7 @@ describe('readDirectory()', () => {
         '.ahiddenfile': '123',
         bat: '12',
         bim: '123',
+        biz: '',
       },
     });
   });
@@ -505,6 +506,7 @@ describe('readDirectory()', () => {
       followSymlinks,
       includeDotFiles
     );
+    // tmp/biz should not be here because it is zero length
     expect(got).toEqual([
       ['tmp/bat', 2],
       ['tmp/bim', 3],
